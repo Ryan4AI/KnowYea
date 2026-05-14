@@ -1,0 +1,92 @@
+[
+  {
+    "_id": "think_node_1",
+    "themeId": "theme_thinking",
+    "order": 1,
+    "title": "第一性原理",
+    "learningObjective": "理解第一性原理：从最基本的真理出发推导解决方案",
+    "completionSignal": "能够用自己的话解释第一性原理，并举出一个应用实例",
+    "status": "published"
+  },
+  {
+    "_id": "think_node_2",
+    "themeId": "theme_thinking",
+    "order": 2,
+    "title": "二阶思维",
+    "learningObjective": "理解二阶思维：考虑行动的长远后果和连锁反应",
+    "completionSignal": "能够分析一个决策的二阶后果",
+    "status": "published"
+  },
+  {
+    "_id": "think_node_3",
+    "themeId": "theme_thinking",
+    "order": 3,
+    "title": "概率思维",
+    "learningObjective": "理解概率思维：用概率而非确定性来看待世界",
+    "completionSignal": "能够用概率思维分析一个日常决策",
+    "status": "published"
+  },
+  {
+    "_id": "think_node_4",
+    "themeId": "theme_thinking",
+    "order": 4,
+    "title": "逆向思维",
+    "learningObjective": "理解逆向思维：从结果倒推原因，或从目标倒推路径",
+    "completionSignal": "能够用逆向思维解决一个具体问题",
+    "status": "published"
+  },
+  {
+    "_id": "think_node_5",
+    "themeId": "theme_thinking",
+    "order": 5,
+    "title": "系统思维",
+    "learningObjective": "理解系统思维：关注整体而非部分，考虑反馈循环",
+    "completionSignal": "能够识别一个系统中的反馈循环",
+    "status": "published"
+  },
+  {
+    "_id": "think_node_6",
+    "themeId": "theme_thinking",
+    "order": 6,
+    "title": "奥卡姆剃刀",
+    "learningObjective": "理解奥卡姆剃刀：最简单的解释往往是最正确的",
+    "completionSignal": "能够在面对问题时应用奥卡姆剃刀原则",
+    "status": "published"
+  },
+  {
+    "_id": "think_node_7",
+    "themeId": "theme_thinking",
+    "order": 7,
+    "title": "框架效应",
+    "learningObjective": "理解框架效应：同样的信息用不同方式表达会改变决策",
+    "completionSignal": "能够识别和规避框架效应对决策的影响",
+    "status": "published"
+  },
+  {
+    "_id": "think_node_8",
+    "themeId": "theme_thinking",
+    "order": 8,
+    "title": "地图不是领土",
+    "learningObjective": "理解模型只是现实的简化，不要把模型当现实",
+    "completionSignal": "能够区分模型和现实，避免过度依赖单一模型",
+    "status": "published"
+  },
+  {
+    "_id": "think_node_9",
+    "themeId": "theme_thinking",
+    "order": 9,
+    "title": "反脆弱",
+    "learningObjective": "理解反脆弱：有些事物能从冲击中获益",
+    "completionSignal": "能够识别反脆弱系统并讨论如何构建反脆弱能力",
+    "status": "published"
+  },
+  {
+    "_id": "think_node_10",
+    "themeId": "theme_thinking",
+    "order": 10,
+    "title": "思想实验",
+    "learningObjective": "理解思想实验：用想象来测试假设和概念",
+    "completionSignal": "能够设计一个思想实验来验证某个假设",
+    "status": "published"
+  }
+]

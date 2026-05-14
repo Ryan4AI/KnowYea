@@ -1,0 +1,57 @@
+[
+  {
+    "_id": "theme_economics",
+    "name": "经济学入门",
+    "description": "从零开始理解经济学思维",
+    "cover": "",
+    "totalNodes": 10,
+    "tags": ["经济学", "思维模型"],
+    "status": "published",
+    "createdAt": 1704067200000,
+    "updatedAt": 1704067200000
+  },
+  {
+    "_id": "theme_psychology",
+    "name": "心理学基础",
+    "description": "理解人类行为背后的心理机制",
+    "cover": "",
+    "totalNodes": 10,
+    "tags": ["心理学", "自我认知"],
+    "status": "published",
+    "createdAt": 1704067200000,
+    "updatedAt": 1704067200000
+  },
+  {
+    "_id": "theme_thinking",
+    "name": "思维模型大全",
+    "description": "掌握高效思考的工具箱",
+    "cover": "",
+    "totalNodes": 10,
+    "tags": ["思维", "效率"],
+    "status": "published",
+    "createdAt": 1704067200000,
+    "updatedAt": 1704067200000
+  },
+  {
+    "_id": "theme_business",
+    "name": "商业分析基础",
+    "description": "理解商业世界的基本逻辑",
+    "cover": "",
+    "totalNodes": 10,
+    "tags": ["商业", "分析"],
+    "status": "published",
+    "createdAt": 1704067200000,
+    "updatedAt": 1704067200000
+  },
+  {
+    "_id": "theme_selfimprovement",
+    "name": "自我提升指南",
+    "description": "成为更好的自己",
+    "cover": "",
+    "totalNodes": 10,
+    "tags": ["自我提升", "成长"],
+    "status": "published",
+    "createdAt": 1704067200000,
+    "updatedAt": 1704067200000
+  }
+]

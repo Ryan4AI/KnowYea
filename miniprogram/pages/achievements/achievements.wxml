@@ -1,0 +1,12 @@
+<view class="page-container">
+  <view class="achievement-list">
+    <view class="achievement-item {{item.unlocked ? 'unlocked' : 'locked'}}" wx:for="{{achievements}}" wx:key="id">
+      <view class="achievement-icon">{{item.icon}}</view>
+      <view class="achievement-info">
+        <view class="achievement-name">{{item.name}}</view>
+        <view class="achievement-desc">{{item.description}}</view>
+      </view>
+      <view class="achievement-status">{{item.unlocked ? '✓' : '🔒'}}</view>
+    </view>
+  </view>
+</view>

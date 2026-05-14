@@ -1,0 +1,92 @@
+[
+  {
+    "_id": "self_node_1",
+    "themeId": "theme_selfimprovement",
+    "order": 1,
+    "title": "目标设定",
+    "learningObjective": "理解SMART目标原则",
+    "completionSignal": "能够将一个模糊目标转化为SMART目标",
+    "status": "published"
+  },
+  {
+    "_id": "self_node_2",
+    "themeId": "theme_selfimprovement",
+    "order": 2,
+    "title": "时间管理",
+    "learningObjective": "理解时间盒和重要/紧急矩阵",
+    "completionSignal": "能够用艾森豪威尔矩阵规划一天的任务",
+    "status": "published"
+  },
+  {
+    "_id": "self_node_3",
+    "themeId": "theme_selfimprovement",
+    "order": 3,
+    "title": "习惯养成",
+    "learningObjective": "理解习惯回路：提示-惯常行为-奖励",
+    "completionSignal": "能够分析一个习惯的组成部分并设计改变策略",
+    "status": "published"
+  },
+  {
+    "_id": "self_node_4",
+    "themeId": "theme_selfimprovement",
+    "order": 4,
+    "title": "精力管理",
+    "learningObjective": "理解精力的四个来源：体能、情感、思维、意志",
+    "completionSignal": "能够评估自己当前的精力状态并制定提升计划",
+    "status": "published"
+  },
+  {
+    "_id": "self_node_5",
+    "themeId": "theme_selfimprovement",
+    "order": 5,
+    "title": "知识管理",
+    "learningObjective": "理解PKM系统：收集-整理-回顾-应用",
+    "completionSignal": "能够设计一个适合自己的个人知识管理系统",
+    "status": "published"
+  },
+  {
+    "_id": "self_node_6",
+    "themeId": "theme_selfimprovement",
+    "order": 6,
+    "title": "有效沟通",
+    "learningObjective": "理解非暴力沟通四步法",
+    "completionSignal": "能够用非暴力沟通方式表达一次冲突",
+    "status": "published"
+  },
+  {
+    "_id": "self_node_7",
+    "themeId": "theme_selfimprovement",
+    "order": 7,
+    "title": "决策方法",
+    "learningObjective": "理解决策框架：利弊分析、权重打分、后悔最小化",
+    "completionSignal": "能够用系统方法做出一个重要决定",
+    "status": "published"
+  },
+  {
+    "_id": "self_node_8",
+    "themeId": "theme_selfimprovement",
+    "order": 8,
+    "title": "人际关系",
+    "learningObjective": "理解高质量关系建设的原则",
+    "completionSignal": "能够评估自己人际关系的质量并找出改进点",
+    "status": "published"
+  },
+  {
+    "_id": "self_node_9",
+    "themeId": "theme_selfimprovement",
+    "order": 9,
+    "title": "抗压能力",
+    "learningObjective": "理解压力的本质和应对策略",
+    "completionSignal": "能够识别自己的压力源并采取有效应对措施",
+    "status": "published"
+  },
+  {
+    "_id": "self_node_10",
+    "themeId": "theme_selfimprovement",
+    "order": 10,
+    "title": "终身学习",
+    "learningObjective": "理解构建个人成长系统的关键要素",
+    "completionSignal": "能够制定一个可持续的个人成长计划",
+    "status": "published"
+  }
+]

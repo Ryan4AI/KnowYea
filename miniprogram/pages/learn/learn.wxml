@@ -1,0 +1,71 @@
+<!-- pages/learn/learn.wxml -->
+<view class="page-container">
+  <!-- 植物装饰 -->
+  <view class="plant-decoration">{{plantEmoji}}</view>
+
+  <!-- 顶部主题信息 -->
+  <view class="header" bindtap="onSwitchTheme" wx:if="{{theme}}">
+    <view class="header-left">
+      <view class="theme-name">{{theme.name}}</view>
+      <view class="theme-progress">进度：{{theme.completedCount || 0}}/{{theme.totalNodes}} 节点</view>
+      <view class="node-title" wx:if="{{node}}">{{node.title}}</view>
+    </view>
+    <view class="switch-btn">
+      <text class="switch-icon">🔄</text>
+      <text>切换</text>
+    </view>
+  </view>
+
+  <!-- 消息列表 -->
+  <scroll-view class="messages-container" scroll-y="true" scroll-top="99999">
+    <view class="message-list">
+      <!-- 空状态 -->
+      <view class="empty-state" wx:if="{{!theme && !isLoading}}">
+        <text class="empty-icon">📚</text>
+        <text class="empty-text">还没有开始学习\n点击下方按钮开始你的学习之旅</text>
+        <button class="start-btn" bindtap="onSwitchTheme">选择主题</button>
+      </view>
+
+      <!-- Loading -->
+      <view class="loading" wx:if="{{isLoading}}">
+        <text class="loading-icon">⏳</text>
+        <text>AI 思考中...</text>
+      </view>
+
+      <!-- 消息 -->
+      <block wx:for="{{messages}}" wx:key="id">
+        <view class="message-item {{item.role}}">
+          <view class="message-content">
+            <view>{{item.content}}</view>
+          </view>
+          <text class="message-time">{{item.createdAt}}</text>
+        </view>
+      </block>
+    </view>
+  </scroll-view>
+
+  <!-- 完成按钮 -->
+  <view class="complete-btn-container" wx:if="{{showCompleteBtn || isCompleted}}">
+    <button class="complete-btn" bindtap="completeNode">
+      ✅ 完成任务 ✓
+    </button>
+  </view>
+
+  <!-- 输入区域 -->
+  <view class="input-container" wx:if="{{node && !isCompleted}}">
+    <view class="input-wrapper">
+      <textarea
+        class="message-input"
+        value="{{inputValue}}"
+        bindinput="onInputChange"
+        placeholder="输入你的回答..."
+        maxlength="500"
+        auto-height
+        hold-keyboard
+      />
+    </view>
+    <button class="send-btn" bindtap="sendMessage" disabled="{{!inputValue.trim() || isLoading}}">
+      发送
+    </button>
+  </view>
+</view>

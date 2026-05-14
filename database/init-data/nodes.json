@@ -1,0 +1,92 @@
+[
+  {
+    "_id": "econ_node_1",
+    "themeId": "theme_economics",
+    "order": 1,
+    "title": "机会成本",
+    "learningObjective": "理解机会成本的概念：为了得到某种东西而要放弃的其他选择中最高价值的那个",
+    "completionSignal": "能够用自己的话解释机会成本，并举出一个日常生活中的例子",
+    "status": "published"
+  },
+  {
+    "_id": "econ_node_2",
+    "themeId": "theme_economics",
+    "order": 2,
+    "title": "供需关系",
+    "learningObjective": "理解供给和需求如何决定市场价格",
+    "completionSignal": "能够解释当需求增加时价格如何变化，并举出一个生活中的例子",
+    "status": "published"
+  },
+  {
+    "_id": "econ_node_3",
+    "themeId": "theme_economics",
+    "order": 3,
+    "title": "沉没成本",
+    "learningObjective": "理解沉没成本是指已经付出且无法收回的成本，理性决策应该忽略它",
+    "completionSignal": "能够区分沉没成本和其他成本，举例说明为什么沉没成本不应影响决策",
+    "status": "published"
+  },
+  {
+    "_id": "econ_node_4",
+    "themeId": "theme_economics",
+    "order": 4,
+    "title": "边际效应",
+    "learningObjective": "理解边际效用递减：每增加一单位消费带来的额外满足感递减",
+    "completionSignal": "能够用边际效用递减解释为什么第三块蛋糕没有第一块好吃",
+    "status": "published"
+  },
+  {
+    "_id": "econ_node_5",
+    "themeId": "theme_economics",
+    "order": 5,
+    "title": "比较优势",
+    "learningObjective": "理解比较优势：专注于自己相对最擅长的领域对双方都有利",
+    "completionSignal": "能够用自己的例子说明比较优势的原理",
+    "status": "published"
+  },
+  {
+    "_id": "econ_node_6",
+    "themeId": "theme_economics",
+    "order": 6,
+    "title": "激励机制",
+    "learningObjective": "理解人们会根据激励调整行为，好的制度设计要考虑到这一点",
+    "completionSignal": "能够分析一个现实中的激励机制设计及其效果",
+    "status": "published"
+  },
+  {
+    "_id": "econ_node_7",
+    "themeId": "theme_economics",
+    "order": 7,
+    "title": "信息不对称",
+    "learningObjective": "理解信息不对称会导致逆向选择和道德风险",
+    "completionSignal": "能够举例说明信息不对称在某个市场中的表现",
+    "status": "published"
+  },
+  {
+    "_id": "econ_node_8",
+    "themeId": "theme_economics",
+    "order": 8,
+    "title": "外部性",
+    "learningObjective": "理解外部性：一个人的行为会对其他人产生正面或负面影响",
+    "completionSignal": "能够区分正外部性和负外部性，并各举一个例子",
+    "status": "published"
+  },
+  {
+    "_id": "econ_node_9",
+    "themeId": "theme_economics",
+    "order": 9,
+    "title": "通货膨胀",
+    "learningObjective": "理解通货膨胀：物价总体水平持续上升，货币购买力下降",
+    "completionSignal": "能够解释通货膨胀对不同人群的影响",
+    "status": "published"
+  },
+  {
+    "_id": "econ_node_10",
+    "themeId": "theme_economics",
+    "order": 10,
+    "title": "博弈论基础",
+    "learningObjective": "理解博弈论研究在相互依存的情境中如何做决策",
+    "completionSignal": "能够分析一个简单的囚徒困境博弈",
+    "status": "published"
+  }
+]

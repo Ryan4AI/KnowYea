@@ -1,0 +1,19 @@
+<view class="page-container">
+  <view class="loading" wx:if="{{isLoading}}">
+    <text class="loading-icon">⏳</text>
+    <text>加载中...</text>
+  </view>
+  <view class="empty-state" wx:elif="{{favorites.length === 0}}">
+    <text class="empty-icon">❤️</text>
+    <text class="empty-text">还没有收藏的内容\n点击学习页面的收藏按钮来收藏</text>
+  </view>
+  <view class="favorites-list" wx:else>
+    <view class="favorite-item" wx:for="{{favorites}}" wx:key="nodeId">
+      <view class="item-content" bindtap="onItemTap" data-theme-id="{{item.themeId}}" data-node-id="{{item.nodeId}}">
+        <view class="item-title">{{item.nodeTitle}}</view>
+        <view class="item-meta">{{item.themeName}}</view>
+      </view>
+      <button class="remove-btn" bindtap="onRemove" data-node-id="{{item.nodeId}}">取消收藏</button>
+    </view>
+  </view>
+</view>

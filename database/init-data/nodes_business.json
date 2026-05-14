@@ -1,0 +1,92 @@
+[
+  {
+    "_id": "biz_node_1",
+    "themeId": "theme_business",
+    "order": 1,
+    "title": "商业模式画布",
+    "learningObjective": "理解商业模式画布的9个组成部分",
+    "completionSignal": "能够使用商业模式画布分析一家公司",
+    "status": "published"
+  },
+  {
+    "_id": "biz_node_2",
+    "themeId": "theme_business",
+    "order": 2,
+    "title": "价值主张",
+    "learningObjective": "理解价值主张：为什么客户选择你而不是竞争对手",
+    "completionSignal": "能够清晰表述一个产品的价值主张",
+    "status": "published"
+  },
+  {
+    "_id": "biz_node_3",
+    "themeId": "theme_business",
+    "order": 3,
+    "title": "竞争优势",
+    "learningObjective": "理解波特五力模型分析行业竞争强度",
+    "completionSignal": "能够用五力模型分析一个行业的竞争格局",
+    "status": "published"
+  },
+  {
+    "_id": "biz_node_4",
+    "themeId": "theme_business",
+    "order": 4,
+    "title": "市场细分",
+    "learningObjective": "理解市场细分的概念和方法",
+    "completionSignal": "能够对一个市场进行合理细分并选择目标市场",
+    "status": "published"
+  },
+  {
+    "_id": "biz_node_5",
+    "themeId": "theme_business",
+    "order": 5,
+    "title": "用户增长",
+    "learningObjective": "理解AARRR用户增长模型",
+    "completionSignal": "能够用AARRR模型分析一个产品的增长漏斗",
+    "status": "published"
+  },
+  {
+    "_id": "biz_node_6",
+    "themeId": "theme_business",
+    "order": 6,
+    "title": "单位经济",
+    "learningObjective": "理解单位经济模型：LTV、CAC、 Cohort Analysis",
+    "completionSignal": "能够计算一个产品的LTV/CAC比率并判断其健康度",
+    "status": "published"
+  },
+  {
+    "_id": "biz_node_7",
+    "themeId": "theme_business",
+    "order": 7,
+    "title": "精益创业",
+    "learningObjective": "理解精益创业方法论：构建-测量-学习",
+    "completionSignal": "能够应用精益方法验证一个商业假设",
+    "status": "published"
+  },
+  {
+    "_id": "biz_node_8",
+    "themeId": "theme_business",
+    "order": 8,
+    "title": "竞争策略",
+    "learningObjective": "理解三种基本竞争策略：成本领先、差异化、集中化",
+    "completionSignal": "能够分析一家公司采用的竞争策略及其利弊",
+    "status": "published"
+  },
+  {
+    "_id": "biz_node_9",
+    "themeId": "theme_business",
+    "order": 9,
+    "title": "SWOT分析",
+    "learningObjective": "理解SWOT分析框架",
+    "completionSignal": "能够对一个企业进行完整的SWOT分析",
+    "status": "published"
+  },
+  {
+    "_id": "biz_node_10",
+    "themeId": "theme_business",
+    "order": 10,
+    "title": "商业伦理",
+    "learningObjective": "理解商业决策中的伦理考量",
+    "completionSignal": "能够识别一个商业决策中的伦理困境并提出解决方案",
+    "status": "published"
+  }
+]

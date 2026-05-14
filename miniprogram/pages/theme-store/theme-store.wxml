@@ -1,0 +1,71 @@
+<!-- pages/theme-store/theme-store.wxml -->
+<view class="page-container">
+  <!-- AI 推荐区域 -->
+  <view class="ai-recommend">
+    <view class="ai-recommend-title">🤖 AI 智能推荐</view>
+    <view class="ai-recommend-input">
+      <input
+        placeholder="输入想学的主题，如：投资理财、心理学、历史..."
+        placeholder-style="color: rgba(255,255,255,0.7)"
+        bindconfirm="onAIRecommend"
+      />
+      <button class="ai-recommend-btn" bindtap="onAIRecommend">生成</button>
+    </view>
+  </view>
+
+  <!-- 搜索 -->
+  <view class="search-area">
+    <view class="search-input-wrapper">
+      <text class="search-icon">🔍</text>
+      <input
+        class="search-input"
+        placeholder="搜索主题"
+        bindinput="onSearch"
+        value="{{searchKeyword}}"
+      />
+    </view>
+  </view>
+
+  <!-- 分类标签 -->
+  <view class="category-tabs">
+    <view
+      class="tab-item {{selectedCategory === item.id ? 'active' : ''}}"
+      wx:for="{{categories}}"
+      wx:key="id"
+      bindtap="onSelectCategory"
+      data-category="{{item.id}}"
+    >
+      {{item.name}}
+    </view>
+  </view>
+
+  <!-- Loading -->
+  <view class="loading" wx:if="{{isLoading}}">
+    <text class="loading-icon">⏳</text>
+    <text>加载中...</text>
+  </view>
+
+  <!-- 主题网格 -->
+  <view class="theme-grid" wx:else>
+    <view
+      class="theme-card"
+      wx:for="{{filteredThemes}}"
+      wx:key="_id"
+    >
+      <view class="theme-cover">{{item.emoji}}</view>
+      <view class="theme-name">{{item.name}}</view>
+      <view class="theme-desc">{{item.description}}</view>
+      <view class="theme-meta">
+        <text>{{item.nodeCount}} 个节点</text>
+        <button
+          class="add-btn {{item.added ? 'added' : ''}}"
+          bindtap="onAddTheme"
+          data-theme-id="{{item._id}}"
+          disabled="{{item.added}}"
+        >
+          {{item.added ? '✓ 已添加' : '+ 添加'}}
+        </button>
+      </view>
+    </view>
+  </view>
+</view>

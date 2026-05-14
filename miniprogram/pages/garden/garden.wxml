@@ -1,0 +1,21 @@
+<view class="page-container">
+  <view class="loading" wx:if="{{isLoading}}">
+    <text class="loading-icon">⏳</text>
+    <text>加载中...</text>
+  </view>
+  <view class="empty-state" wx:elif="{{gardens.length === 0}}">
+    <text class="empty-icon">🌱</text>
+    <text class="empty-text">还没有植物\n开始学习后每个主题都会长出植物</text>
+  </view>
+  <view class="garden-grid" wx:else>
+    <view class="garden-item" wx:for="{{gardens}}" wx:key="themeId">
+      <view class="plant-icon">{{item.plantEmoji}}</view>
+      <view class="plant-name">{{item.themeName}}</view>
+      <view class="plant-level">{{item.plantName}}</view>
+      <view class="plant-points">{{item.points}} 积分</view>
+      <view class="plant-decorations" wx:if="{{item.decorations.length > 0}}">
+        <text wx:for="{{item.decorations}}" wx:key="*this">{{item}} </text>
+      </view>
+    </view>
+  </view>
+</view>

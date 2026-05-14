@@ -1,0 +1,92 @@
+[
+  {
+    "_id": "psych_node_1",
+    "themeId": "theme_psychology",
+    "order": 1,
+    "title": "认知偏差",
+    "learningObjective": "理解认知偏差是系统性的思维错误，会影响我们的判断",
+    "completionSignal": "能够识别至少3种常见的认知偏差并举例说明",
+    "status": "published"
+  },
+  {
+    "_id": "psych_node_2",
+    "themeId": "theme_psychology",
+    "order": 2,
+    "title": "锚定效应",
+    "learningObjective": "理解锚定效应：最先获得的信息会影响后续的判断",
+    "completionSignal": "能够解释为什么商家喜欢先报高价，并举出一个生活中的例子",
+    "status": "published"
+  },
+  {
+    "_id": "psych_node_3",
+    "themeId": "theme_psychology",
+    "order": 3,
+    "title": "损失厌恶",
+    "learningObjective": "理解损失厌恶：失去100元的痛苦大于获得100元的快乐",
+    "completionSignal": "能够用损失厌恶解释为什么人们不愿意卖出亏损的股票",
+    "status": "published"
+  },
+  {
+    "_id": "psych_node_4",
+    "themeId": "theme_psychology",
+    "order": 4,
+    "title": "社会认同",
+    "learningObjective": "理解社会认同：人们倾向于模仿他人的行为，尤其是不确定时",
+    "completionSignal": "能够举例说明社会认同在消费决策中的作用",
+    "status": "published"
+  },
+  {
+    "_id": "psych_node_5",
+    "themeId": "theme_psychology",
+    "order": 5,
+    "title": "自我实现预言",
+    "learningObjective": "理解自我实现预言：相信自己能成功真的会增加成功概率",
+    "completionSignal": "能够解释罗森塔尔效应并举例说明",
+    "status": "published"
+  },
+  {
+    "_id": "psych_node_6",
+    "themeId": "theme_psychology",
+    "order": 6,
+    "title": "心流状态",
+    "learningObjective": "理解心流是一种完全沉浸在活动中的最佳体验状态",
+    "completionSignal": "能够描述进入心流状态的条件，并回忆一次自己的心流体验",
+    "status": "published"
+  },
+  {
+    "_id": "psych_node_7",
+    "themeId": "theme_psychology",
+    "order": 7,
+    "title": "情绪调节",
+    "learningObjective": "理解情绪调节的策略，包括认知重评和表达抑制",
+    "completionSignal": "能够比较认知重评和表达抑制的优劣",
+    "status": "published"
+  },
+  {
+    "_id": "psych_node_8",
+    "themeId": "theme_psychology",
+    "order": 8,
+    "title": "习得性无助",
+    "learningObjective": "理解习得性无助：当反复经历失败后，人们会放弃尝试",
+    "completionSignal": "能够解释习得性无助的形成过程，并讨论如何克服",
+    "status": "published"
+  },
+  {
+    "_id": "psych_node_9",
+    "themeId": "theme_psychology",
+    "order": 9,
+    "title": "成长型思维",
+    "learningObjective": "理解成长型思维相信能力可以通过努力提升，与固定型思维相对",
+    "completionSignal": "能够比较两种思维模式及其对面对挑战时的影响",
+    "status": "published"
+  },
+  {
+    "_id": "psych_node_10",
+    "themeId": "theme_psychology",
+    "order": 10,
+    "title": "依恋理论",
+    "learningObjective": "理解依恋理论：早期亲子关系影响成年后的亲密关系模式",
+    "completionSignal": "能够识别三种依恋类型并理解其形成原因",
+    "status": "published"
+  }
+]

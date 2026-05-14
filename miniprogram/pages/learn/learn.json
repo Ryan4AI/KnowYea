@@ -1,0 +1,8 @@
+{
+  "usingComponents": {
+    "theme-switcher": "/components/theme-switcher/theme-switcher"
+  },
+  "navigationBarTitleText": "学习",
+  "navigationBarBackgroundColor": "#1a1a2e",
+  "navigationBarTextStyle": "white"
+}

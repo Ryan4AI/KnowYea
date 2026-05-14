@@ -1,0 +1,50 @@
+{
+  "description": "知识胶囊小程序",
+  "packOptions": {
+    "ignore": [],
+    "include": []
+  },
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "preloadBackgroundData": false,
+    "minified": true,
+    "newFeature": true,
+    "bigPackageSize": true,
+    "packNpmManually": false,
+    "packNpmRelationList": [],
+    "bundleLocationChange": false,
+    "ignoreUploadUnusedFiles": true,
+    "scopeDataCheck": false,
+    "checkInvalidKey": true,
+    "checkSiteMap": true,
+    "compileHotReLoad": true,
+    "lazyloadPlaceholderEnable": false,
+    "useMultiFrameRuntime": true,
+    "useApiHook": true,
+    "useApiHostProcess": true,
+    "showShadowRootInWxmlPanel": true,
+    "pack3rdLibFromFileSystem": false,
+    "enableEngineNative": false,
+    "useIsolateContext": true,
+    "userConfirmedBundleSwitch": false,
+    "packNpmAwayLibraryName": "",
+    "minifyWXSS": true,
+    "disableUseStrict": false,
+    "minifyWXML": true,
+    "showES6CompileOption": false,
+    "useCompilerPlugins": false,
+    "nodeModulesSubpackExclude": ""
+  },
+  "compileType": "miniprogram",
+  "libVersion": "3.5.4",
+  "appid": "wx7298f8ed5dedc8d8",
+  "projectname": "xiaozhiliao",
+  "condition": {},
+  "editorSetting": {
+    "tabIndent": "insertSpaces",
+    "tabSize": 2
+  }
+}

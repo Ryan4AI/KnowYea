@@ -1,0 +1,65 @@
+<!-- pages/themes/themes.wxml -->
+<view class="page-container">
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{!isLoading && themes.length === 0}}">
+    <text class="empty-icon">📚</text>
+    <text class="empty-text">还没有添加任何主题\n去主题库看看有什么可以学习的吧</text>
+  </view>
+
+  <!-- 主题列表 -->
+  <view class="theme-list" wx:else>
+    <view class="theme-item" wx:for="{{themes}}" wx:key="_id">
+      <view class="theme-header">
+        <view class="theme-cover">{{item.plantEmoji}}</view>
+        <view class="theme-info">
+          <view class="theme-name">{{item.name}}</view>
+          <view class="theme-desc">{{item.description}}</view>
+        </view>
+        <view class="theme-status {{item.status}}">
+          {{item.status === 'completed' ? '已完成' : '进行中'}}
+        </view>
+      </view>
+
+      <view class="theme-progress">
+        <view class="progress-bar">
+          <view class="progress-fill" style="width: {{item.progressPercent || 0}}%"></view>
+        </view>
+        <text class="progress-text">{{item.completedCount || 0}}/{{item.totalNodes}}</text>
+      </view>
+
+      <view class="theme-plant">
+        <text class="plant-icon">{{item.plantEmoji}}</text>
+        <view class="plant-info">
+          <view class="plant-name">{{item.plantName}}</view>
+          <view class="plant-points">{{item.points || 0}} 积分</view>
+        </view>
+      </view>
+
+      <view class="theme-actions">
+        <button
+          class="action-btn continue"
+          bindtap="onContinue"
+          data-theme-id="{{item._id}}"
+        >
+          {{item.status === 'completed' ? '重新学习' : '继续学习'}}
+        </button>
+        <button
+          class="action-btn review"
+          bindtap="onReview"
+          data-theme-id="{{item._id}}"
+        >
+          查看详情
+        </button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部留白 -->
+  <view class="bottom-spacer"></view>
+
+  <!-- 添加主题按钮 -->
+  <view class="add-theme-btn" bindtap="onAddTheme">
+    <text class="add-icon">➕</text>
+    <text>添加新主题</text>
+  </view>
+</view>
