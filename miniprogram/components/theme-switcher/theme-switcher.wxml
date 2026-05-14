@@ -1,0 +1,13 @@
+<view class="theme-switcher">
+  <scroll-view scroll-x class="theme-list">
+    <block wx:for="{{themes}}" wx:key="id">
+      <view 
+        class="theme-item {{item.id === currentThemeId ? 'active' : ''}}"
+        data-id="{{item.id}}"
+        bindtap="onThemeChange"
+      >
+        <text class="theme-name">{{item.name}}</text>
+      </view>
+    </block>
+  </scroll-view>
+</view>
