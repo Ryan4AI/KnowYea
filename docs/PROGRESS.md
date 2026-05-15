@@ -72,11 +72,20 @@
 | message-card | ✅ | 消息卡片 |
 | question-card | ✅ | 题目卡片（选择/开放） |
 | theme-switcher | ✅ | 主题切换弹窗 |
-| concept-card | ✅ | 概念卡片 |
-| example-card | ✅ | 例子卡片 |
-| plant | ✅ 2026-05-15 | 植物组件（5阶段emoji展示） |
-| achievement-popup | ✅ 2026-05-15 | 成就弹窗（动画+自动关闭） |
-| summary-card | ⚠️ 内置 | 在 learn.wxss 中实现 |
+| concept-card | ✅ 2026-05-16 | 概念卡片（补全4文件） |
+| example-card | ✅ 2026-05-16 | 例子卡片（补全4文件） |
+| summary-card | ✅ 2026-05-16 | 总结卡片（补全4文件） |
+| plant | ✅ | 植物组件（5阶段emoji展示） |
+| achievement-popup | ✅ | 成就弹窗（动画+自动关闭） |
+
+---
+
+## 📝 更新日志
+
+### 2026-05-16 00:01
+- 补全 concept-card/example-card/summary-card 四个文件（js/json/wxml/wxss）
+- 修改 app.js 登录后自动调用 initDatabase 云函数
+- 所有 8 个组件全部完整
 
 ---
 

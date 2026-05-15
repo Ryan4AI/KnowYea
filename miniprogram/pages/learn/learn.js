@@ -92,12 +92,14 @@ Page({
   },
 
   onShow() {
+    console.log('[learn onShow] called')
     this.bootstrap()
   },
 
   async bootstrap() {
     await app.waitForLogin()
-    this.setData({ openid: app.globalData.openid })
+    console.log('[bootstrap] openid:', app.globalData.openid)
+    this.setData({ openid: app.globalData.openid || '' })
 
     const context = app.consumeLearnContext()
     if (context) {
@@ -109,6 +111,7 @@ Page({
   },
 
   loadHomeData(context = {}) {
+    console.log('[loadHomeData] called, context:', JSON.stringify(context))
     if (!app.globalData.openid) return
 
     wx.showLoading({ title: '加载中...' })

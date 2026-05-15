@@ -29,6 +29,7 @@ exports.main = async (event, context) => {
     const hasProfile = !!(profile.age || profile.occupation || (profile.interests && profile.interests.length))
 
     const needsOnboarding = userThemesCount.total === 0 || !hasProfile
+    console.log('[DEBUG] userThemesCount.total:', userThemesCount.total, 'hasProfile:', hasProfile, 'needsOnboarding:', needsOnboarding)
 
     let currentTheme = null
     let currentNode = null

@@ -12,7 +12,10 @@ const ACHIEVEMENTS = {
 
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext()
+  console.log('wxContext:', JSON.stringify(wxContext))
+  
   const openid = wxContext.OPENID
+  console.log('openid:', openid)
 
   if (!openid) {
     return { success: false, error: '无法获取 openid' }

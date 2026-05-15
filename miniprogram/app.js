@@ -32,19 +32,23 @@ App({
   },
 
   login() {
-    return wx.cloud.callFunction({
-      name: 'login',
-      data: {},
-      success: res => {
-        if (res.result) {
-          this.globalData.openid = res.result.openid
-          this.globalData.isLogin = true
-          console.log('登录成功, openid:', this.globalData.openid)
-        }
-      },
-      fail: err => {
-        console.error('登录失败', err)
-      },
+    return new Promise((resolve, reject) => {
+      wx.cloud.callFunction({
+        name: 'login',
+        data: {},
+        success: res => {
+          if (res.result) {
+            this.globalData.openid = res.result.openid
+            this.globalData.isLogin = true
+            console.log('登录成功, openid:', this.globalData.openid)
+          }
+          resolve(res.result)
+        },
+        fail: err => {
+          console.error('登录失败', err)
+          reject(err)
+        },
+      })
     })
   },
 
