@@ -41,6 +41,7 @@
   "compileType": "miniprogram",
   "libVersion": "3.5.4",
   "appid": "wx7298f8ed5dedc8d8",
+  "cloudfunctionRoot": "../cloudfunctions/",
   "projectname": "KnowYea",
   "condition": {},
   "editorSetting": {

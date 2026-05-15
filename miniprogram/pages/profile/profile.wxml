@@ -7,27 +7,35 @@
     </view>
     <view class="user-info">
       <view class="user-name">学习者</view>
-      <view class="user-slogan">每天几分钟，慢慢变强 📈</view>
+      <view class="user-slogan">知识胶囊 · 每天几分钟，慢慢变强 📈</view>
     </view>
   </view>
 
   <!-- 统计卡片 -->
   <view class="stats-grid">
     <view class="stat-card">
-      <view class="stat-value">{{stats.completedNodes}}</view>
-      <view class="stat-label">已完成节点</view>
+      <view class="stat-card-inner">
+        <view class="stat-value">{{stats.completedNodes}}</view>
+        <view class="stat-label">已完成章节</view>
+      </view>
     </view>
     <view class="stat-card">
-      <view class="stat-value">{{stats.completedThemes}}</view>
-      <view class="stat-label">已完成主题</view>
+      <view class="stat-card-inner">
+        <view class="stat-value">{{stats.completedThemes}}</view>
+        <view class="stat-label">已完成课程</view>
+      </view>
     </view>
     <view class="stat-card">
-      <view class="stat-value">{{stats.totalPoints}}</view>
-      <view class="stat-label">总积分</view>
+      <view class="stat-card-inner">
+        <view class="stat-value">{{stats.totalPoints}}</view>
+        <view class="stat-label">总积分</view>
+      </view>
     </view>
     <view class="stat-card">
-      <view class="stat-value">{{stats.streak}}</view>
-      <view class="stat-label">连续学习</view>
+      <view class="stat-card-inner">
+        <view class="stat-value">{{stats.streak}}</view>
+        <view class="stat-label">连续学习</view>
+      </view>
     </view>
   </view>
 
@@ -65,6 +73,6 @@
 
   <!-- Slogan -->
   <view class="slogan">
-    <text>小知也 · 每天几分钟，慢慢变强</text>
+    <text>知识胶囊 · 每天几分钟，慢慢变强</text>
   </view>
 </view>

@@ -34,9 +34,8 @@ Page({
 
   onItemTap(e) {
     const { themeId, nodeId } = e.currentTarget.dataset
-    wx.navigateTo({
-      url: `/pages/learn/learn?themeId=${themeId}&nodeId=${nodeId}&mode=review`
-    })
+    app.setLearnContext({ themeId, nodeId, mode: 'review' })
+    wx.switchTab({ url: '/pages/learn/learn' })
   },
 
   onRemove(e) {

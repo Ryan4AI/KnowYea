@@ -1,29 +1,41 @@
 <!-- pages/learn/learn.wxml -->
 <view class="page-container">
-  <!-- 植物装饰 -->
-  <view class="plant-decoration">{{plantEmoji}}</view>
-
   <!-- 顶部主题信息 -->
-  <view class="header" bindtap="onSwitchTheme" wx:if="{{theme}}">
+  <view class="header tap-opacity" hover-class="tap-opacity-hover" bindtap="onSwitchTheme" wx:if="{{theme}}">
     <view class="header-left">
       <view class="theme-name">{{theme.name}}</view>
       <view class="theme-progress">进度：{{theme.completedCount || 0}}/{{theme.totalNodes}} 节点</view>
       <view class="node-title" wx:if="{{node}}">{{node.title}}</view>
+      <view class="review-tag" wx:if="{{reviewMode}}">复习模式</view>
     </view>
-    <view class="switch-btn">
-      <text class="switch-icon">🔄</text>
-      <text>切换</text>
+    <view class="header-right">
+      <plant level="{{plantLevel}}" points="{{plantPoints}}" size="small" />
+      <view class="switch-btn tap-scale" hover-class="tap-scale-hover">
+        <text class="switch-icon">🔄</text>
+        <text>切换</text>
+      </view>
     </view>
   </view>
 
   <!-- 消息列表 -->
-  <scroll-view class="messages-container" scroll-y="true" scroll-top="99999">
+  <scroll-view
+    class="messages-container"
+    scroll-y
+    scroll-into-view="{{scrollIntoView}}"
+    bindscrolltoupper="onLoadMoreMessages"
+    upper-threshold="80"
+  >
     <view class="message-list">
+      <view class="load-more tap-scale" hover-class="tap-scale-hover" wx:if="{{hasMoreMessages}}" bindtap="onLoadMoreMessages">
+        {{loadingMore ? '加载中...' : '↑ 加载更早消息'}}
+      </view>
+
       <!-- 空状态 -->
-      <view class="empty-state" wx:if="{{!theme && !isLoading}}">
+      <view class="empty-state" wx:if="{{!theme && !isLoading && !showProfileSetup}}">
         <text class="empty-icon">📚</text>
-        <text class="empty-text">还没有开始学习\n点击下方按钮开始你的学习之旅</text>
-        <button class="start-btn" bindtap="onSwitchTheme">选择主题</button>
+        <text class="empty-text">还没有开始学习\n去课程库添加你的第一个课程吧</text>
+        <button class="start-btn tap-scale" hover-class="tap-scale-hover" bindtap="onSwitchTheme">选择课程</button>
+        <button class="start-btn secondary tap-scale" hover-class="tap-scale-hover" bindtap="onGoThemeStoreFromEmpty">浏览课程库</button>
       </view>
 
       <!-- Loading -->
@@ -34,21 +46,49 @@
 
       <!-- 消息 -->
       <block wx:for="{{messages}}" wx:key="id">
-        <view class="message-item {{item.role}}">
+        <view class="message-item {{item.role}}" id="msg-{{index}}">
           <view class="message-content">
-            <rich-text nodes="{{item.parsedContent || item.content}}"></rich-text>
+            <block wx:for="{{item.blocks}}" wx:for-item="block" wx:key="index">
+              <view wx:if="{{block.type === 'text'}}" class="plain-text">{{block.text}}</view>
+              <view wx:elif="{{block.type === '概念'}}" class="concept-card">
+                <view class="concept-title">📚 概念</view>
+                <view class="concept-text">{{block.text}}</view>
+              </view>
+              <view wx:elif="{{block.type === '例子'}}" class="example-card">
+                <view class="example-label">💡 例子</view>
+                <view class="example-text">{{block.text}}</view>
+              </view>
+              <view wx:elif="{{block.type === '总结'}}" class="summary-card">
+                <view class="summary-label">📝 总结</view>
+                <view class="summary-text">{{block.text}}</view>
+              </view>
+              <question-card
+                wx:elif="{{block.type === 'choice' || block.type === 'open'}}"
+                question="{{block}}"
+                bind:select="onQuestionSelect"
+                bind:submit="onQuestionSubmit"
+              />
+            </block>
           </view>
-          <view class="choice-hint" wx:if="{{item.showChoiceHint}}">📋 请回复选项字母或文字</view>
           <text class="message-time">{{item.timeStr}}</text>
         </view>
       </block>
+      <view id="msg-bottom"></view>
     </view>
   </scroll-view>
 
-  <!-- 完成按钮 -->
-  <view class="complete-btn-container" wx:if="{{showCompleteBtn || isCompleted}}">
-    <button class="complete-btn" bindtap="completeNode">
-      ✅ 完成任务 ✓
+  <!-- 收藏与完成 -->
+  <view class="action-bar" wx:if="{{node}}">
+    <view class="favorite-btn tap-scale" hover-class="tap-scale-hover" bindtap="onToggleFavorite">
+      <text>{{isFavorited ? '❤️ 已收藏' : '🤍 收藏'}}</text>
+    </view>
+    <button
+      class="complete-btn-inline tap-scale"
+      hover-class="tap-scale-hover"
+      wx:if="{{showCompleteBtn || isCompleted}}"
+      bindtap="completeNode"
+    >
+      ✅ 完成节点
     </button>
   </view>
 
@@ -65,8 +105,64 @@
         hold-keyboard
       />
     </view>
-    <button class="send-btn" bindtap="sendMessage" disabled="{{!inputValue.trim() || isLoading}}">
+    <button class="send-btn tap-scale" hover-class="tap-scale-hover" bindtap="sendMessage" disabled="{{!inputValue.trim() || isLoading}}">
       发送
     </button>
+  </view>
+
+  <!-- 半屏主题切换 -->
+  <theme-switcher
+    show="{{showThemeSwitcher}}"
+    themes="{{learningThemes}}"
+    currentThemeId="{{theme._id}}"
+    bind:close="onCloseThemeSwitcher"
+    bind:themechange="onThemeChange"
+    bind:addtheme="onGoThemeStore"
+  />
+
+  <!-- 成就弹窗 -->
+  <achievement-popup
+    show="{{showAchievementPopup}}"
+    achievement="{{currentAchievement}}"
+    bind:close="onCloseAchievement"
+  />
+
+  <!-- 首次启动：用户画像 -->
+  <view class="profile-mask" wx:if="{{showProfileSetup}}">
+    <view class="profile-panel">
+      <view class="profile-title">👋 欢迎来到知识胶囊</view>
+      <view class="profile-subtitle">每天几分钟，慢慢变强\n告诉我们一点关于你的信息，为你推荐第一个学习课程</view>
+
+      <view class="profile-field">
+        <text class="field-label">年龄段</text>
+        <picker mode="selector" range="{{ageOptions}}" value="{{profileForm.ageIndex}}" bindchange="onAgeChange">
+          <view class="field-picker">{{ageOptions[profileForm.ageIndex]}}</view>
+        </picker>
+      </view>
+
+      <view class="profile-field">
+        <text class="field-label">职业</text>
+        <input
+          class="field-input"
+          placeholder="如：产品经理、学生、设计师"
+          value="{{profileForm.occupation}}"
+          data-field="occupation"
+          bindinput="onProfileInput"
+        />
+      </view>
+
+      <view class="profile-field">
+        <text class="field-label">兴趣（可选，逗号分隔）</text>
+        <input
+          class="field-input"
+          placeholder="如：经济学, 心理学, 商业分析"
+          value="{{profileForm.interestsText}}"
+          data-field="interestsText"
+          bindinput="onProfileInput"
+        />
+      </view>
+
+      <button class="profile-submit tap-scale" hover-class="tap-scale-hover" bindtap="onSubmitProfile">开始我的学习之旅</button>
+    </view>
   </view>
 </view>

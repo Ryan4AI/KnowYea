@@ -5,10 +5,19 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
 
 exports.main = async (event, context) => {
-  const { openid, themeId, nodeId } = event
+  const { openid, themeId, nodeId, reviewMode } = event
 
   if (!openid || !themeId || !nodeId) {
     return { success: false, error: '缺少必要参数' }
+  }
+
+  if (reviewMode) {
+    return {
+      success: true,
+      completed: false,
+      reviewMode: true,
+      message: '复习模式不更新学习进度',
+    }
   }
 
   try {
@@ -137,9 +146,9 @@ async function checkAchievements(openid, stats) {
 
     // 成就定义
     const ACHIEVEMENTS = [
-      { id: 'first_node', trigger: () => stats.completedNodes >= 1 },
-      { id: 'node_10', trigger: () => stats.completedNodes >= 10 },
-      { id: 'first_theme', trigger: () => stats.completedThemes >= 1 },
+      { id: 'first_node', name: '初学乍道', description: '完成第一个节点', icon: '🌱', trigger: () => stats.completedNodes >= 1 },
+      { id: 'node_10', name: '十全十美', description: '完成 10 个节点', icon: '🏆', trigger: () => stats.completedNodes >= 10 },
+      { id: 'first_theme', name: '有始有终', description: '完成第一个主题', icon: '🌿', trigger: () => stats.completedThemes >= 1 },
     ]
 
     // 检查是否有新成就可以解锁
@@ -155,7 +164,7 @@ async function checkAchievements(openid, stats) {
           data: { achievements: userAchievements }
         })
 
-        return { id: ach.id, name: ach.name, icon: ach.icon }
+        return { id: ach.id, name: ach.name, description: ach.description, icon: ach.icon }
       }
     }
 

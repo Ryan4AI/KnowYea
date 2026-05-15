@@ -9,9 +9,16 @@ Component({
 
   data: {
     options: [],
+    questionText: '',
     selectedIndex: -1,
     isOpenAnswer: false,
     openAnswer: '',
+  },
+
+  observers: {
+    question() {
+      this.parseQuestion()
+    },
   },
 
   lifetimes: {
@@ -25,11 +32,18 @@ Component({
       const content = this.properties.question.content || ''
       const type = this.properties.question.type || 'choice'
 
-      this.setData({ isOpenAnswer: type === 'open' })
+      this.setData({ isOpenAnswer: type === 'open', selectedIndex: -1, openAnswer: '' })
 
       if (type === 'choice') {
-        const parts = content.split('|')
-        this.setData({ options: parts.map((opt, i) => ({ label: String.fromCharCode(65 + i), text: opt.trim() })) })
+        const parts = content.split('|').map(s => s.trim()).filter(Boolean)
+        const questionText = parts[0] || ''
+        const options = parts.slice(1).map((text, i) => ({
+          label: String.fromCharCode(65 + i),
+          text,
+        }))
+        this.setData({ questionText, options })
+      } else {
+        this.setData({ questionText: content, options: [] })
       }
     },
 
