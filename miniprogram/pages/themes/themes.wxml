@@ -4,6 +4,7 @@
   <view class="empty-state" wx:if="{{!isLoading && themes.length === 0}}">
     <text class="empty-icon">📚</text>
     <text class="empty-text">还没有添加任何主题\n去主题库看看有什么可以学习的吧</text>
+    <button class="empty-add-btn" bindtap="onAddTheme">➕ 去主题库添加</button>
   </view>
 
   <!-- 主题列表 -->

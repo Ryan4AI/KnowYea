@@ -2,15 +2,16 @@
 
 .page-container {
   min-height: 100vh;
-  background: #f5f5f5;
+  background: linear-gradient(180deg, #eef0fb 0%, #f4f6fc 35%, #f8f9fc 100%);
 }
 
 /* 头部 */
 .profile-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 50rpx 30rpx 80rpx;
+  background: linear-gradient(125deg, #1a1d2e 0%, #252842 50%, #2d3254 100%);
+  padding: 50rpx 30rpx 88rpx;
   display: flex;
   align-items: center;
+  box-shadow: 0 16rpx 48rpx rgba(26, 29, 46, 0.2);
 }
 
 .avatar {
@@ -54,22 +55,23 @@
 
 .stat-card {
   width: 50%;
-  padding: 10rpx;
+  padding: 8rpx;
   box-sizing: border-box;
 }
 
 .stat-card-inner {
-  background: white;
-  border-radius: 16rpx;
-  padding: 30rpx;
+  background: #fff;
+  border-radius: 22rpx;
+  padding: 28rpx 16rpx;
   text-align: center;
-  box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.08);
+  box-shadow: 0 8rpx 28rpx rgba(26, 29, 46, 0.06);
+  border: 1rpx solid rgba(26, 29, 46, 0.05);
 }
 
 .stat-value {
   font-size: 48rpx;
   font-weight: bold;
-  color: #667eea;
+  color: #6c5ce7;
 }
 
 .stat-label {
@@ -81,9 +83,11 @@
 /* 功能菜单 */
 .menu-list {
   background: white;
-  border-radius: 16rpx;
-  margin: 30rpx 20rpx 0;
+  border-radius: 22rpx;
+  margin: 24rpx 20rpx 0;
   overflow: hidden;
+  box-shadow: 0 8rpx 28rpx rgba(26, 29, 46, 0.05);
+  border: 1rpx solid rgba(26, 29, 46, 0.05);
 }
 
 .menu-item {

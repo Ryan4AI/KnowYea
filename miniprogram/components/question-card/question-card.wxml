@@ -1,13 +1,14 @@
 <!-- components/question-card/question-card.wxml -->
 <view class="question-card">
   <view class="question-type">{{isOpenAnswer ? '💬 开放题' : '📝 选择题'}}</view>
-  <view class="question-text">{{question.content}}</view>
+  <view class="question-text">{{questionText || question.content}}</view>
 
   <!-- 选择题选项 -->
   <view wx:if="{{!isOpenAnswer}}" class="options">
     <block wx:for="{{options}}" wx:key="index">
       <view
-        class="option {{selectedIndex === index ? 'selected' : ''}}"
+        class="option tap-scale {{selectedIndex === index ? 'selected' : ''}}"
+        hover-class="tap-scale-hover"
         bindtap="selectOption"
         data-index="{{index}}"
       >
@@ -25,6 +26,6 @@
       value="{{openAnswer}}"
       bindinput="bindOpenInput"
     />
-    <button class="submit-btn" bindtap="submitOpenAnswer" disabled="{{!openAnswer.trim()}}">提交</button>
+    <button class="submit-btn tap-scale" hover-class="tap-scale-hover" bindtap="submitOpenAnswer" disabled="{{!openAnswer.trim()}}">提交</button>
   </view>
 </view>

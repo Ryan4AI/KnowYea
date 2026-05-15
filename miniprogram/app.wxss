@@ -1,0 +1,39 @@
+/**
+ * 知识胶囊 · 全局视觉变量（各页 wxss 可复用同名变量需自行拷贝，小程序 page 级变量）
+ */
+page {
+  --capsule-bg: #f4f6fc;
+  --capsule-surface: #ffffff;
+  --capsule-ink: #1a1d2e;
+  --capsule-ink-secondary: #5c6178;
+  --capsule-muted: #9aa0b4;
+  --capsule-border: rgba(26, 29, 46, 0.08);
+  --capsule-accent: #6c5ce7;
+  --capsule-accent-2: #a29bfe;
+  --capsule-success: #00c9a7;
+  --capsule-warm: #fdcb6e;
+  --capsule-shadow: 0 8rpx 32rpx rgba(26, 29, 46, 0.08);
+  --capsule-shadow-lg: 0 16rpx 48rpx rgba(26, 29, 46, 0.12);
+  --capsule-radius: 24rpx;
+  --capsule-radius-sm: 16rpx;
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica,
+    'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+}
+
+/* 通用按压态 */
+.tap-scale {
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.tap-scale-hover {
+  transform: scale(0.97);
+  opacity: 0.92;
+}
+
+.tap-opacity {
+  transition: opacity 0.15s ease;
+}
+
+.tap-opacity-hover {
+  opacity: 0.72;
+}

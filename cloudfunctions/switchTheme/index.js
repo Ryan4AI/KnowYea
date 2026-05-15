@@ -32,6 +32,14 @@ exports.main = async (event, context) => {
 
     const userTheme = utRes.data[0]
 
+    // 设为当前学习主题（getHomeData 按 status=learning + startedAt 取最新）
+    await db.collection('user_themes').doc(userTheme._id).update({
+      data: {
+        status: 'learning',
+        startedAt: Date.now(),
+      },
+    })
+
     // 获取当前节点
     const currentOrder = userTheme.currentNodeOrder || 1
     const nodeRes = await db.collection('nodes')

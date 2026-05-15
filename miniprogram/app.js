@@ -1,21 +1,18 @@
 // app.js
-const cloud = require('wx-server-sdk')
-
 App({
   globalData: {
     userInfo: null,
     openid: '',
     isLogin: false,
+    learnContext: null,
   },
 
   onLaunch() {
-    // 初始化云开发
     wx.cloud.init({
       env: 'cloudbase-d7gxwljzddd575d93',
       traceUser: true,
     })
 
-    // 登录
     this.login()
   },
 
@@ -32,7 +29,36 @@ App({
       },
       fail: err => {
         console.error('登录失败', err)
-      }
+      },
     })
+  },
+
+  waitForLogin() {
+    return new Promise(resolve => {
+      if (this.globalData.openid) {
+        resolve(this.globalData.openid)
+        return
+      }
+      const timer = setInterval(() => {
+        if (this.globalData.openid) {
+          clearInterval(timer)
+          resolve(this.globalData.openid)
+        }
+      }, 200)
+      setTimeout(() => {
+        clearInterval(timer)
+        resolve(this.globalData.openid)
+      }, 8000)
+    })
+  },
+
+  setLearnContext(context) {
+    this.globalData.learnContext = context
+  },
+
+  consumeLearnContext() {
+    const context = this.globalData.learnContext
+    this.globalData.learnContext = null
+    return context
   },
 })

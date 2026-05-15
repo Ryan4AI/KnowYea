@@ -25,16 +25,16 @@
     "pages/settings/settings"
   ],
   "window": {
-    "navigationBarTitleText": "小知也",
+    "navigationBarTitleText": "知识胶囊",
     "navigationBarBackgroundColor": "#1a1a2e",
     "navigationBarTextStyle": "white",
-    "backgroundColor": "#f5f5f5"
+    "backgroundColor": "#f4f6fc"
   },
   "tabBar": {
-    "color": "#999999",
-    "selectedColor": "#4CAF50",
+    "color": "#8b90a0",
+    "selectedColor": "#6c5ce7",
     "backgroundColor": "#ffffff",
-    "borderStyle": "black",
+    "borderStyle": "white",
     "list": [
       {
         "pagePath": "pages/learn/learn",

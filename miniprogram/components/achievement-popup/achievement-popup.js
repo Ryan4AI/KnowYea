@@ -12,25 +12,34 @@ Component({
   },
 
   data: {
-    // 控制弹窗显示
     visible: false,
   },
 
   observers: {
-    show(newVal) {
-      if (newVal && this.data.achievement) {
+    'show, achievement'(show, achievement) {
+      if (this._closeTimer) {
+        clearTimeout(this._closeTimer)
+        this._closeTimer = null
+      }
+      if (show && achievement) {
         this.setData({ visible: true })
-        // 3秒后自动关闭
-        setTimeout(() => {
+        this._closeTimer = setTimeout(() => {
+          this._closeTimer = null
           this.setData({ visible: false })
           this.triggerEvent('close')
-        }, 3000)
+        }, 3200)
+      } else if (!show) {
+        this.setData({ visible: false })
       }
     },
   },
 
   methods: {
     onClose() {
+      if (this._closeTimer) {
+        clearTimeout(this._closeTimer)
+        this._closeTimer = null
+      }
       this.setData({ visible: false })
       this.triggerEvent('close')
     },

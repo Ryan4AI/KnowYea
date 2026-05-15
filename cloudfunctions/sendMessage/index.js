@@ -33,7 +33,7 @@ const SYSTEM_PROMPT = `你是一位专业、耐心、善于引导的AI导师。�
 - 用户回答后，给出具体的反馈`
 
 exports.main = async (event, context) => {
-  const { openid, themeId, nodeId, content } = event
+  const { openid, themeId, nodeId, content, reviewMode } = event
 
   if (!openid || !themeId || !nodeId) {
     return { success: false, error: '缺少必要参数' }

@@ -1,13 +1,42 @@
-<view class="theme-switcher">
-  <scroll-view scroll-x class="theme-list">
-    <block wx:for="{{themes}}" wx:key="id">
-      <view 
-        class="theme-item {{item.id === currentThemeId ? 'active' : ''}}"
-        data-id="{{item.id}}"
-        bindtap="onThemeChange"
+<view class="switcher-mask" wx:if="{{show}}" bindtap="onClose">
+  <view class="switcher-panel" catchtap="noop">
+    <view class="panel-handle"></view>
+    <view class="panel-header">
+      <text class="panel-title">切换学习主题</text>
+      <text class="panel-close tap-opacity" hover-class="tap-opacity-hover" bindtap="onClose">✕</text>
+    </view>
+    <text class="panel-subtitle">选择进行中的主题，立即切换</text>
+
+    <scroll-view scroll-y class="theme-scroll" wx:if="{{themes.length > 0}}">
+      <view
+        class="theme-row tap-scale {{item._id === currentThemeId ? 'active' : ''}}"
+        hover-class="tap-scale-hover"
+        wx:for="{{themes}}"
+        wx:key="_id"
+        bindtap="onSelectTheme"
+        data-id="{{item._id}}"
       >
-        <text class="theme-name">{{item.name}}</text>
+        <view class="theme-row-left">
+          <text class="theme-emoji">{{item.plantEmoji || '🌱'}}</text>
+          <view class="theme-row-info">
+            <view class="theme-name">{{item.name}}</view>
+            <view class="theme-desc">{{item.description}}</view>
+          </view>
+        </view>
+        <view class="theme-row-right">
+          <view class="theme-progress">{{item.completedCount || 0}}/{{item.totalNodes}}</view>
+          <view class="theme-check" wx:if="{{item._id === currentThemeId}}">当前</view>
+        </view>
       </view>
-    </block>
-  </scroll-view>
+    </scroll-view>
+
+    <view class="empty-themes" wx:else>
+      <text class="empty-icon">📚</text>
+      <text class="empty-text">还没有进行中的主题</text>
+    </view>
+
+    <view class="panel-footer">
+      <button class="add-theme-btn tap-scale" hover-class="tap-scale-hover" bindtap="onGoThemeStore">➕ 从主题库添加</button>
+    </view>
+  </view>
 </view>
