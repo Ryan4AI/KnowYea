@@ -1,0 +1,8 @@
+<!-- components/summary-card/summary-card.wxml -->
+<view class="summary-card">
+  <view class="summary-label">📝 总结</view>
+  <view class="summary-text">
+    <slot></slot>
+    <text>{{text}}</text>
+  </view>
+</view>

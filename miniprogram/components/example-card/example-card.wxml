@@ -1,0 +1,8 @@
+<!-- components/example-card/example-card.wxml -->
+<view class="example-card">
+  <view class="example-label">💡 例子</view>
+  <view class="example-text">
+    <slot></slot>
+    <text>{{text}}</text>
+  </view>
+</view>

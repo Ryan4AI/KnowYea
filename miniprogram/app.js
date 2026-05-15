@@ -16,11 +16,25 @@ App({
     })
 
     // 登录
-    this.login()
+    this.login().then(() => {
+      // 初始化数据库（创建预置主题和节点）
+      wx.cloud.callFunction({
+        name: 'initDatabase',
+        data: {},
+        success: res => {
+          if (res.result && res.result.success) {
+            console.log('数据库初始化完成:', res.result.message)
+          }
+        },
+        fail: err => {
+          console.error('数据库初始化失败', err)
+        }
+      })
+    })
   },
 
   login() {
-    wx.cloud.callFunction({
+    return wx.cloud.callFunction({
       name: 'login',
       data: {},
       success: res => {

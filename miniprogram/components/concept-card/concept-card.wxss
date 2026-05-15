@@ -1,0 +1,18 @@
+.concept-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin: 16rpx 0;
+}
+
+.concept-label {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 12rpx;
+}
+
+.concept-text {
+  font-size: 28rpx;
+  color: white;
+  line-height: 1.6;
+}

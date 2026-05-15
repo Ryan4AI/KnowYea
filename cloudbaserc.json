@@ -1,4 +1,168 @@
 {
+  "version": "2.0",
   "envId": "cloudbase-d7gxwljzddd575d93",
-  "version": "2.0"
+  "$schema": "https://framework-1258016615.tcloudbaseapp.com/schema/latest.json",
+  "functionRoot": "./cloudfunctions",
+  "functions": [
+    {
+      "name": "addTheme",
+      "runtime": "Nodejs16.13",
+      "handler": "index.main",
+      "timeout": 60,
+      "memorySize": 256,
+      "installDependency": true
+    },
+    {
+      "name": "checkAchievement",
+      "runtime": "Nodejs16.13",
+      "handler": "index.main",
+      "timeout": 30,
+      "memorySize": 256,
+      "installDependency": true
+    },
+    {
+      "name": "completeNode",
+      "runtime": "Nodejs16.13",
+      "handler": "index.main",
+      "timeout": 60,
+      "memorySize": 256,
+      "installDependency": true
+    },
+    {
+      "name": "generateTheme",
+      "runtime": "Nodejs16.13",
+      "handler": "index.main",
+      "timeout": 120,
+      "memorySize": 512,
+      "installDependency": true
+    },
+    {
+      "name": "getAchievements",
+      "runtime": "Nodejs16.13",
+      "handler": "index.main",
+      "timeout": 30,
+      "memorySize": 256,
+      "installDependency": true
+    },
+    {
+      "name": "getConversations",
+      "runtime": "Nodejs16.13",
+      "handler": "index.main",
+      "timeout": 30,
+      "memorySize": 256,
+      "installDependency": true
+    },
+    {
+      "name": "getFavorites",
+      "runtime": "Nodejs16.13",
+      "handler": "index.main",
+      "timeout": 30,
+      "memorySize": 256,
+      "installDependency": true
+    },
+    {
+      "name": "getGarden",
+      "runtime": "Nodejs16.13",
+      "handler": "index.main",
+      "timeout": 30,
+      "memorySize": 256,
+      "installDependency": true
+    },
+    {
+      "name": "getHistory",
+      "runtime": "Nodejs16.13",
+      "handler": "index.main",
+      "timeout": 30,
+      "memorySize": 256,
+      "installDependency": true
+    },
+    {
+      "name": "getHomeData",
+      "runtime": "Nodejs16.13",
+      "handler": "index.main",
+      "timeout": 60,
+      "memorySize": 256,
+      "installDependency": true
+    },
+    {
+      "name": "getStoreThemes",
+      "runtime": "Nodejs16.13",
+      "handler": "index.main",
+      "timeout": 30,
+      "memorySize": 256,
+      "installDependency": true
+    },
+    {
+      "name": "getThemes",
+      "runtime": "Nodejs16.13",
+      "handler": "index.main",
+      "timeout": 30,
+      "memorySize": 256,
+      "installDependency": true
+    },
+    {
+      "name": "getUserProfile",
+      "runtime": "Nodejs16.13",
+      "handler": "index.main",
+      "timeout": 30,
+      "memorySize": 256,
+      "installDependency": true
+    },
+    {
+      "name": "initDatabase",
+      "runtime": "Nodejs16.13",
+      "handler": "index.main",
+      "timeout": 120,
+      "memorySize": 256,
+      "installDependency": true
+    },
+    {
+      "name": "login",
+      "runtime": "Nodejs16.13",
+      "handler": "index.main",
+      "timeout": 30,
+      "memorySize": 256,
+      "installDependency": true
+    },
+    {
+      "name": "msgSecCheck",
+      "runtime": "Nodejs16.13",
+      "handler": "index.main",
+      "timeout": 30,
+      "memorySize": 256,
+      "installDependency": true
+    },
+    {
+      "name": "sendMessage",
+      "runtime": "Nodejs16.13",
+      "handler": "index.main",
+      "timeout": 60,
+      "memorySize": 256,
+      "installDependency": true
+    },
+    {
+      "name": "switchTheme",
+      "runtime": "Nodejs16.13",
+      "handler": "index.main",
+      "timeout": 30,
+      "memorySize": 256,
+      "installDependency": true
+    },
+    {
+      "name": "toggleFavorite",
+      "runtime": "Nodejs16.13",
+      "handler": "index.main",
+      "timeout": 30,
+      "memorySize": 256,
+      "installDependency": true
+    },
+    {
+      "name": "updateUserProfile",
+      "runtime": "Nodejs16.13",
+      "handler": "index.main",
+      "timeout": 30,
+      "memorySize": 256,
+      "installDependency": true
+    }
+  ]
 }

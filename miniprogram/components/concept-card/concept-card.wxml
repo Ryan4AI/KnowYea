@@ -1,0 +1,8 @@
+<!-- components/concept-card/concept-card.wxml -->
+<view class="concept-card">
+  <view class="concept-label">📚 概念</view>
+  <view class="concept-text">
+    <slot></slot>
+    <text>{{text}}</text>
+  </view>
+</view>
