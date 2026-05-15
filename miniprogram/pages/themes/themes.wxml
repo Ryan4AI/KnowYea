@@ -3,8 +3,8 @@
   <!-- 空状态 -->
   <view class="empty-state" wx:if="{{!isLoading && themes.length === 0}}">
     <text class="empty-icon">📚</text>
-    <text class="empty-text">还没有添加任何主题\n去主题库看看有什么可以学习的吧</text>
-    <button class="empty-add-btn" bindtap="onAddTheme">➕ 去主题库添加</button>
+    <text class="empty-text">还没有添加任何课程\n去课程库看看有什么可以学习的吧</text>
+    <button class="empty-add-btn" bindtap="onAddTheme">➕ 去课程库添加</button>
   </view>
 
   <!-- 主题列表 -->
@@ -61,6 +61,6 @@
   <!-- 添加主题按钮 -->
   <view class="add-theme-btn" bindtap="onAddTheme">
     <text class="add-icon">➕</text>
-    <text>添加新主题</text>
+    <text>添加新课程</text>
   </view>
 </view>

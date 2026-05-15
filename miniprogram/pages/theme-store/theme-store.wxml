@@ -5,7 +5,7 @@
     <view class="ai-recommend-title">🤖 AI 智能推荐</view>
     <view class="ai-recommend-input">
       <input
-        placeholder="输入想学的主题，如：投资理财、心理学、历史..."
+        placeholder="输入想学的课程，如：投资理财、心理学、历史..."
         placeholder-style="color: rgba(255,255,255,0.7)"
         bindconfirm="onAIRecommend"
       />
@@ -19,7 +19,7 @@
       <text class="search-icon">🔍</text>
       <input
         class="search-input"
-        placeholder="搜索主题"
+        placeholder="搜索课程"
         bindinput="onSearch"
         value="{{searchKeyword}}"
       />
@@ -45,7 +45,7 @@
     <text>加载中...</text>
   </view>
 
-  <!-- 主题网格 -->
+  <!-- 课程网格 -->
   <view class="theme-grid" wx:else>
     <view
       class="theme-card"
@@ -56,7 +56,7 @@
       <view class="theme-name">{{item.name}}</view>
       <view class="theme-desc">{{item.description}}</view>
       <view class="theme-meta">
-        <text>{{item.nodeCount}} 个节点</text>
+        <text>{{item.nodeCount}} 个章节</text>
         <button
           class="add-btn {{item.added ? 'added' : ''}}"
           bindtap="onAddTheme"

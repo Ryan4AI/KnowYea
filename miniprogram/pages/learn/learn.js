@@ -487,7 +487,7 @@ Page({
             wx.hideLoading()
             if (genRes.result && genRes.result.success) {
               this.setData({ showProfileSetup: false })
-              wx.showToast({ title: '推荐主题已生成', icon: 'success' })
+              wx.showToast({ title: '推荐课程已生成', icon: 'success' })
               this.loadHomeData()
             } else {
               wx.showToast({ title: genRes.result?.error || '生成失败', icon: 'none' })

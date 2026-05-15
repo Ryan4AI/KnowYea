@@ -2,10 +2,10 @@
   <view class="switcher-panel" catchtap="noop">
     <view class="panel-handle"></view>
     <view class="panel-header">
-      <text class="panel-title">切换学习主题</text>
+      <text class="panel-title">切换学习课程</text>
       <text class="panel-close tap-opacity" hover-class="tap-opacity-hover" bindtap="onClose">✕</text>
     </view>
-    <text class="panel-subtitle">选择进行中的主题，立即切换</text>
+    <text class="panel-subtitle">选择进行中的课程，立即切换</text>
 
     <scroll-view scroll-y class="theme-scroll" wx:if="{{themes.length > 0}}">
       <view
@@ -32,11 +32,11 @@
 
     <view class="empty-themes" wx:else>
       <text class="empty-icon">📚</text>
-      <text class="empty-text">还没有进行中的主题</text>
+      <text class="empty-text">还没有进行中的课程</text>
     </view>
 
     <view class="panel-footer">
-      <button class="add-theme-btn tap-scale" hover-class="tap-scale-hover" bindtap="onGoThemeStore">➕ 从主题库添加</button>
+      <button class="add-theme-btn tap-scale" hover-class="tap-scale-hover" bindtap="onGoThemeStore">➕ 从课程库添加</button>
     </view>
   </view>
 </view>

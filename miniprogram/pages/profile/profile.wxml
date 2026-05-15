@@ -16,13 +16,13 @@
     <view class="stat-card">
       <view class="stat-card-inner">
         <view class="stat-value">{{stats.completedNodes}}</view>
-        <view class="stat-label">已完成节点</view>
+        <view class="stat-label">已完成章节</view>
       </view>
     </view>
     <view class="stat-card">
       <view class="stat-card-inner">
         <view class="stat-value">{{stats.completedThemes}}</view>
-        <view class="stat-label">已完成主题</view>
+        <view class="stat-label">已完成课程</view>
       </view>
     </view>
     <view class="stat-card">

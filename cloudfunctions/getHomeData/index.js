@@ -26,8 +26,9 @@ exports.main = async (event, context) => {
 
     const userThemesCount = await db.collection('user_themes').where({ openid }).count()
     const profile = user?.profile || {}
-    const needsOnboarding = userThemesCount.total === 0 &&
-      (!profile.age && !profile.occupation && !(profile.interests && profile.interests.length))
+    const hasProfile = !!(profile.age || profile.occupation || (profile.interests && profile.interests.length))
+
+    const needsOnboarding = userThemesCount.total === 0 || !hasProfile
 
     let currentTheme = null
     let currentNode = null

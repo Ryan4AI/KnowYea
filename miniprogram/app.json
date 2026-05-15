@@ -44,7 +44,7 @@
       },
       {
         "pagePath": "pages/themes/themes",
-        "text": "主题",
+        "text": "课程",
         "iconPath": "assets/images/tab-themes.png",
         "selectedIconPath": "assets/images/tab-themes-active.png"
       },

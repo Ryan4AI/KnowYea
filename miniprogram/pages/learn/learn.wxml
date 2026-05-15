@@ -33,9 +33,9 @@
       <!-- 空状态 -->
       <view class="empty-state" wx:if="{{!theme && !isLoading && !showProfileSetup}}">
         <text class="empty-icon">📚</text>
-        <text class="empty-text">还没有开始学习\n去主题库添加你的第一个主题吧</text>
-        <button class="start-btn tap-scale" hover-class="tap-scale-hover" bindtap="onSwitchTheme">选择主题</button>
-        <button class="start-btn secondary tap-scale" hover-class="tap-scale-hover" bindtap="onGoThemeStoreFromEmpty">浏览主题库</button>
+        <text class="empty-text">还没有开始学习\n去课程库添加你的第一个课程吧</text>
+        <button class="start-btn tap-scale" hover-class="tap-scale-hover" bindtap="onSwitchTheme">选择课程</button>
+        <button class="start-btn secondary tap-scale" hover-class="tap-scale-hover" bindtap="onGoThemeStoreFromEmpty">浏览课程库</button>
       </view>
 
       <!-- Loading -->
@@ -131,7 +131,7 @@
   <view class="profile-mask" wx:if="{{showProfileSetup}}">
     <view class="profile-panel">
       <view class="profile-title">👋 欢迎来到知识胶囊</view>
-      <view class="profile-subtitle">每天几分钟，慢慢变强\n告诉我们一点关于你的信息，为你推荐第一个学习主题</view>
+      <view class="profile-subtitle">每天几分钟，慢慢变强\n告诉我们一点关于你的信息，为你推荐第一个学习课程</view>
 
       <view class="profile-field">
         <text class="field-label">年龄段</text>
