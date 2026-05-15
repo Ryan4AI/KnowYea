@@ -1,6 +1,8 @@
 {
   "usingComponents": {
-    "theme-switcher": "/components/theme-switcher/theme-switcher"
+    "theme-switcher": "/components/theme-switcher/theme-switcher",
+    "message-card": "/components/message-card/message-card",
+    "question-card": "/components/question-card/question-card"
   },
   "navigationBarTitleText": "学习",
   "navigationBarBackgroundColor": "#1a1a2e",

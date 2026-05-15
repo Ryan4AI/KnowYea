@@ -1,5 +1,5 @@
 // app.js
-const cloud = require('cloud://env-dont-edit')
+const cloud = require('wx-server-sdk')
 
 App({
   globalData: {
@@ -11,7 +11,7 @@ App({
   onLaunch() {
     // 初始化云开发
     wx.cloud.init({
-      env: 'knowledge-capsule-xxx',  // 替换为实际云开发环境 ID
+      env: 'cloudbase-d7gxwljzddd575d93',
       traceUser: true,
     })
 

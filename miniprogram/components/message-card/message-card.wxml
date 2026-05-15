@@ -1,0 +1,18 @@
+<!-- components/message-card/message-card.wxml -->
+<view class="message-card {{message.role === 'user' ? 'user' : 'ai'}}">
+  <view class="avatar">
+    <text class="avatar-icon">{{message.role === 'user' ? '👤' : '🤖'}}</text>
+  </view>
+  <view class="content-wrapper">
+    <view class="message-content">
+      <block wx:for="{{parsedContent}}" wx:key="index">
+        <text wx:if="{{item.type === 'text'}}">{{item.text}}</text>
+        <view wx:elif="{{item.type === 'concept'}}" class="concept-block">
+          <text class="concept-label">📖</text>
+          <text class="concept-text">{{item.text}}</text>
+        </view>
+      </block>
+    </view>
+    <view class="time">{{message.createdAt}}</view>
+  </view>
+</view>

@@ -1,5 +1,6 @@
 {
   "devDependencies": {
-    "canvas": "^3.2.3"
+    "canvas": "^3.2.3",
+    "miniprogram-ci": "^2.1.31"
   }
 }

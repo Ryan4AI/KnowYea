@@ -11,5 +11,5 @@
       <text class="menu-arrow">›</text>
     </view>
   </view>
-  <view class="version">知识胶囊 v{{version}}</view>
+  <view class="version">小知也 v{{version}}</view>
 </view>

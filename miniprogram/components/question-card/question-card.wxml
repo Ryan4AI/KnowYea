@@ -1,0 +1,30 @@
+<!-- components/question-card/question-card.wxml -->
+<view class="question-card">
+  <view class="question-type">{{isOpenAnswer ? '💬 开放题' : '📝 选择题'}}</view>
+  <view class="question-text">{{question.content}}</view>
+
+  <!-- 选择题选项 -->
+  <view wx:if="{{!isOpenAnswer}}" class="options">
+    <block wx:for="{{options}}" wx:key="index">
+      <view
+        class="option {{selectedIndex === index ? 'selected' : ''}}"
+        bindtap="selectOption"
+        data-index="{{index}}"
+      >
+        <text class="option-label">{{item.label}}</text>
+        <text class="option-text">{{item.text}}</text>
+      </view>
+    </block>
+  </view>
+
+  <!-- 开放题输入 -->
+  <view wx:if="{{isOpenAnswer}}" class="open-answer">
+    <input
+      class="open-input"
+      placeholder="请输入你的答案..."
+      value="{{openAnswer}}"
+      bindinput="bindOpenInput"
+    />
+    <button class="submit-btn" bindtap="submitOpenAnswer" disabled="{{!openAnswer.trim()}}">提交</button>
+  </view>
+</view>

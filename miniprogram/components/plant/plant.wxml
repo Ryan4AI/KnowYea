@@ -1,0 +1,8 @@
+<!-- components/plant/plant.wxml -->
+<view class="plant-container size-{{size}}">
+  <view class="plant-emoji">{{emoji}}</view>
+  <view class="plant-info">
+    <text class="plant-level">{{levelName}}</text>
+    <text class="plant-points" wx:if="{{points > 0}}">{{points}} 积分</text>
+  </view>
+</view>

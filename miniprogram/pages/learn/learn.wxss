@@ -352,3 +352,14 @@
   z-index: 10;
   opacity: 0.6;
 }
+
+.choice-hint {
+  display: inline-block;
+  background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+  color: #b3541f;
+  border-radius: 20rpx;
+  padding: 8rpx 16rpx;
+  font-size: 24rpx;
+  margin: 12rpx 0;
+  box-shadow: 0 2rpx 6rpx rgba(0,0,0,0.1);
+}

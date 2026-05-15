@@ -1,0 +1,11 @@
+<!-- components/achievement-popup/achievement-popup.wxml -->
+<view class="achievement-popup" wx:if="{{visible}}">
+  <view class="popup-mask" bindtap="onClose"></view>
+  <view class="popup-content">
+    <view class="popup-icon">{{achievement.icon || '🏆'}}</view>
+    <view class="popup-title">🎉 新成就解锁</view>
+    <view class="popup-name">{{achievement.name}}</view>
+    <view class="popup-desc">{{achievement.description}}</view>
+    <button class="popup-close-btn" bindtap="onClose">太棒了！</button>
+  </view>
+</view>

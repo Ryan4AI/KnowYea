@@ -36,9 +36,10 @@
       <block wx:for="{{messages}}" wx:key="id">
         <view class="message-item {{item.role}}">
           <view class="message-content">
-            <view>{{item.content}}</view>
+            <rich-text nodes="{{item.parsedContent || item.content}}"></rich-text>
           </view>
-          <text class="message-time">{{item.createdAt}}</text>
+          <view class="choice-hint" wx:if="{{item.showChoiceHint}}">📋 请回复选项字母或文字</view>
+          <text class="message-time">{{item.timeStr}}</text>
         </view>
       </block>
     </view>
