@@ -1,7 +1,7 @@
 {
   "name": "debugOpenid",
   "version": "1.0.0",
-  "description": "调试：获取 openid 和环境信息",
+  "description": "调试 openid 获取",
   "main": "index.js",
   "dependencies": {
     "wx-server-sdk": "~2.6.3"
