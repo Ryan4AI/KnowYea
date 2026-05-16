@@ -4,14 +4,11 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
 const https = require('https')
 
-function callMiniMax(prompt) {
+function callMiniMax(messages) {
   return new Promise((resolve, reject) => {
     const data = JSON.stringify({
       model: 'MiniMax-M2.7',
-      messages: [
-        { role: 'system', content: '你是教育专家。根据用户画像推荐学习主题，仅输出 JSON，不要任何解释或 markdown 包裹。' },
-        { role: 'user', content: prompt }
-      ],
+      messages,
       max_tokens: 4096,
     })
     const req = https.request({
@@ -25,10 +22,15 @@ function callMiniMax(prompt) {
       timeout: 30000,
     }, res => {
       let body = ''
+      const statusCode = res.statusCode
       res.on('data', chunk => body += chunk)
       res.on('end', () => {
         try {
           const parsed = JSON.parse(body)
+          if (statusCode !== 200) {
+            reject(new Error(parsed.error?.message || `HTTP ${statusCode}`))
+            return
+          }
           resolve(parsed)
         } catch(e) {
           reject(new Error('解析MiniMax响应失败: ' + body.slice(0,200)))
@@ -69,20 +71,57 @@ exports.main = async (event, context) => {
   }
 
   const ageMap = { 1: '18岁以下', 2: '18-25岁', 3: '26-35岁', 4: '36-45岁', 5: '45岁以上' }
-  const prompt = `根据以下用户画像，推荐一个合适的学习主题：
+  const systemPrompt = `你是对话式微学习课程设计师。你的任务是为用户设计一个可以在微信小程序中、通过AI对话完成的微型课程。
+
+# 什么是"对话式微学习"
+- 用户通过和AI对话来学习，全程在聊天界面完成
+- 每个"节点"（课时）是一个完整的对话单元，包含 AI 讲解 + 与用户互动确认理解
+- 完成一个节点大约需要 3-5 分钟对话
+- 不需要用户做任何线下任务或长期作业
+
+# 节点设计要求
+每个节点应该：
+✅ 聚焦一个单一概念或知识点（不要塞进太多内容）
+✅ 完成标准必须是对话内可以达成的（用户理解了、能回答了就算完成）
+✅ 用通俗易懂的语言描述 learningObjective（告诉AI讲师要讲什么）
+✅ 不要空泛，要具体可教
+
+# 好的节点示例
+[正确] {"title":"什么是 RESTful API","learningObjective":"解释 RESTful API 的核心原则（资源、方法、状态码），让用户理解 REST 和无状态的含义","completionSignal":"用户能说出 REST API 的 3 个关键特征，并理解 GET/POST/PUT/DELETE 的用途"}
+
+[错误] {"title":"RESTful API 深度实践","learningObjective":"熟练运用 RESTful API 设计原则，包括资源命名、版本控制、认证授权等完整体系","completionSignal":"完成一个完整的 REST API 设计"}
+
+错误的例子中，一个节点塞了太多内容，completionSignal 需要"完成一个完整项目"——这不是对话式学习。
+
+# 课程结构
+- 节点数量由AI根据内容复杂度自行决定，不设上限
+- 节点之间要有逻辑递进：从基础到深入
+- 每个节点独立成课，但串联起来覆盖完整的主题
+
+# 输出格式
+仅输出以下 JSON 格式，不要任何额外文字（包括不要 markdown 包裹）：`
+
+  const prompt = `根据以下用户画像，推荐一个适合对话式微学习的学习主题：
 
 用户信息：
 - 年龄：${ageMap[profile.age] || '25-35岁'}
-- 职业：profile.occupation || '职场人士'
+- 职业：${profile.occupation || '职场人士'}
 - 兴趣：${(profile.interests || []).join('、') || '通用知识'}
 
-请生成一个适合该用户的学习主题。要求与用户的兴趣或职业发展相关，节点数量由AI根据内容复杂度自行决定，不设上限。
+请生成一个适合该用户的微型课程。注意：
+1. 主题与用户的兴趣或职业发展相关
+2. 每个节点应是对话内可完成的单一知识点（不是大章节）
+3. 完成标准（completionSignal）必须是对话内就可达成的
+4. 节点间有递进关系
 
-请严格以 JSON 格式输出（不要用 markdown 代码块）：
-{"name":"主题名称","description":"主题描述","tags":["标签"],"nodes":[{"title":"节点标题","learningObjective":"学习目标","completionSignal":"完成标准"}]}`
+JSON格式：
+{"name":"主题名称","description":"主题描述（一句话概括，吸引人）","tags":["标签"],"nodes":[{"title":"节点标题","learningObjective":"告诉AI讲师要教什么（具体可讲）","completionSignal":"用户怎样才算学会了（对话内可验证）"}]}`
 
   try {
-    const aiRes = await callMiniMax(prompt)
+    const aiRes = await callMiniMax([
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: prompt }
+    ])
     const raw = aiRes.choices?.[0]?.message?.content
     if (!raw) {
       return { success: false, error: 'AI 返回为空' }

@@ -214,6 +214,22 @@
   line-height: 1.65;
   color: #2d3254;
 }
+.concept-text code {
+  font-family: monospace;
+  background: #e8eaf6;
+  padding: 2rpx 8rpx;
+  border-radius: 6rpx;
+  font-size: 24rpx;
+}
+.concept-text pre {
+  background: #1e293b;
+  color: #e2e8f0;
+  padding: 16rpx;
+  border-radius: 10rpx;
+  font-size: 24rpx;
+  margin: 8rpx 0;
+}
+.concept-text b { font-weight: 600; }
 
 .example-card {
   margin: 14rpx 0;
@@ -686,4 +702,78 @@
   color: #aaa;
   text-align: center;
   line-height: 1.6;
+}
+
+/* 评价卡片 */
+.evaluation-card {
+  background: #fef3e2;
+  border-radius: 16rpx;
+  padding: 20rpx 24rpx;
+  margin: 12rpx 0;
+  border-left: 6rpx solid #f59e0b;
+}
+.evaluation-label {
+  font-size: 24rpx;
+  color: #d97706;
+  margin-bottom: 8rpx;
+}
+.evaluation-text {
+  font-size: 28rpx;
+  color: #333;
+  line-height: 1.6;
+}
+
+/* 评分徽章 */
+.score-badge {
+  display: inline-flex;
+  align-items: center;
+  background: linear-gradient(135deg, #f59e0b, #f97316);
+  border-radius: 30rpx;
+  padding: 8rpx 20rpx;
+  margin: 12rpx 0;
+}
+.score-icon {
+  font-size: 28rpx;
+  margin-right: 8rpx;
+}
+.score-value {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #fff;
+}
+
+/* 代码样式 */
+.plain-text code {
+  font-family: monospace;
+  background: #f0f0f0;
+  padding: 2rpx 8rpx;
+  border-radius: 6rpx;
+  font-size: 24rpx;
+  color: #e11d48;
+}
+.plain-text pre {
+  background: #1e293b;
+  color: #e2e8f0;
+  padding: 20rpx;
+  border-radius: 12rpx;
+  font-size: 24rpx;
+  overflow-x: auto;
+  margin: 12rpx 0;
+}
+.plain-text pre code {
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  font-size: inherit;
+}
+.plain-text ul, .plain-text ol {
+  padding-left: 40rpx;
+  margin: 8rpx 0;
+}
+.plain-text li {
+  font-size: 28rpx;
+  line-height: 1.8;
+}
+.plain-text b {
+  font-weight: 600;
 }

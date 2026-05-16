@@ -64,6 +64,15 @@ exports.main = async (event, context) => {
         const now = Date.now()
         await convCol.add({ data: { id: 'user_' + now, openid, themeId, nodeId, role: 'user', content: userText || '', createdAt: now } })
         await convCol.add({ data: { id: 'ai_' + now + 1, openid, themeId, nodeId, role: 'ai', content: aiReply, createdAt: now + 1 } })
+
+        // 如果 AI 回复包含评分，记录到 user_progress
+        const scoreMatch = aiReply.match(/\[评分\](\d+)/)
+        if (scoreMatch) {
+          const score = parseInt(scoreMatch[1])
+          await db.collection('user_progress').add({
+            data: { openid, themeId, nodeId, score, recordedAt: Date.now() }
+          })
+        }
       }
 
       return { success: true, aiReply, isCompleted }

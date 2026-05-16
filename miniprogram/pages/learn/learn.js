@@ -25,30 +25,33 @@ function parseMessageBlocks(content) {
   if (!content) return [{ type: 'text', text: '' }]
 
   const blocks = []
-  const pattern = /\[(概念|例子|总结)\]([\s\S]*?)\[\/\1\]|\[题目 type="(choice|open)"\]([\s\S]*?)\[\/题目\]/g
+  // 匹配标签块
+  const pattern = /\[(概念|例子|总结|评价)\]([\s\S]*?)\[\/\1\]|\[题目 type="(choice|open)"\]([\s\S]*?)\[\/题目\]|\[评分\] (\d+)/g
   let lastIndex = 0
   let match
 
   while ((match = pattern.exec(content)) !== null) {
     if (match.index > lastIndex) {
       const plain = content.slice(lastIndex, match.index).replace(/\[完成\]/g, '').trim()
-      if (plain) blocks.push({ type: 'text', text: plain })
+      if (plain) blocks.push({ type: 'text', text: plain, html: mdToHtml(plain) })
     }
     if (match[1]) {
-      blocks.push({ type: match[1], text: match[2].trim() })
-    } else if (match[2]) {
+      blocks.push({ type: match[1], text: match[2].trim(), html: mdToHtml(match[2].trim()) })
+    } else if (match[3]) {
       blocks.push({
-        type: match[2],
-        content: match[3].trim(),
+        type: match[3],
+        content: match[4].trim(),
       })
+    } else if (match[5]) {
+      blocks.push({ type: '评分', score: parseInt(match[5]), text: '' })
     }
     lastIndex = pattern.lastIndex
   }
 
   const rest = content.slice(lastIndex).replace(/\[完成\]/g, '').trim()
-  if (rest) blocks.push({ type: 'text', text: rest })
+  if (rest) blocks.push({ type: 'text', text: rest, html: mdToHtml(rest) })
   if (blocks.length === 0) {
-    blocks.push({ type: 'text', text: content.replace(/\[完成\]/g, '').trim() })
+    blocks.push({ type: 'text', text: content.replace(/\[完成\]/g, '').trim(), html: mdToHtml(content.replace(/\[完成\]/g, '').trim()) })
   }
   return blocks
 }
@@ -69,6 +72,29 @@ function lightVibrate() {
   } catch (e) {
     // ignore
   }
+}
+
+// 简易 markdown → HTML 转换（供 rich-text 组件使用）
+function mdToHtml(text) {
+  if (!text) return ''
+  // 代码块 (```)
+  let html = text.replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
+  // 行内代码
+  html = html.replace(/`([^`]+)`/g, '<code>$1</code>')
+  // 粗体
+  html = html.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
+  // 无序列表
+  let hasUl = false
+  html = html.split('\n').map(line => {
+    if (/^- /.test(line)) { hasUl = true; return '<li>' + line.slice(2) + '</li>' }
+    return line
+  }).join('\n')
+  html = html.replace(/((?:<li>.*<\/li>\n?)+)/g, (m) => hasUl ? '<ul>' + m + '</ul>' : m)
+  // 换行（但不要让标签内换行）
+  html = html.replace(/\n/g, '<br/>')
+  // 清理多余的包裹
+  html = html.replace(/<br\/><\/ul>/g, '</ul>').replace(/<br\/><\/ol>/g, '</ol>')
+  return html
 }
 
 Page({
@@ -94,6 +120,7 @@ Page({
     currentAchievement: null,
     showProfileSetup: false,
     showCustomInterestInput: false,
+    userProfile: {},
     // 课程生成加载进度
     showGenLoading: false,
     genProgress: 0,
@@ -158,7 +185,12 @@ Page({
           isFavorited,
           hasMoreMessages,
           messageOffset,
+          user,
         } = res.result
+
+        // 保存用户画像，用于学习提示词
+        const userProfile = user?.profile || {}
+        this.setData({ userProfile })
 
         const processedMessages = processMessages(messages)
 
@@ -230,10 +262,58 @@ Page({
     }
     this.scrollToBottom()
 
-    // 构建 MiniMax 对话
+    // 构建 MiniMax 对话 - 完整提示词 + markdown + 评分 + 历史记录20条
+    const sysContent = [
+      '你是一位专业、耐心、善于引导的AI导师。',
+      '',
+      '# 回复格式',
+      `当前课程：${theme?.name || ''}`,
+      `当前节点：${node?.title || ''}`,
+      `学习目标：${node?.learningObjective || ''}`,
+      '',
+      '# 用户信息',
+      `- 职业：${this.data.userProfile?.occupation || '未知'}`,
+      `- 兴趣：${(this.data.userProfile?.interests || []).join('、') || '未知'}`,
+      `- 年龄：${['18岁以下','18-25岁','26-35岁','36-45岁','45岁以上'][(this.data.userProfile?.age || 3)-1] || '26-35岁'}`,
+      '',
+      '# 格式说明',
+      '你可以使用以下标签组织回复：',
+      '- [概念]核心概念[/概念] → 用于定义和解释核心概念',
+      '- [例子]具体例子[/例子] → 用于生活或工作中举例说明',
+      '- [总结]内容总结[/总结] → 用于归纳要点或回顾',
+      '- [评价]分析评价[/评价] → 用于点评用户的回答',
+      '',
+      '# 出题与评分',
+      '- 选择题格式：[题目 type="choice"]问题描述|选项A|选项B|选项C|选项D[/题目]',
+      '- 问答题格式：[题目 type="open"]问题描述[/题目]',
+      '- 用户回答后，如果需要计分，在下一轮回复中加 [评分]N（N为0-10分）',
+      '- 如果确认用户已掌握本节点内容，在回复末尾加 [完成]',
+      '',
+      '# 出题方式',
+      '- 每小节至少出1道题检验用户理解',
+      '- 题目难度递增：先概念确认，再理解应用，最后综合分析',
+      '- 选择题的选项数量保持4个',
+      '- 问答题用于引导用户思考和表达',
+      '',
+      '# 评分标准',
+      '- 完全正确、深入理解 → [评分]9 或 [评分]10',
+      '- 基本正确、理解到位 → [评分]7 或 [评分]8',
+      '- 部分正确、部分偏差 → [评分]5 或 [评分]6',
+      '- 理解不足、方向偏差 → [评分]3 或 [评分]4',
+      '- 完全不对 → [评分]1 或 [评分]2',
+      '',
+      '# 教学流程',
+      '1. 先用[概念]讲解本课时核心知识点',
+      '2. 用[例子]列举相关例子辅助理解',
+      '3. 出题检验（选择题或问答题）',
+      '4. 根据用户的回答给出反馈和[评分]',
+      '5. 必要时再用讲解加深巩固',
+      '6. 确认用户理解后，在回复末尾标注 [完成]',
+    ].join('\n')
+
     const miniMaxMessages = [
-      { role: 'system', content: `你是一位专业、耐心、善于引导的AI导师。用通俗易懂的语言解释概念，多用生活例子，适当提问。每次回复简洁，适合手机阅读。当用户理解后标记 [完成]。\n当前课程：${theme?.name || ''}\n当前节点：${node?.title || ''}\n学习目标：${node?.learningObjective || ''}` },
-      ...messages.slice(-6).map(m => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.content })),
+      { role: 'system', content: sysContent },
+      ...messages.slice(-20).map(m => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.content })),
       { role: 'user', content }
     ]
 
@@ -251,9 +331,11 @@ Page({
         if (res.result && res.result.success && res.result.aiReply) {
           // 剥离 `<think>...</think>` 推理内容
           let aiReply = res.result.aiReply.replace(/<think>[\s\S]*?<\/think>/g, '').trim()
-          const isCompleted = aiReply.includes('[完成]') || (res.result.isCompleted && aiReply.length > 20)
 
-          // 如果 AI 没有标记完成但内容足够长（说明已介绍完主要内容），也视为完成
+          // 检测评分和完成标记
+          const scoreMatch = aiReply.match(/\[评分\]\s*(\d+)/)
+          const isCompleted = aiReply.includes('[完成]')
+
           const aiMsg = {
             id: 'ai_' + Date.now(),
             role: 'ai',
@@ -261,6 +343,7 @@ Page({
             blocks: parseMessageBlocks(aiReply),
             createdAt: Date.now(),
             timeStr: formatTime(Date.now()),
+            score: scoreMatch ? parseInt(scoreMatch[1]) : null,
           }
           this.setData({
             messages: [...this.data.messages, aiMsg],
@@ -269,7 +352,7 @@ Page({
           })
           this.scrollToBottom()
 
-          // 自动进入下一节（无需用户手动操作）
+          // 自动进入下一节
           if (isCompleted) {
             const { theme, node, reviewMode } = this.data
             if (!theme || !node || !theme.nodes || reviewMode) return

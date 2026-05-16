@@ -59,18 +59,26 @@ module.exports = { contains: contains };
         <view class="message-item {{item.role}}" id="msg-{{index}}">
           <view class="message-content">
             <block wx:for="{{item.blocks}}" wx:for-item="block" wx:key="index">
-              <view wx:if="{{block.type === 'text'}}" class="plain-text">{{block.text}}</view>
+              <view wx:if="{{block.type === 'text'}}" class="plain-text"><rich-text nodes="{{block.html || block.text}}"></rich-text></view>
               <view wx:elif="{{block.type === '概念'}}" class="concept-card">
                 <view class="concept-title">📚 概念</view>
-                <view class="concept-text">{{block.text}}</view>
+                <view class="concept-text"><rich-text nodes="{{block.html || block.text}}"></rich-text></view>
               </view>
               <view wx:elif="{{block.type === '例子'}}" class="example-card">
                 <view class="example-label">💡 例子</view>
-                <view class="example-text">{{block.text}}</view>
+                <view class="example-text"><rich-text nodes="{{block.html || block.text}}"></rich-text></view>
               </view>
               <view wx:elif="{{block.type === '总结'}}" class="summary-card">
                 <view class="summary-label">📝 总结</view>
-                <view class="summary-text">{{block.text}}</view>
+                <view class="summary-text"><rich-text nodes="{{block.html || block.text}}"></rich-text></view>
+              </view>
+              <view wx:elif="{{block.type === '评价'}}" class="evaluation-card">
+                <view class="evaluation-label">💬 评价</view>
+                <view class="evaluation-text"><rich-text nodes="{{block.html || block.text}}"></rich-text></view>
+              </view>
+              <view wx:elif="{{block.type === '评分'}}" class="score-badge">
+                <text class="score-icon">⭐</text>
+                <text class="score-value">{{block.score}}/10</text>
               </view>
               <question-card
                 wx:elif="{{block.type === 'choice' || block.type === 'open'}}"
