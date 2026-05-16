@@ -570,14 +570,13 @@ Page({
         }
 
         // 客户端直接调 MiniMax 生成课程（约 10-20 秒）
-        // 慢节奏循环（3秒/次），不会因循环太快而烦躁
-        let step = 0
-        const STEPS = ['📚 构建知识体系…', '🧠 生成课程内容…']
+        // 显示实时等待秒数，让用户知道系统仍在工作，而不是猜测进度
+        let elapsed = 0
         const interval = setInterval(() => {
-          step = (step + 1) % STEPS.length
-          wx.showLoading({ title: STEPS[step], mask: true })
-        }, 3000)
-        wx.showLoading({ title: STEPS[0], mask: true })
+          elapsed++
+          wx.showLoading({ title: `🧠 课程生成中… ${elapsed}s`, mask: true })
+        }, 1000)
+        wx.showLoading({ title: '🧠 课程生成中…', mask: true })
 
         const ageMap = { 1: '18岁以下', 2: '18-25岁', 3: '26-35岁', 4: '36-45岁', 5: '45岁以上' }
         const prompt = `根据以下用户画像，推荐一个合适的学习主题：
@@ -587,7 +586,7 @@ Page({
 - 职业：${profile.occupation || '职场人士'}
 - 兴趣：${profile.interests?.join('、') || '通用知识'}
 
-请生成一个适合该用户的学习主题。要求与用户的兴趣或职业发展相关。节点数量 5-8 个。
+请生成一个适合该用户的学习主题。要求与用户的兴趣或职业发展相关。节点数量 8-12 个。
 
 请严格以 JSON 格式输出（不要用 markdown 代码块）：
 {"name":"主题名称","description":"主题描述","totalNodes":节点数量,"tags":["标签"],"nodes":[{"title":"节点标题","learningObjective":"学习目标","completionSignal":"完成标准"}]}`
@@ -701,7 +700,12 @@ Page({
       interests: profileForm.interestIndexes.map(i => interestOptions[i]),
     }
 
-    wx.showLoading({ title: '🧠 重新生成...', mask: true })
+    let elapsed = 0
+    const interval = setInterval(() => {
+      elapsed++
+      wx.showLoading({ title: `🧠 重新生成… ${elapsed}s`, mask: true })
+    }, 1000)
+    wx.showLoading({ title: '🧠 重新生成…', mask: true })
 
     const ageMap = { 1: '18岁以下', 2: '18-25岁', 3: '26-35岁', 4: '36-45岁', 5: '45岁以上' }
     const prompt = `根据以下用户画像，推荐一个合适的学习主题：
@@ -711,7 +715,7 @@ Page({
 - 职业：${profile.occupation || '职场人士'}
 - 兴趣：${profile.interests?.join('、') || '通用知识'}
 
-请生成一个适合该用户的全新学习主题，不要和之前推荐的重叠。节点数量 5-8 个。
+请生成一个适合该用户的全新学习主题，不要和之前推荐的重叠。节点数量 8-12 个。
 
 严格以 JSON 格式输出（不要用 markdown 代码块）：
 {"name":"主题名称","description":"主题描述","totalNodes":节点数量,"tags":["标签"],"nodes":[{"title":"节点标题","learningObjective":"学习目标","completionSignal":"完成标准"}]}`
@@ -741,6 +745,7 @@ Page({
             const jsonStr = jsonMatch ? jsonMatch[0] : cleaned
             themeData = JSON.parse(jsonStr)
           } catch (e) {
+            clearInterval(interval)
             wx.hideLoading()
             wx.showToast({ title: '无法解析课程数据', icon: 'none' })
             return
@@ -750,6 +755,7 @@ Page({
             name: 'generateTheme',
             data: { openid: app.globalData.openid, themeData },
             success: genRes => {
+              clearInterval(interval)
               wx.hideLoading()
               if (genRes.result && genRes.result.success) {
                 this.setData({ pendingTheme: genRes.result.theme })
@@ -758,16 +764,19 @@ Page({
               }
             },
             fail: () => {
+              clearInterval(interval)
               wx.hideLoading()
               wx.showToast({ title: '保存失败', icon: 'none' })
             }
           })
         } else {
+          clearInterval(interval)
           wx.hideLoading()
           wx.showToast({ title: 'AI 生成失败', icon: 'none' })
         }
       },
       fail: () => {
+        clearInterval(interval)
         wx.hideLoading()
         wx.showToast({ title: '网络错误', icon: 'none' })
       }
