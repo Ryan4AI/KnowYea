@@ -228,12 +228,6 @@
 .example-card { background: #f0f9ff; border-left: 6rpx solid #0ea5e9; }
 .summary-card { background: #f0fdf4; border-left: 6rpx solid #22c55e; }
 .evaluation-card { background: #fef3e2; border-left: 6rpx solid #f59e0b; }
-.card-header {
-  font-size: 22rpx;
-  font-weight: 600;
-  margin-bottom: 8rpx;
-  color: inherit;
-}
 .card-body { font-size: 28rpx; line-height: 1.6; }
 
 /* 评分徽章 */
