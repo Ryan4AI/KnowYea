@@ -26,7 +26,8 @@ async function main() {
     })
 
     console.log('开始上传...')
-    const result = await upload(project, {
+    const result = await upload({
+      project,
       version,
       desc,
       robot: 1,
