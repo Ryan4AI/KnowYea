@@ -204,6 +204,11 @@ npm install
 
 ---
 
+### 2026-05-16 12:02
+- 修复 debugOnboarding 和 debugOpenid 两个云函数缺失的 package.json
+- 项目完整就绪，所有 20 个云函数均有 package.json
+- GitHub 已同步（commit 586bb180）
+
 ## 📝 备忘
 
 - EnvId: cloudbase-d7gxwljzddd575d93
