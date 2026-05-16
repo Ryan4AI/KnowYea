@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# WeChat dev tools
+/miniprogram/package-cache/
+/miniprogram/dev-tools/
+/miniprogram/debugging/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Local config (contains secrets)
+project.private.config.json
+credentials/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Cloud functions (deployed separately)
+# cloudfunctions/node_modules/ (if not in git)
+
+# Temp files
+*.tmp
+.cache/
