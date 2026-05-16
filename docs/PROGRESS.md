@@ -82,6 +82,13 @@
 
 ## 📝 更新日志
 
+### 2026-05-16 08:02
+- 新增 `.gitignore`（过滤 node_modules、credentials、debug 文件等）
+- 新增 `docs/PRIVACY-POLICY.md`（小程序上架必需的隐私政策文档）
+- GitHub 已同步（commit ab770b4a）
+- 代码审查：message-card 支持 [概念] 标签解析，question-card 支持选择/开放题
+- 项目就绪，等待微信开发者工具导入测试
+
 ### 2026-05-16 04:02
 - 代码审查：全部20个云函数、9个页面、8个组件完整
 - GitHub已同步（commit 8debfe63）
