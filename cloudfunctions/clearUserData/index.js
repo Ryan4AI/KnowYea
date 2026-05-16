@@ -13,10 +13,22 @@ exports.main = async (event, context) => {
 
   for (const col of collections) {
     try {
-      const res = await db.collection(col).where({ openid }).remove()
-      results[col] = { deleted: res.deleted }
+      // 先获取数量确认
+      const countRes = await db.collection(col).where({ openid: openid }).count()
+      const total = countRes.total || 0
+
+      if (total > 0) {
+        const res = await db.collection(col).where({ openid: openid }).remove()
+        const stats = res.stats || {}
+        results[col] = { total, removed: stats.removed || 0 }
+        console.log(`[clearUserData] ${col}: ${total} docs found, removed ${stats.removed || 0}`)
+      } else {
+        results[col] = { total: 0, removed: 0 }
+        console.log(`[clearUserData] ${col}: no docs found`)
+      }
     } catch (e) {
       results[col] = { error: e.message }
+      console.error(`[clearUserData] ${col} 删除失败:`, e.message)
     }
   }
 

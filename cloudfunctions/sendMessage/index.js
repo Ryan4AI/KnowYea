@@ -29,18 +29,17 @@ function callMiniMax(messages) {
         try {
           const parsed = JSON.parse(body)
           if (statusCode !== 200) {
-            const errMsg = parsed.error?.message || parsed.error || `HTTP ${statusCode}`
-            reject(new Error(errMsg))
+            reject(new Error('AI服务暂不可用'))
             return
           }
           resolve(parsed)
         } catch(e) {
-          reject(new Error('解析MiniMax响应失败: ' + body.slice(0, 200)))
+          reject(new Error('AI响应格式异常'))
         }
       })
     })
     req.on('error', reject)
-    req.on('timeout', () => { req.destroy(); reject(new Error('MiniMax 请求超时')) })
+    req.on('timeout', () => { req.destroy(); reject(new Error('AI响应超时，请重试')) })
     req.write(data)
     req.end()
   })
@@ -85,11 +84,13 @@ exports.main = async (event, context) => {
       const scoreMatch = aiReply.match(/\[评分\]\s*(\d+)/)
       const score = scoreMatch ? parseInt(scoreMatch[1]) : null
 
-      // 保存消息到数据库
+      // 保存消息到数据库（自动消息不存用户输入）
       if (themeId && nodeId) {
         const convCol = db.collection('user_conversations')
         const now = Date.now()
-        await convCol.add({ data: { id: 'user_' + now, openid, themeId, nodeId, role: 'user', content: userText || '', createdAt: now } })
+        if (!event.isAutoMessage) {
+          await convCol.add({ data: { id: 'user_' + now, openid, themeId, nodeId, role: 'user', content: userText || '', createdAt: now } })
+        }
         await convCol.add({ data: { id: 'ai_' + now + 1, openid, themeId, nodeId, role: 'ai', content: aiReply, createdAt: now + 1 } })
 
         if (score !== null) {

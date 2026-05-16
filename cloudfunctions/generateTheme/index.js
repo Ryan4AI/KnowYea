@@ -33,12 +33,12 @@ function callMiniMax(messages) {
           }
           resolve(parsed)
         } catch(e) {
-          reject(new Error('解析MiniMax响应失败: ' + body.slice(0,200)))
+          reject(new Error('AI响应格式异常'))
         }
       })
     })
     req.on('error', reject)
-    req.on('timeout', () => { req.destroy(); reject(new Error('MiniMax 请求超时')) })
+    req.on('timeout', () => { req.destroy(); reject(new Error('AI响应超时，请重试')) })
     req.write(data)
     req.end()
   })

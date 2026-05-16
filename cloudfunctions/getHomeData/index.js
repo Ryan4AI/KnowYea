@@ -28,7 +28,7 @@ exports.main = async (event, context) => {
     const profile = user?.profile || {}
     const hasProfile = !!(profile.age || profile.occupation || (profile.interests && profile.interests.length))
 
-    const needsOnboarding = userThemesCount.total === 0 || !hasProfile
+    const needsOnboarding = userThemesCount.total === 0 && !hasProfile
     console.log('[DEBUG] userThemesCount.total:', userThemesCount.total, 'hasProfile:', hasProfile, 'needsOnboarding:', needsOnboarding)
 
     let currentTheme = null
@@ -87,18 +87,22 @@ exports.main = async (event, context) => {
       }
 
       if (currentNode && !isReviewMode) {
+        // 加载对话历史（按创建时间排序，取最近 messageLimit 条）
         const convRes = await db.collection('user_conversations')
           .where({ openid, themeId, nodeId: currentNode._id })
-          .limit(1)
+          .orderBy('createdAt', 'desc')
+          .limit(messageLimit)
           .get()
 
         if (convRes.data && convRes.data.length > 0) {
-          const allMessages = convRes.data[0].messages || []
-          const total = allMessages.length
-          const end = total - messageOffset
-          const start = Math.max(0, end - messageLimit)
-          messages = allMessages.slice(start, end)
-          hasMoreMessages = start > 0
+          // 按时间正序排列（旧的在前面）
+          messages = convRes.data.reverse().map(doc => ({
+            id: doc.id || doc._id,
+            role: doc.role,
+            content: doc.content,
+            createdAt: doc.createdAt,
+          }))
+          hasMoreMessages = convRes.data.length >= messageLimit
         }
       }
     }

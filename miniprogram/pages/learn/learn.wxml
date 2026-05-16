@@ -8,177 +8,59 @@ var contains = function(arr, value) {
 };
 module.exports = { contains: contains };
 </wxs>
-<!-- pages/learn/learn.wxml -->
-<view class="page-container">
-  <!-- 顶部主题信息 -->
-  <view class="header tap-opacity" hover-class="tap-opacity-hover" bindtap="onSwitchTheme" wx:if="{{theme}}">
-    <view class="header-left">
-      <view class="theme-name">{{theme.name}}</view>
-      <view class="theme-progress">进度：{{theme.completedCount || 0}}/{{theme.totalNodes}} 节点</view>
-      <view class="node-title" wx:if="{{node}}">{{node.title}}</view>
-      <view class="review-tag" wx:if="{{reviewMode}}">复习模式</view>
+<!-- 课程生成进度覆盖层 -->
+<view class="gen-loading-mask" wx:if="{{showGenLoading}}">
+  <view class="gen-loading-card">
+    <view class="gen-icon">🧠</view>
+    <view class="gen-title">AI 正在为你定制专属课程</view>
+    <view class="gen-stage">{{genStageText}}</view>
+    <view class="gen-progress-bar">
+      <view class="gen-progress-fill" style="width:{{genProgress}}%"></view>
     </view>
-    <view class="header-right">
-      <plant level="{{plantLevel}}" points="{{plantPoints}}" size="small" />
-      <view class="switch-btn tap-scale" hover-class="tap-scale-hover">
-        <text class="switch-icon">🔄</text>
-        <text>切换</text>
-      </view>
+    <view class="gen-hint">根据你的兴趣和职业量身打造，请稍候</view>
+  </view>
+</view>
+
+<view class="page">
+  <!-- 顶部导航 -->
+  <view class="header" wx:if="{{!showProfileSetup}}">
+    <view class="header-left" bindtap="goBack">
+      <text class="back-icon">←</text>
+    </view>
+    <view class="header-center">
+      <text class="header-title">{{theme.name || '学习'}}</text>
+    </view>
+    <view class="header-right" wx:if="{{theme}}" bindtap="showThemeInfo">
+      <text class="info-icon">⋯</text>
     </view>
   </view>
 
-  <!-- 消息列表 -->
-  <scroll-view
-    class="messages-container"
-    scroll-y
-    scroll-into-view="{{scrollIntoView}}"
-    bindscrolltoupper="onLoadMoreMessages"
-    upper-threshold="80"
-  >
-    <view class="message-list">
-      <view class="load-more tap-scale" hover-class="tap-scale-hover" wx:if="{{hasMoreMessages}}" bindtap="onLoadMoreMessages">
-        {{loadingMore ? '加载中...' : '↑ 加载更早消息'}}
-      </view>
+  <!-- 个人信息设置 -->
+  <view class="profile-setup" wx:if="{{showProfileSetup}}">
+    <view class="profile-card">
+      <view class="profile-icon">👤</view>
+      <view class="profile-title">先了解一下你</view>
+      <view class="profile-subtitle">让AI为你量身定制专属课程</view>
 
-      <!-- 空状态 -->
-      <view class="empty-state" wx:if="{{!theme && !isLoading && !showProfileSetup}}">
-        <text class="empty-icon">📚</text>
-        <text class="empty-text">还没有开始学习\n去课程库添加你的第一个课程吧</text>
-        <button class="start-btn tap-scale" hover-class="tap-scale-hover" bindtap="onSwitchTheme">选择课程</button>
-        <button class="start-btn secondary tap-scale" hover-class="tap-scale-hover" bindtap="onGoThemeStoreFromEmpty">浏览课程库</button>
-      </view>
-
-      <!-- Loading -->
-      <view class="loading" wx:if="{{isLoading}}">
-        <text class="loading-icon">⏳</text>
-        <text>AI 思考中...</text>
-      </view>
-
-      <!-- 消息 -->
-      <block wx:for="{{messages}}" wx:key="id">
-        <view class="message-item {{item.role}}" id="msg-{{index}}">
-          <view class="message-content">
-            <block wx:for="{{item.blocks}}" wx:for-item="block" wx:key="index">
-              <view wx:if="{{block.type === 'text'}}" class="plain-text"><rich-text nodes="{{block.html || block.text}}"></rich-text></view>
-              <view wx:elif="{{block.type === '概念'}}" class="concept-card">
-                <view class="concept-title">📚 概念</view>
-                <view class="concept-text"><rich-text nodes="{{block.html || block.text}}"></rich-text></view>
-              </view>
-              <view wx:elif="{{block.type === '例子'}}" class="example-card">
-                <view class="example-label">💡 例子</view>
-                <view class="example-text"><rich-text nodes="{{block.html || block.text}}"></rich-text></view>
-              </view>
-              <view wx:elif="{{block.type === '总结'}}" class="summary-card">
-                <view class="summary-label">📝 总结</view>
-                <view class="summary-text"><rich-text nodes="{{block.html || block.text}}"></rich-text></view>
-              </view>
-              <view wx:elif="{{block.type === '评价'}}" class="evaluation-card">
-                <view class="evaluation-label">💬 评价</view>
-                <view class="evaluation-text"><rich-text nodes="{{block.html || block.text}}"></rich-text></view>
-              </view>
-              <view wx:elif="{{block.type === '评分'}}" class="score-badge">
-                <text class="score-icon">⭐</text>
-                <text class="score-value">{{block.score}}/10</text>
-              </view>
-              <question-card
-                wx:elif="{{block.type === 'choice' || block.type === 'open'}}"
-                question="{{block}}"
-                bind:select="onQuestionSelect"
-                bind:submit="onQuestionSubmit"
-              />
-            </block>
-          </view>
-          <text class="message-time">{{item.timeStr}}</text>
-        </view>
-      </block>
-      <view id="msg-bottom"></view>
-    </view>
-  </scroll-view>
-
-  <!-- 收藏与完成 -->
-  <view class="action-bar" wx:if="{{node}}">
-    <view class="favorite-btn tap-scale" hover-class="tap-scale-hover" bindtap="onToggleFavorite">
-      <text>{{isFavorited ? '❤️ 已收藏' : '🤍 收藏'}}</text>
-    </view>
-    <button
-      class="complete-btn-inline tap-scale"
-      hover-class="tap-scale-hover"
-      wx:if="{{showCompleteBtn || isCompleted}}"
-      bindtap="completeNode"
-    >
-      ✅ 完成节点
-    </button>
-  </view>
-
-  <!-- 输入区域 -->
-  <view class="input-container" wx:if="{{node && !isCompleted}}">
-    <view class="input-wrapper">
-      <textarea
-        class="message-input"
-        value="{{inputValue}}"
-        bindinput="onInputChange"
-        placeholder="输入你的回答..."
-        maxlength="500"
-        auto-height
-        hold-keyboard
-      />
-    </view>
-    <button class="send-btn tap-scale" hover-class="tap-scale-hover" bindtap="sendMessage" disabled="{{!inputValue.trim() || isLoading}}">
-      发送
-    </button>
-  </view>
-
-  <!-- 半屏主题切换 -->
-  <theme-switcher
-    show="{{showThemeSwitcher}}"
-    themes="{{learningThemes}}"
-    currentThemeId="{{theme ? theme._id : ''}}"
-    bind:close="onCloseThemeSwitcher"
-    bind:themechange="onThemeChange"
-    bind:addtheme="onGoThemeStore"
-  />
-
-  <!-- 成就弹窗 -->
-  <achievement-popup
-    show="{{showAchievementPopup}}"
-    achievement="{{currentAchievement}}"
-    bind:close="onCloseAchievement"
-  />
-
-  <!-- 课程预览确认弹窗 -->
-  <view class="theme-preview-mask" wx:if="{{pendingTheme}}">
-    <view class="theme-preview-panel">
-      <view class="theme-preview-title">📚 已为你生成学习课程</view>
-      <view class="theme-preview-name">{{pendingTheme.name}}</view>
-      <view class="theme-preview-desc">{{pendingTheme.description}}</view>
-      <view class="theme-preview-info">共 {{pendingTheme.totalNodes}} 节</view>
-      <button class="btn-start tap-scale" hover-class="tap-scale-hover" bindtap="onConfirmTheme">开始学习</button>
-      <view class="theme-preview-skip" bindtap="onRegenerateTheme">换一个</view>
-    </view>
-  </view>
-
-  <!-- 首次启动：用户画像 -->
-  <view class="profile-mask" wx:if="{{showProfileSetup}}">
-    <view class="profile-panel">
-      <view class="profile-title">👋 欢迎来到小知也</view>
-      <view class="profile-subtitle">每天几分钟，慢慢变强\n告诉我们一点关于你的信息，为你推荐第一个学习课程</view>
-
-      <view class="profile-field">
-        <text class="field-label">年龄段</text>
-        <picker mode="selector" range="{{ageOptions}}" value="{{profileForm.ageIndex}}" bindchange="onAgeChange">
-          <view class="field-picker">{{ageOptions[profileForm.ageIndex]}}</view>
+      <!-- 年龄 -->
+      <view class="form-group">
+        <text class="form-label">年龄</text>
+        <picker mode="selector" range="{{ageOptions}}" bindchange="onAgeChange">
+          <view class="picker-value">{{ageOptions[profileForm.ageIndex] || '请选择'}}</view>
         </picker>
       </view>
 
-      <view class="profile-field">
-        <text class="field-label">职业</text>
-        <picker mode="selector" range="{{occupationOptions}}" value="{{profileForm.occupationIndex}}" bindchange="onOccupationChange">
-          <view class="field-picker">{{profileForm.occupationIndex >= 0 ? occupationOptions[profileForm.occupationIndex] : '请选择职业'}}</view>
+      <!-- 职业 -->
+      <view class="form-group">
+        <text class="form-label">职业</text>
+        <picker mode="selector" range="{{occupationOptions}}" bindchange="onOccupationChange">
+          <view class="picker-value">{{occupationOptions[profileForm.occupationIndex] || '请选择'}}</view>
         </picker>
       </view>
 
-      <view class="profile-field">
-        <text class="field-label">兴趣（可多选）</text>
+      <!-- 兴趣 -->
+      <view class="form-group">
+        <text class="form-label">兴趣（可多选）</text>
         <view class="interest-tags">
           <view
             wx:for="{{interestOptions}}"
@@ -187,10 +69,9 @@ module.exports = { contains: contains };
             data-index="{{index}}"
             bindtap="onInterestToggle"
           >{{item}}</view>
-          <!-- 自定义兴趣标签 -->
           <view
             wx:if="{{!showCustomInterestInput}}"
-            class="interest-tag interest-custom"
+            class="interest-tag custom"
             bindtap="onShowCustomInterest"
           >✏️ 自定义</view>
         </view>
@@ -199,8 +80,104 @@ module.exports = { contains: contains };
         </view>
       </view>
 
-      <button class="profile-submit tap-scale" hover-class="tap-scale-hover" bindtap="onSubmitProfile">开始我的学习之旅</button>
+      <button class="confirm-btn tap-scale" hover-class="tap-scale-hover" bindtap="onSubmitProfile">
+        开始学习
+      </button>
     </view>
   </view>
 
+  <!-- 主题预览弹窗 -->
+  <view class="theme-preview-mask" wx:if="{{pendingTheme}}">
+    <view class="theme-preview-card">
+      <view class="preview-icon">📖</view>
+      <view class="preview-title">{{pendingTheme.name}}</view>
+      <view class="preview-desc">{{pendingTheme.description}}</view>
+      <view class="preview-nodes">
+        <text class="preview-nodes-label">共 {{pendingTheme.totalNodes}} 个课时</text>
+      </view>
+      <view class="preview-actions">
+        <button class="preview-btn secondary" bindtap="onRegenerateTheme">重新生成</button>
+        <button class="preview-btn primary" bindtap="onConfirmTheme">开始学习</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 学习区域 -->
+  <scroll-view class="messages-container" scroll-y="{{true}}" scroll-with-animation="{{true}}" upper-threshold="50" scroll-into-view="msg-bottom" wx:if="{{!showProfileSetup && theme}}">
+    <view class="messages-list" id="msg-list">
+      <block wx:for="{{messages}}" wx:key="id">
+        <view class="message-item {{item.role}}" id="msg-{{index}}">
+          <view class="message-avatar">{{item.role === 'ai' ? '🧑‍🏫' : '👤'}}</view>
+          <view class="message-main">
+            <view class="message-content">
+              <block wx:for="{{item.blocks}}" wx:for-item="block" wx:key="index">
+                <view wx:if="{{block.type === 'text'}}" class="plain-text"><rich-text nodes="{{block.html}}"></rich-text></view>
+                <view wx:elif="{{block.type === '概念'}}" class="concept-card">
+                  <view class="card-header">📚 概念</view>
+                  <view class="card-body"><rich-text nodes="{{block.html || block.text}}"></rich-text></view>
+                </view>
+                <view wx:elif="{{block.type === '例子'}}" class="example-card">
+                  <view class="card-header">💡 例子</view>
+                  <view class="card-body"><rich-text nodes="{{block.html || block.text}}"></rich-text></view>
+                </view>
+                <view wx:elif="{{block.type === '总结'}}" class="summary-card">
+                  <view class="card-header">📝 总结</view>
+                  <view class="card-body"><rich-text nodes="{{block.html || block.text}}"></rich-text></view>
+                </view>
+                <view wx:elif="{{block.type === '评价'}}" class="evaluation-card">
+                  <view class="card-header">💬 评价</view>
+                  <view class="card-body"><rich-text nodes="{{block.html || block.text}}"></rich-text></view>
+                </view>
+                <view wx:elif="{{block.type === '评分'}}" class="score-badge">
+                  <text class="score-icon">⭐</text>
+                  <text class="score-value">{{block.score}}/10</text>
+                </view>
+                <question-card
+                  wx:elif="{{block.type === 'choice' || block.type === 'open'}}"
+                  question="{{block}}"
+                  bind:select="onQuestionSelect"
+                  bind:submit="onQuestionSubmit"
+                />
+              </block>
+            </view>
+            <view wx:if="{{item.blocks.length > 0}}" class="message-time">{{item.timeStr}}</view>
+          </view>
+        </view>
+      </block>
+      <view id="msg-bottom"></view>
+    </view>
+
+    <!-- 加载指示器 -->
+    <view class="loading-indicator" wx:if="{{isLoading}}">
+      <view class="typing-dots">
+        <view class="dot"></view>
+        <view class="dot"></view>
+        <view class="dot"></view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 输入栏 -->
+  <view class="input-bar" wx:if="{{isLearning || isPendingTransition}}">
+    <view class="input-wrapper">
+      <textarea
+        class="text-input"
+        value="{{inputValue}}"
+        placeholder="输入你的想法..."
+        bindinput="onInputChange"
+        auto-height="{{true}}"
+        maxlength="-1"
+      ></textarea>
+      <button class="send-btn tap-scale" hover-class="tap-scale-hover" bindtap="doSend" disabled="{{!canSend}}">
+        <text>发送</text>
+      </button>
+    </view>
+  </view>
+
+  <!-- 空状态 - 欢迎页 -->
+  <view class="welcome" wx:if="{{!showProfileSetup && !theme && !pendingTheme}}">
+    <view class="welcome-icon">📚</view>
+    <view class="welcome-title">小知也</view>
+    <view class="welcome-desc">碎片时间，系统学习</view>
+  </view>
 </view>

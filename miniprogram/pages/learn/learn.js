@@ -77,23 +77,32 @@ function lightVibrate() {
 // 简易 markdown → HTML 转换（供 rich-text 组件使用）
 function mdToHtml(text) {
   if (!text) return ''
+  // 标题 (##)
+  let html = text.replace(/^(#{1,4})\s+(.+)$/gm, (m, hashes, content) => {
+    const level = hashes.length
+    return `<h${level} style="font-size:${18 - level}px;font-weight:600;margin:10px 0 6px;color:#333;">${content}</h${level}>`
+  })
   // 代码块 (```)
-  let html = text.replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
+  html = html.replace(/```(\w*)\n([\s\S]*?)```/g, '<pre style="background:#f5f5f7;padding:12px;border-radius:8px;overflow-x:auto;font-size:13px;"><code>$2</code></pre>')
   // 行内代码
-  html = html.replace(/`([^`]+)`/g, '<code>$1</code>')
+  html = html.replace(/`([^`]+)`/g, '<code style="background:#f0f0f2;padding:2px 6px;border-radius:4px;font-size:13px;color:#e74c3c;">$1</code>')
   // 粗体
-  html = html.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
-  // 无序列表
-  let hasUl = false
+  html = html.replace(/\*\*([^*]+)\*\*/g, '<b style="font-weight:600;">$1</b>')
+  // 无序列表 - 先标记
   html = html.split('\n').map(line => {
-    if (/^- /.test(line)) { hasUl = true; return '<li>' + line.slice(2) + '</li>' }
+    if (/^- /.test(line)) return '__LI__' + line.slice(2)
     return line
   }).join('\n')
-  html = html.replace(/((?:<li>.*<\/li>\n?)+)/g, (m) => hasUl ? '<ul>' + m + '</ul>' : m)
-  // 换行（但不要让标签内换行）
-  html = html.replace(/\n/g, '<br/>')
-  // 清理多余的包裹
-  html = html.replace(/<br\/><\/ul>/g, '</ul>').replace(/<br\/><\/ol>/g, '</ol>')
+  // 相邻的列表项包裹在 <ul> 中
+  html = html.replace(/((?:__LI__[^\n]*\n?)+)/g, '<ul>$1</ul>').replace(/__LI__/g, '<li>')
+  // 段落换行
+  html = html.replace(/\n{2,}/g, '</p><p>').replace(/\n/g, '<br/>')
+  // 清理标签间的 <br/>
+  html = html.replace(/<\/li><br\/>/g, '</li>').replace(/<br\/><li>/g, '<li>').replace(/<\/ul><br\/>/g, '</ul>').replace(/<br\/><ul>/g, '<ul>')
+  // 用 <p> 包裹纯文本段落
+  if (!html.startsWith('<')) {
+    html = '<p style="margin:6px 0;line-height:1.6;">' + html + '</p>'
+  }
   return html
 }
 
@@ -106,9 +115,11 @@ Page({
     isLoading: false,
     loadingMore: false,
     inputValue: '',
+    canSend: false,
     plantLevel: 1,
-    plantPoints: 0,
     isCompleted: false,
+    isLearning: false,
+    isPendingTransition: false,
     showCompleteBtn: false,
     reviewMode: false,
     isFavorited: false,
@@ -121,6 +132,10 @@ Page({
     showProfileSetup: false,
     showCustomInterestInput: false,
     userProfile: {},
+    showGenLoading: false,
+    genStageText: '',
+    genProgress: 0,
+    showThemeInfo: false,
     // 课程生成加载进度
     showGenLoading: false,
     genProgress: 0,
@@ -206,11 +221,26 @@ Page({
           messageOffset: messageOffset || 0,
           showProfileSetup: !!needsOnboarding,
           isCompleted: false,
+          isLearning: !!currentNode && !isReviewMode,
           showCompleteBtn: false,
         })
 
         if (isReviewMode) {
           wx.showToast({ title: '复习模式', icon: 'none' })
+        }
+
+        // 执行回调（如自动进入下一节后发送消息）
+        if (typeof context.callback === 'function') {
+          context.callback()
+        }
+
+        // 如果没有历史消息但有当前节点，自动发送开场白
+        if (currentNode && processedMessages.length === 0 && !needsOnboarding && !isReviewMode) {
+          wx.showLoading({ title: '加载中...' })
+          setTimeout(() => {
+            wx.hideLoading()
+            this.sendMessage(`请开始介绍"${currentNode.title}"这个课时要学习的内容，用通俗易懂的语言`)
+          }, 500)
         }
       },
       fail: err => {
@@ -252,12 +282,13 @@ Page({
 
     // 如果是自动触发的第一条消息（来自 onConfirmTheme），不显示用户消息
     if (contentOverride) {
-      this.setData({ isLoading: true })
+      this.setData({ isLoading: true, canSend: false })
     } else {
       this.setData({
         messages: [...messages, userMsg],
         inputValue: '',
         isLoading: true,
+        canSend: false,
       })
     }
     this.scrollToBottom()
@@ -326,6 +357,7 @@ Page({
         nodeId: node?._id || '',
         miniMaxMessages,
         userText: content,
+        isAutoMessage: !!contentOverride,
       },
       success: res => {
         if (res.result && res.result.success && res.result.aiReply) {
@@ -348,6 +380,8 @@ Page({
           this.setData({
             messages: [...this.data.messages, aiMsg],
             isCompleted,
+            isLearning: !isCompleted,
+            canSend: !isCompleted,
             isLoading: false,
           })
           this.scrollToBottom()
@@ -359,28 +393,57 @@ Page({
             const nodeIndex = theme.nodes.findIndex(n => n._id === node._id)
             if (nodeIndex < theme.nodes.length - 1) {
               const nextNode = theme.nodes[nodeIndex + 1]
+
+              // 显示过渡消息
+              const transMsg = {
+                id: 'trans_' + Date.now(),
+                role: 'system',
+                content: '',
+                createdAt: Date.now(),
+                blocks: [{ type: 'text', text: `✅ 本节完成！即将进入：${nextNode.title}`, html: `<p style="color:#999;text-align:center;font-size:13px;padding:10px;">✅ 本节完成！<br/>即将进入：<b>${nextNode.title}</b></p>` }],
+                timeStr: '',
+              }
+              this.setData({
+                messages: [...this.data.messages, transMsg],
+              }, () => { this.scrollToBottom() })
+
               setTimeout(() => {
-                this.switchToNode(nextNode._id)
-                setTimeout(() => {
-                  this.sendMessage(`请开始介绍"${nextNode.title}"这个课时要学习的内容，用通俗易懂的语言`)
-                }, 600)
-              }, 2500)
+                this.switchToNode(nextNode._id, () => {
+                  setTimeout(() => {
+                    this.sendMessage(`请开始介绍"${nextNode.title}"这个课时要学习的内容，用通俗易懂的语言`)
+                  }, 600)
+                })
+              }, 3000)
             }
           }
         } else {
-          this.setData({ isLoading: false })
-          wx.showToast({ title: res.result?.error || 'AI 请求失败', icon: 'none' })
+          this.setData({ isLoading: false, canSend: true })
+          wx.showToast({ title: 'AI 服务暂时不可用，请重试', icon: 'none' })
         }
       },
       fail: err => {
-        this.setData({ isLoading: false })
-        wx.showToast({ title: '网络错误，请重试', icon: 'none' })
+        this.setData({ isLoading: false, canSend: true })
+        wx.showToast({ title: 'AI 服务暂时不可用，请重试', icon: 'none' })
       }
     })
   },
 
   onInputChange(e) {
+    this.setData({ inputValue: e.detail.value, canSend: e.detail.value.trim().length > 0 && !this.data.isLoading })
+  },
+
+  onInputFocus() {
+  },
+
+  onInputBlur(e) {
     this.setData({ inputValue: e.detail.value })
+  },
+
+  doSend() {
+    const content = (this.data.inputValue || '').trim()
+    if (!content || this.data.isLoading || !this.data.node) return
+    this.setData({ canSend: false })
+    this.sendMessage(content)
   },
 
   onQuestionSelect(e) {
@@ -396,6 +459,26 @@ Page({
     if (answer && answer.trim()) {
       this.sendMessage(answer.trim())
     }
+  },
+
+  switchToNode(nodeId, callback) {
+    // 先插入一个加载提示消息
+    const loadingMsg = {
+      id: 'loading_' + Date.now(),
+      role: 'ai',
+      content: '⏳ 正在加载下一节...',
+      blocks: [{ type: 'text', text: '⏳ 正在加载下一节...' }],
+      createdAt: Date.now(),
+      timeStr: formatTime(Date.now()),
+    }
+    this.setData({
+      messages: [...this.data.messages, loadingMsg],
+      isLoading: true,
+    })
+    this.scrollToBottom()
+
+    // 加载新节点数据，完成后执行回调
+    this.loadHomeData({ nodeId, callback })
   },
 
   completeNode() {
@@ -615,6 +698,32 @@ Page({
     }
   },
 
+  // 开始课程生成进度动画
+  startGenLoading() {
+    const stages = [
+      { text: '🎯 分析你的兴趣特点…', progress: 15 },
+      { text: '📚 设计课程结构大纲…', progress: 35 },
+      { text: '🧠 构建知识体系网络…', progress: 55 },
+      { text: '✍️ 生成练习与互动…', progress: 75 },
+      { text: '✨ 即将完成…', progress: 90 },
+    ]
+    let index = 0
+    this.setData({ showGenLoading: true, genStageText: stages[0].text, genProgress: stages[0].progress })
+    const interval = setInterval(() => {
+      index++
+      if (index < stages.length) {
+        this.setData({ genStageText: stages[index].text, genProgress: stages[index].progress })
+      }
+    }, 5000)
+    return interval
+  },
+
+  // 停止课程生成进度动画
+  stopGenLoading(interval) {
+    clearInterval(interval)
+    this.setData({ showGenLoading: false, genStageText: '', genProgress: 100 })
+  },
+
   onSubmitProfile() {
     const { profileForm, occupationOptions, interestOptions } = this.data
     if (profileForm.occupationIndex < 0) {
@@ -633,13 +742,13 @@ Page({
       interests: profileForm.interestIndexes.map(i => interestOptions[i]),
     }
 
-    wx.showLoading({ title: 'AI 生成课程中...', mask: true })
+    const genInterval = this.startGenLoading()
 
     wx.cloud.callFunction({
       name: 'generateTheme',
       data: { openid: app.globalData.openid, profile },
       success: genRes => {
-        wx.hideLoading()
+        this.stopGenLoading(genInterval)
         if (genRes.result && genRes.result.success) {
           this.setData({
             showProfileSetup: false,
@@ -650,7 +759,7 @@ Page({
         }
       },
       fail: () => {
-        wx.hideLoading()
+        this.stopGenLoading(genInterval)
         wx.showToast({ title: '网络错误，请重试', icon: 'none' })
       }
     })
@@ -660,7 +769,17 @@ Page({
     const { pendingTheme } = this.data
     if (!pendingTheme) return
     this.setData({ pendingTheme: null })
-    wx.showLoading({ title: '加载中...' })
+    // 显示加载中的消息
+    const loadingMsg = {
+      id: 'loading_' + Date.now(),
+      role: 'ai',
+      content: '⏳ AI 正在准备课程内容...',
+      blocks: [{ type: 'text', text: '⏳ AI 正在准备课程内容...' }],
+      createdAt: Date.now(),
+      timeStr: formatTime(Date.now()),
+    }
+    this.setData({ messages: [loadingMsg] })
+    wx.showLoading({ title: '加载课程...', mask: true })
     wx.cloud.callFunction({
       name: 'getHomeData',
       data: { openid: app.globalData.openid },
@@ -742,5 +861,25 @@ Page({
 
   onGoThemeStoreFromEmpty() {
     wx.navigateTo({ url: '/pages/theme-store/theme-store' })
+  },
+
+  goBack() {
+    if (this.data.theme) {
+      // 有课程就显示主题切换
+      this.setData({ showThemeSwitcher: true })
+    } else {
+      // 没课程就尝试返回
+      wx.navigateBack({ fail: () => wx.navigateToMiniProgram() })
+    }
+  },
+
+  showThemeInfo() {
+    const { theme } = this.data
+    if (!theme) return
+    const nodes = theme.nodes || []
+    wx.showActionSheet({
+      itemList: ['课程: ' + theme.name, '共 ' + (theme.totalNodes || nodes.length) + ' 课时', '取消'],
+      success: () => {}
+    })
   },
 })

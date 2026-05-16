@@ -143,6 +143,13 @@
       "memorySize": 512,
       "runtime": "Nodejs16.13",
       "handler": "index.main"
+    },
+    {
+      "name": "clearUserData",
+      "timeout": 30,
+      "memorySize": 256,
+      "runtime": "Nodejs16.13",
+      "handler": "index.main"
     }
   ]
 }
