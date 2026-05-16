@@ -144,8 +144,15 @@ exports.main = async (event, context) => {
     // 批量创建主题
     for (const theme of PRESET_THEMES) {
       // 检查是否已存在
-      const exist = await db.collection('themes').doc(theme._id).get()
-      if (!exist.data) {
+      let exist = false
+      try {
+        const res = await db.collection('themes').doc(theme._id).get()
+        exist = !!res.data
+      } catch(e) {
+        exist = false
+      }
+      
+      if (!exist) {
         await db.collection('themes').add({
           data: theme,
         })
@@ -159,8 +166,15 @@ exports.main = async (event, context) => {
         const nodeId = `${theme._id}_node_${i + 1}`
 
         // 检查节点是否已存在
-        const nodeExist = await db.collection('nodes').doc(nodeId).get()
-        if (!nodeExist.data) {
+        let nodeExist = false
+        try {
+          const res = await db.collection('nodes').doc(nodeId).get()
+          nodeExist = !!res.data
+        } catch(e) {
+          nodeExist = false
+        }
+        
+        if (!nodeExist) {
           await db.collection('nodes').add({
             data: {
               _id: nodeId,
