@@ -177,10 +177,6 @@ Page({
           showCompleteBtn: false,
         })
 
-        if (currentNode && processedMessages.length === 0 && !isReviewMode) {
-          this.sendFirstMessage()
-        }
-
         if (isReviewMode) {
           wx.showToast({ title: '复习模式', icon: 'none' })
         }
@@ -208,22 +204,6 @@ Page({
     })
   },
 
-  sendFirstMessage() {
-    const { node } = this.data
-    if (!node) return
-
-    const content = `[概念]欢迎来到"${node.title}"的学习！[/概念]\n\n今天我们将学习：${node.learningObjective}\n\n[总结]准备好了吗？我们可以开始了！[/总结]`
-    const guideMessage = {
-      id: 'ai_guide_' + Date.now(),
-      role: 'ai',
-      content,
-      createdAt: Date.now(),
-      blocks: parseMessageBlocks(content),
-      timeStr: formatTime(Date.now()),
-    }
-    this.setData({ messages: [guideMessage] })
-  },
-
   sendMessage(contentOverride) {
     const content = (typeof contentOverride === 'string' ? contentOverride : this.data.inputValue || '').trim()
     const { node, theme, messages, isLoading, reviewMode } = this.data
@@ -238,11 +218,16 @@ Page({
       timeStr: formatTime(Date.now()),
     }
 
-    this.setData({
-      messages: [...messages, userMsg],
-      inputValue: '',
-      isLoading: true,
-    })
+    // 如果是自动触发的第一条消息（来自 onConfirmTheme），不显示用户消息
+    if (contentOverride) {
+      this.setData({ isLoading: true })
+    } else {
+      this.setData({
+        messages: [...messages, userMsg],
+        inputValue: '',
+        isLoading: true,
+      })
+    }
     this.scrollToBottom()
 
     // 构建 MiniMax 对话

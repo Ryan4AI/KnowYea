@@ -21,14 +21,21 @@ function callMiniMax(messages) {
       },
       timeout: 30000,
     }, res => {
+      const statusCode = res.statusCode
       let body = ''
       res.on('data', chunk => body += chunk)
       res.on('end', () => {
+        console.log('[sendMessage MiniMax] status:', statusCode, 'body:', body.slice(0, 500))
         try {
           const parsed = JSON.parse(body)
+          if (statusCode !== 200) {
+            const errMsg = parsed.error?.message || parsed.error || `HTTP ${statusCode}`
+            reject(new Error(errMsg))
+            return
+          }
           resolve(parsed)
         } catch(e) {
-          reject(new Error('解析MiniMax响应失败'))
+          reject(new Error('解析MiniMax响应失败: ' + body.slice(0, 200)))
         }
       })
     })
