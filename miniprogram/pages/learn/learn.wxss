@@ -546,3 +546,78 @@
   color: #fff;
   border-color: #6c5ce7;
 }
+
+.custom-interest-input {
+  margin-top: 20rpx;
+  padding: 16rpx 24rpx;
+  background: #f4f6fc;
+  border-radius: 16rpx;
+  font-size: 26rpx;
+}
+
+/* 主题预览确认弹窗 */
+.theme-preview-mask {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+.theme-preview-panel {
+  width: 600rpx;
+  background: #fff;
+  border-radius: 32rpx;
+  padding: 48rpx 40rpx;
+  text-align: center;
+}
+.theme-preview-title {
+  font-size: 26rpx;
+  color: #888;
+  margin-bottom: 20rpx;
+}
+.theme-preview-name {
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 16rpx;
+}
+.theme-preview-desc {
+  font-size: 28rpx;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 20rpx;
+}
+.theme-preview-info {
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 40rpx;
+}
+.theme-preview-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+.btn-start {
+  background: #6c5ce7;
+  color: #fff;
+  font-size: 32rpx;
+  padding: 24rpx 0;
+  border-radius: 999rpx;
+  border: none;
+}
+.btn-regen {
+  background: #f4f6fc;
+  color: #6c5ce7;
+  font-size: 28rpx;
+  padding: 20rpx 0;
+  border-radius: 999rpx;
+  border: none;
+}
+.theme-preview-skip {
+  font-size: 24rpx;
+  color: #aaa;
+  margin-top: 32rpx;
+  padding: 16rpx;
+}

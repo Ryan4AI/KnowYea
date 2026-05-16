@@ -1,3 +1,13 @@
+<wxs module="tools">
+var contains = function(arr, value) {
+  if (!arr || !arr.length) return false;
+  for (var i = 0; i < arr.length; i++) {
+    if (arr[i] === value) return true;
+  }
+  return false;
+};
+module.exports = { contains: contains };
+</wxs>
 <!-- pages/learn/learn.wxml -->
 <view class="page-container">
   <!-- 顶部主题信息 -->
@@ -127,6 +137,18 @@
     bind:close="onCloseAchievement"
   />
 
+  <!-- 课程预览确认弹窗 -->
+  <view class="theme-preview-mask" wx:if="{{pendingTheme}}">
+    <view class="theme-preview-panel">
+      <view class="theme-preview-title">📚 已为你生成学习课程</view>
+      <view class="theme-preview-name">{{pendingTheme.name}}</view>
+      <view class="theme-preview-desc">{{pendingTheme.description}}</view>
+      <view class="theme-preview-info">共 {{pendingTheme.totalNodes}} 节</view>
+      <button class="btn-start tap-scale" hover-class="tap-scale-hover" bindtap="onConfirmTheme">开始学习</button>
+      <view class="theme-preview-skip" bindtap="onRegenerateTheme">换一个</view>
+    </view>
+  </view>
+
   <!-- 首次启动：用户画像 -->
   <view class="profile-mask" wx:if="{{showProfileSetup}}">
     <view class="profile-panel">
@@ -153,7 +175,7 @@
           <view
             wx:for="{{interestOptions}}"
             wx:key="index"
-            class="interest-tag {{profileForm.interestIndexes.includes(index) ? 'selected' : ''}}"
+            class="interest-tag {{tools.contains(profileForm.interestIndexes, index) ? 'selected' : ''}}"
             data-index="{{index}}"
             bindtap="onInterestToggle"
           >{{item}}</view>

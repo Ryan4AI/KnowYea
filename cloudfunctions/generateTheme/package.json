@@ -1,9 +1,17 @@
 {
-  "name": "generateTheme",
+  "name": "generatetheme",
   "version": "1.0.0",
   "description": "生成主题云函数",
   "main": "index.js",
   "dependencies": {
+    "needle": "^3.5.0",
     "wx-server-sdk": "~2.6.3"
-  }
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
 }

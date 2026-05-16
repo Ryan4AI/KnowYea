@@ -204,10 +204,11 @@ npm install
 
 ---
 
-### 2026-05-16 12:02
-- 修复 debugOnboarding 和 debugOpenid 两个云函数缺失的 package.json
-- 项目完整就绪，所有 20 个云函数均有 package.json
-- GitHub 已同步（commit 586bb180）
+### 2026-05-17 00:02
+- 修复 submit_audit API：添加必填 item_list 字段，修正 versiondesc → version_desc
+- 修复 project.config.json：添加 cloudfunctionRoot 配置
+- 创建 cloudfunctionTemplate/ 目录
+- 全部 24 个云函数目录均有 package.json ✅
 
 ## 📝 备忘
 
