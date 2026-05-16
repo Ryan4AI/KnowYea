@@ -152,19 +152,54 @@ async function saveMessage(openid, themeId, nodeId, message) {
 // 模拟 AI 调用（生产环境替换为真实 API）
 async function callAI(messages) {
   // 模拟延迟
-  await new Promise(resolve => setTimeout(resolve, 500))
+  await new Promise(resolve => setTimeout(resolve, 800))
 
-  // 简单模拟回复
   const lastMessage = messages[messages.length - 1].content
+  const systemMessages = messages.filter(m => m.role === 'system')
+  const nodeInfo = systemMessages.find(m => m.content.includes('当前节点'))
+  const nodeTitle = nodeInfo ? nodeInfo.content.match(/当前节点：(.+)/)?.[1] : ''
+  const learningObj = nodeInfo ? nodeInfo.content.match(/学习目标：(.+)/)?.[1] : ''
+  const completionSignal = nodeInfo ? nodeInfo.content.match(/完成标准：(.+)/)?.[1] : ''
 
-  if (lastMessage.includes('什么是') || lastMessage.includes('解释')) {
-    return `[概念]这是一个需要理解的概念，让我们一起来学习。[/概念]\n\n[例子]比如在生活中，我们可以这样理解...[/例子]\n\n你觉得这个解释清楚吗？有什么疑问吗？`
+  // 理解类问题
+  if (lastMessage.includes('什么是') || lastMessage.includes('解释') || lastMessage.includes('理解')) {
+    return `[概念]${nodeTitle}是一个值得深入理解的概念。[/概念]\n\n${learningObj}\n\n[例子]比如说，在日常生活中我们可以这样理解${nodeTitle}...[/例子]\n\n[题目 type="open"]你能试着用自己的话说说你对${nodeTitle}的理解吗？[/题目]`
   }
 
-  if (lastMessage.includes('例子') || lastMessage.includes('比如')) {
-    return `[例子]就像我们去超市买菜，同样的菜在不同的地方价格不同，这就是经济学中的...[/例子]\n\n[题目 type="open"]你能想到生活中类似的例子吗？试着说一个。[/题目]`
+  // 例子类问题
+  if (lastMessage.includes('例子') || lastMessage.includes('比如') || lastMessage.includes('如何应用')) {
+    return `[例子]就像我们去超市买菜，同样的菜在不同的地方价格不同——这就涉及到经济学中${nodeTitle}的原理。[/例子]\n\n[总结]所以当你做决策时，考虑一下${nodeTitle}会如何影响结果。[/总结]\n\n[题目 type="choice"]你觉得理解了吗？|A. 完全理解了|B. 大概理解了|C. 还需要再看看|D. 不太懂[/题目]`
+  }
+
+  // 用户给出理解/解释，判断是否达到完成标准
+  if (lastMessage.includes('我认为是') || lastMessage.includes('我的理解') || lastMessage.includes('我觉得') || lastMessage.length > 20) {
+    // 模拟判断用户是否达到完成标准
+    const hasExplained = lastMessage.length > 15 && !lastMessage.includes('不知道')
+    const hasExample = lastMessage.includes('比如') || lastMessage.includes('就像') || lastMessage.includes('例如')
+
+    if (hasExplained) {
+      if (hasExample) {
+        return `[概念]你的理解很到位！[/概念]\n\n[例子]你举的例子也很贴切，说明你真正掌握了${nodeTitle}这个概念。${completionSignal ? '完成标准已达成：' + completionSignal : ''}[/例子]\n\n✅ [完成]\n\n[总结]我们来做个小测验巩固一下吧！[/总结]\n\n[题目 type="choice"]以下哪个说法正确体现了${nodeTitle}？|A. 涉及到机会成本的选择|B. ${nodeTitle}的实际应用|C. 两者的区别和联系|D. 以上都是[/题目]`
+      }
+      return `[概念]你的理解基本正确！[/概念]\n\n不过要真正掌握${nodeTitle}，还需要能举出一个生活中的例子。能试着举例说明吗？\n\n[题目 type="open"]请举个生活中的例子来说明${nodeTitle}？[/题目]`
+    }
+    return `[概念]没关系，我们慢慢来理解${nodeTitle}。[/概念]\n\n[例子]让我用一个更简单的例子来说明：就像...[/例子]\n\n[题目 type="open"]你觉得这个例子和${nodeTitle}有什么关系？[/题目]`
+  }
+
+  // 选择题回答
+  if (/^[A-D]/.test(lastMessage)) {
+    const correctAnswer = 'B' // 模拟正确答案
+    if (lastMessage.startsWith(correctAnswer)) {
+      return `[概念]回答正确！[/概念]\n\n你对${nodeTitle}的理解已经很扎实了。${completionSignal ? '完成标准已达成：' + completionSignal : ''}\n\n✅ [完成]\n\n[总结]恭喜你完成了"${nodeTitle}"的学习！继续加油！[/总结]`
+    }
+    return `[例子]这个答案不太准确，但不要紧。[/例子]\n\n让我再解释一下：${nodeTitle}的核心在于...\n\n[题目 type="open"]再想想，为什么答案是${correctAnswer}？[/题目]`
+  }
+
+  // 复习模式
+  if (systemMessages.some(m => m.content.includes('复习'))) {
+    return `[概念]我们来复习一下"${nodeTitle}"。[/概念]\n\n${learningObj}\n\n[题目 type="choice"]关于${nodeTitle}，以下说法正确的是？|A. ${nodeTitle}就是...|B. ${nodeTitle}的特点是...|C. ${nodeTitle}可以帮助我们...|D. 以上都不对[/题目]`
   }
 
   // 默认回复
-  return `[概念]很好，你在学习这个知识点。[/概念]\n\n继续思考一下，如果应用到实际生活中，你会怎么用？\n\n[题目 type="choice"]你觉得理解了吗？|A. 完全理解了|B. 大概理解了|C. 还需要再看看|D. 不太懂[/题目]`
+  return `[概念]欢迎学习"${nodeTitle}"！[/概念]\n\n今天我们将掌握：${learningObj}\n\n[总结]准备好了吗？我们开始吧！[/总结]\n\n[题目 type="open"]你知道什么是${nodeTitle}吗？试着说说你的理解。[/题目]`
 }
