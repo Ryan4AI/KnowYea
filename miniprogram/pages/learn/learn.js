@@ -569,9 +569,15 @@ Page({
           return
         }
 
-        // 客户端直接调 MiniMax 生成课程
-        // 不用循环，Minimax 一般需要 10-20 秒
-        wx.showLoading({ title: '🧠 生成课程内容…', mask: true })
+        // 客户端直接调 MiniMax 生成课程（约 10-20 秒）
+        // 慢节奏循环（3秒/次），不会因循环太快而烦躁
+        let step = 0
+        const STEPS = ['📚 构建知识体系…', '🧠 生成课程内容…']
+        const interval = setInterval(() => {
+          step = (step + 1) % STEPS.length
+          wx.showLoading({ title: STEPS[step], mask: true })
+        }, 3000)
+        wx.showLoading({ title: STEPS[0], mask: true })
 
         const ageMap = { 1: '18岁以下', 2: '18-25岁', 3: '26-35岁', 4: '36-45岁', 5: '45岁以上' }
         const prompt = `根据以下用户画像，推荐一个合适的学习主题：
@@ -581,7 +587,7 @@ Page({
 - 职业：${profile.occupation || '职场人士'}
 - 兴趣：${profile.interests?.join('、') || '通用知识'}
 
-请生成一个适合该用户的学习主题。要求与用户的兴趣或职业发展相关。节点数量 8-12 个。
+请生成一个适合该用户的学习主题。要求与用户的兴趣或职业发展相关。节点数量 5-8 个。
 
 请严格以 JSON 格式输出（不要用 markdown 代码块）：
 {"name":"主题名称","description":"主题描述","totalNodes":节点数量,"tags":["标签"],"nodes":[{"title":"节点标题","learningObjective":"学习目标","completionSignal":"完成标准"}]}`
@@ -612,7 +618,7 @@ Page({
                 const jsonStr = jsonMatch ? jsonMatch[0] : cleaned
                 themeData = JSON.parse(jsonStr)
               } catch (e) {
-                wx.hideLoading()
+                clearInterval(interval)
                 wx.hideLoading()
                 wx.showToast({ title: '无法解析课程数据', icon: 'none' })
                 return
@@ -623,7 +629,7 @@ Page({
                 name: 'generateTheme',
                 data: { openid: app.globalData.openid, themeData },
                 success: genRes => {
-                  wx.hideLoading()
+                  clearInterval(interval)
                   wx.hideLoading()
                   if (genRes.result && genRes.result.success) {
                     this.setData({
@@ -635,19 +641,19 @@ Page({
                   }
                 },
                 fail: () => {
-                  wx.hideLoading()
+                  clearInterval(interval)
                   wx.hideLoading()
                   wx.showToast({ title: '保存失败', icon: 'none' })
                 }
               })
             } else {
-              wx.hideLoading()
+              clearInterval(interval)
               wx.hideLoading()
               wx.showToast({ title: 'AI 生成失败', icon: 'none' })
             }
           },
           fail: () => {
-            wx.hideLoading()
+            clearInterval(interval)
             wx.hideLoading()
             wx.showToast({ title: '网络错误', icon: 'none' })
           }
@@ -677,9 +683,10 @@ Page({
             messages: [],
             isCompleted: false,
             showCompleteBtn: false,
+          }, () => {
+            // setData 完成后才发消息，确保 node 已经更新
+            this.sendMessage('请开始介绍这个课时要学习的内容，用通俗易懂的语言')
           })
-          // 直接利用 sendMessage 发第一条 AI 消息
-          this.sendMessage('请开始介绍这个课时要学习的内容，用通俗易懂的语言')
         }
       },
       fail: () => wx.hideLoading()
@@ -704,7 +711,7 @@ Page({
 - 职业：${profile.occupation || '职场人士'}
 - 兴趣：${profile.interests?.join('、') || '通用知识'}
 
-请生成一个适合该用户的全新学习主题，不要和之前推荐的重叠。节点数量 8-12 个。
+请生成一个适合该用户的全新学习主题，不要和之前推荐的重叠。节点数量 5-8 个。
 
 严格以 JSON 格式输出（不要用 markdown 代码块）：
 {"name":"主题名称","description":"主题描述","totalNodes":节点数量,"tags":["标签"],"nodes":[{"title":"节点标题","learningObjective":"学习目标","completionSignal":"完成标准"}]}`
