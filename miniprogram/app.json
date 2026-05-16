@@ -25,7 +25,7 @@
     "pages/settings/settings"
   ],
   "window": {
-    "navigationBarTitleText": "知识胶囊",
+    "navigationBarTitleText": "小知也",
     "navigationBarBackgroundColor": "#1a1a2e",
     "navigationBarTextStyle": "white",
     "backgroundColor": "#f4f6fc"

@@ -3,6 +3,17 @@ const app = getApp()
 
 const AGE_OPTIONS = ['18岁以下', '18-25岁', '26-35岁', '36-45岁', '45岁以上']
 
+const OCCUPATION_OPTIONS = ['学生', '产品经理', '设计师', '工程师/技术', '运营', '市场/营销', '销售', '财务/金融', 'HR/行政', '创业者', '自由职业', '其他']
+const INTEREST_OPTIONS = ['经济学', '心理学', '思维模型', '商业分析', '自我提升', '效率工具', '科技趋势', '历史', '哲学', '科学']
+
+const InterestTags = [
+  '经济学', '心理学', '思维模型', '商业分析', '自我提升',
+  '效率工具', '科技趋势', '历史', '哲学', '科学',
+  '管理', '创业', '投资', '沟通', '决策'
+]
+
+
+
 function formatTime(timestamp) {
   const date = new Date(timestamp)
   const h = date.getHours().toString().padStart(2, '0')
@@ -84,9 +95,11 @@ Page({
     showProfileSetup: false,
     profileForm: {
       ageIndex: 2,
-      occupation: '',
-      interestsText: '',
+      occupationIndex: -1,
+      interestIndexes: [],
     },
+    occupationOptions: OCCUPATION_OPTIONS,
+    interestOptions: InterestTags,
     ageOptions: AGE_OPTIONS,
     scrollIntoView: '',
   },
@@ -455,20 +468,33 @@ Page({
     this.setData({ 'profileForm.ageIndex': Number(e.detail.value) })
   },
 
+  onOccupationChange(e) {
+    this.setData({ 'profileForm.occupationIndex': Number(e.detail.value) })
+  },
+
+  onInterestToggle(e) {
+    const idx = Number(e.currentTarget.dataset.index)
+    const indexes = [...this.data.profileForm.interestIndexes]
+    const pos = indexes.indexOf(idx)
+    if (pos > -1) {
+      indexes.splice(pos, 1)
+    } else {
+      indexes.push(idx)
+    }
+    this.setData({ 'profileForm.interestIndexes': indexes })
+  },
+
   onSubmitProfile() {
-    const { profileForm } = this.data
-    if (!profileForm.occupation.trim()) {
-      wx.showToast({ title: '请填写职业', icon: 'none' })
+    const { profileForm, occupationOptions, interestOptions } = this.data
+    if (profileForm.occupationIndex < 0) {
+      wx.showToast({ title: '请选择职业', icon: 'none' })
       return
     }
 
     const profile = {
       age: profileForm.ageIndex + 1,
-      occupation: profileForm.occupation.trim(),
-      interests: profileForm.interestsText
-        .split(/[,，、]/)
-        .map(s => s.trim())
-        .filter(Boolean),
+      occupation: occupationOptions[profileForm.occupationIndex],
+      interests: profileForm.interestIndexes.map(i => interestOptions[i]),
     }
 
     wx.showLoading({ title: '正在为你定制主题...' })

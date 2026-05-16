@@ -130,7 +130,7 @@
   <!-- 首次启动：用户画像 -->
   <view class="profile-mask" wx:if="{{showProfileSetup}}">
     <view class="profile-panel">
-      <view class="profile-title">👋 欢迎来到知识胶囊</view>
+      <view class="profile-title">👋 欢迎来到小知也</view>
       <view class="profile-subtitle">每天几分钟，慢慢变强\n告诉我们一点关于你的信息，为你推荐第一个学习课程</view>
 
       <view class="profile-field">
@@ -142,24 +142,22 @@
 
       <view class="profile-field">
         <text class="field-label">职业</text>
-        <input
-          class="field-input"
-          placeholder="如：产品经理、学生、设计师"
-          value="{{profileForm.occupation}}"
-          data-field="occupation"
-          bindinput="onProfileInput"
-        />
+        <picker mode="selector" range="{{occupationOptions}}" value="{{profileForm.occupationIndex}}" bindchange="onOccupationChange">
+          <view class="field-picker">{{profileForm.occupationIndex >= 0 ? occupationOptions[profileForm.occupationIndex] : '请选择职业'}}</view>
+        </picker>
       </view>
 
       <view class="profile-field">
         <text class="field-label">兴趣（可选，逗号分隔）</text>
-        <input
-          class="field-input"
-          placeholder="如：经济学, 心理学, 商业分析"
-          value="{{profileForm.interestsText}}"
-          data-field="interestsText"
-          bindinput="onProfileInput"
-        />
+        <view class="interest-tags">
+          <view
+            wx:for="{{interestOptions}}"
+            wx:key="index"
+            class="interest-tag {{profileForm.interestIndexes.includes(index) ? 'selected' : ''}}"
+            data-index="{{index}}"
+            bindtap="onInterestToggle"
+          >{{item}}</view>
+        </view>
       </view>
 
       <button class="profile-submit tap-scale" hover-class="tap-scale-hover" bindtap="onSubmitProfile">开始我的学习之旅</button>

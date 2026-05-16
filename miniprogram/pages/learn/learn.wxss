@@ -524,3 +524,25 @@
 .profile-submit::after {
   border: none;
 }
+
+.interest-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.interest-tag {
+  padding: 14rpx 24rpx;
+  background: #f4f6fc;
+  border-radius: 999rpx;
+  font-size: 24rpx;
+  color: #5c6178;
+  border: 2rpx solid transparent;
+  transition: all 0.2s;
+}
+
+.interest-tag.selected {
+  background: #6c5ce7;
+  color: #fff;
+  border-color: #6c5ce7;
+}

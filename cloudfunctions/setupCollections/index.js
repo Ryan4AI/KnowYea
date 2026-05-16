@@ -9,6 +9,9 @@ const COLLECTIONS = [
   'user_achievements', 
   'user_favorites',
   'user_progress',
+  'user_themes',
+  'user_gardens',
+  'user_conversations',
   'themes',
   'nodes',
 ]
