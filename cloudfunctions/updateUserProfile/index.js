@@ -23,7 +23,16 @@ exports.main = async (event, context) => {
       .get()
 
     if (!userRes.data || userRes.data.length === 0) {
-      return { success: false, error: '用户不存在' }
+      // 用户不存在，先创建
+      await db.collection('users').add({
+        data: {
+          openid,
+          profile,
+          lastActive: Date.now(),
+          createdAt: Date.now(),
+        }
+      })
+      return { success: true }
     }
 
     // 更新 profile
