@@ -195,16 +195,4 @@ module.exports = { contains: contains };
     </view>
   </view>
 
-  <!-- 课程生成加载动画 -->
-  <view class="gen-loading-mask" wx:if="{{showGenLoading}}">
-    <view class="gen-loading-card">
-      <view class="gen-loading-icon">🧠</view>
-      <view class="gen-loading-stage">{{genStageText}}</view>
-      <view class="gen-progress-track">
-        <view class="gen-progress-fill" style="width:{{genProgress}}%"></view>
-      </view>
-      <view class="gen-progress-pct">{{genProgress}}%</view>
-      <view class="gen-loading-tip">AI 正在为你量身定制专属课程</view>
-    </view>
-  </view>
 </view>

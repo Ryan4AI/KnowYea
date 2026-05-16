@@ -530,88 +530,45 @@ Page({
     }
   },
 
-  // 课程生成进度动画
-  startGenLoading() {
-    this.setData({
-      showGenLoading: true,
-      genProgress: 0,
-      genStageText: '🎯 分析你的兴趣和学习需求…',
-    })
-    const ESTIMATED_SECONDS = 15
-    const startTime = Date.now()
-    const progressInterval = setInterval(() => {
-      const elapsed = (Date.now() - startTime) / 1000
-      const pct = Math.min(Math.floor(elapsed / ESTIMATED_SECONDS * 100), 95)
-      let text
-      if (pct <= 20) text = '🎯 分析你的兴趣和学习需求…'
-      else if (pct <= 40) text = '📚 设计课程大纲与知识框架…'
-      else if (pct <= 60) text = '🧠 构建知识点与概念讲解…'
-      else if (pct <= 80) text = '✍️ 生成练习与互动内容…'
-      else text = '✨ 即将完成，打磨细节…'
-      this.setData({ genProgress: pct, genStageText: text })
-    }, 200)
-    return progressInterval
-  },
-
-  stopGenLoading(interval) {
-    try {
-      if (interval) clearInterval(interval)
-      this.setData({ showGenLoading: false })
-    } catch(e) {
-      console.error('[stopGenLoading error]', e)
-      // fallback: 确保 loading 消失
-      this.setData({ showGenLoading: false })
-    }
-  },
-
   onSubmitProfile() {
-    try {
-      const { profileForm, occupationOptions, interestOptions } = this.data
-      if (profileForm.occupationIndex < 0) {
-        wx.showToast({ title: '请选择职业', icon: 'none' })
-        return
-      }
-
-      // 确保用户已登录
-      if (!app.globalData.openid) {
-        wx.showToast({ title: '登录异常，请重启小程序', icon: 'none' })
-        return
-      }
-
-      const profile = {
-        age: profileForm.ageIndex + 1,
-        occupation: occupationOptions[profileForm.occupationIndex],
-        interests: profileForm.interestIndexes.map(i => interestOptions[i]),
-      }
-
-      // 跳过 updateUserProfile，直接调 generateTheme（内部已包含保存画像）
-      const interval = this.startGenLoading()
-
-      wx.cloud.callFunction({
-        name: 'generateTheme',
-        data: { openid: app.globalData.openid, profile },
-        success: genRes => {
-          this.stopGenLoading(interval)
-          if (genRes.result && genRes.result.success) {
-            this.setData({
-              showProfileSetup: false,
-              pendingTheme: genRes.result.theme,
-            })
-          } else {
-            wx.showToast({ title: genRes.result?.error || '生成失败', icon: 'none' })
-          }
-        },
-        fail: () => {
-          this.stopGenLoading(interval)
-          wx.showToast({ title: '网络错误', icon: 'none' })
-        }
-      })
-    } catch(e) {
-      console.error('[onSubmitProfile error]', e)
-      wx.hideLoading()
-      this.stopGenLoading(null)
-      wx.showModal({ title: '出错了', content: e.message || '未知错误', showCancel: false })
+    const { profileForm, occupationOptions, interestOptions } = this.data
+    if (profileForm.occupationIndex < 0) {
+      wx.showToast({ title: '请选择职业', icon: 'none' })
+      return
     }
+
+    if (!app.globalData.openid) {
+      wx.showToast({ title: '登录异常', icon: 'none' })
+      return
+    }
+
+    const profile = {
+      age: profileForm.ageIndex + 1,
+      occupation: occupationOptions[profileForm.occupationIndex],
+      interests: profileForm.interestIndexes.map(i => interestOptions[i]),
+    }
+
+    wx.showLoading({ title: 'AI 生成课程中...', mask: true })
+
+    wx.cloud.callFunction({
+      name: 'generateTheme',
+      data: { openid: app.globalData.openid, profile },
+      success: genRes => {
+        wx.hideLoading()
+        if (genRes.result && genRes.result.success) {
+          this.setData({
+            showProfileSetup: false,
+            pendingTheme: genRes.result.theme,
+          })
+        } else {
+          wx.showToast({ title: genRes.result?.error || '生成失败', icon: 'none' })
+        }
+      },
+      fail: () => {
+        wx.hideLoading()
+        wx.showToast({ title: '网络错误，请重试', icon: 'none' })
+      }
+    })
   },
 
   onConfirmTheme() {
