@@ -239,7 +239,7 @@ Page({
           wx.showLoading({ title: '加载中...' })
           setTimeout(() => {
             wx.hideLoading()
-            this.sendMessage(`请开始介绍"${currentNode.title}"这个课时要学习的内容，用通俗易懂的语言`)
+            this.sendMessage(`请开始介绍"${currentNode.title}"这个课时要学习的内容，用通俗易懂的语言`, true)
           }, 500)
         }
       },
@@ -266,7 +266,7 @@ Page({
     })
   },
 
-  sendMessage(contentOverride) {
+  sendMessage(contentOverride, isAutoMessage) {
     const content = (typeof contentOverride === 'string' ? contentOverride : this.data.inputValue || '').trim()
     const { node, theme, messages, isLoading, reviewMode } = this.data
     if (!content || isLoading || !node) return
@@ -280,17 +280,12 @@ Page({
       timeStr: formatTime(Date.now()),
     }
 
-    // 如果是自动触发的第一条消息（来自 onConfirmTheme），不显示用户消息
-    if (contentOverride) {
-      this.setData({ isLoading: true, canSend: false })
-    } else {
-      this.setData({
-        messages: [...messages, userMsg],
-        inputValue: '',
-        isLoading: true,
-        canSend: false,
-      })
-    }
+    this.setData({
+      messages: [...messages, userMsg],
+      inputValue: '',
+      isLoading: true,
+      canSend: false,
+    })
     this.scrollToBottom()
 
     // 构建 MiniMax 对话 - 完整提示词 + markdown + 评分 + 历史记录20条
@@ -357,7 +352,7 @@ Page({
         nodeId: node?._id || '',
         miniMaxMessages,
         userText: content,
-        isAutoMessage: !!contentOverride,
+        isAutoMessage: !!isAutoMessage,
       },
       success: res => {
         if (res.result && res.result.success && res.result.aiReply) {
@@ -410,7 +405,7 @@ Page({
               setTimeout(() => {
                 this.switchToNode(nextNode._id, () => {
                   setTimeout(() => {
-                    this.sendMessage(`请开始介绍"${nextNode.title}"这个课时要学习的内容，用通俗易懂的语言`)
+                    this.sendMessage(`请开始介绍"${nextNode.title}"这个课时要学习的内容，用通俗易懂的语言`, true)
                   }, 600)
                 })
               }, 3000)
@@ -794,7 +789,7 @@ Page({
             showCompleteBtn: false,
           }, () => {
             // setData 完成后才发消息，确保 node 已经更新
-            this.sendMessage('请开始介绍这个课时要学习的内容，用通俗易懂的语言')
+            this.sendMessage('请开始介绍这个课时要学习的内容，用通俗易懂的语言', true)
           })
         }
       },
