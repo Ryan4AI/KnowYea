@@ -232,8 +232,7 @@ Page({
 
     // 构建 MiniMax 对话
     const miniMaxMessages = [
-      { role: 'system', content: '你是一位专业、耐心、善于引导的AI导师。用通俗易懂的语言解释概念，多用生活例子，适当提问。每次回复简洁，适合手机阅读。当用户理解后标记 [完成]。' },
-      { role: 'system', content: `当前课程：${theme?.name || ''}\n当前节点：${node?.title || ''}\n学习目标：${node?.learningObjective || ''}` },
+      { role: 'system', content: `你是一位专业、耐心、善于引导的AI导师。用通俗易懂的语言解释概念，多用生活例子，适当提问。每次回复简洁，适合手机阅读。当用户理解后标记 [完成]。\n当前课程：${theme?.name || ''}\n当前节点：${node?.title || ''}\n学习目标：${node?.learningObjective || ''}` },
       ...messages.slice(-6).map(m => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.content })),
       { role: 'user', content }
     ]
