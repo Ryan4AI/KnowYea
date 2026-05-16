@@ -48,6 +48,26 @@ exports.main = async (event, context) => {
     return { success: false, error: '缺少必要参数' }
   }
 
+  // 1. 保存/更新用户画像
+  try {
+    const userRes = await db.collection('users')
+      .where({ openid })
+      .limit(1)
+      .get()
+
+    if (!userRes.data || userRes.data.length === 0) {
+      await db.collection('users').add({
+        data: { openid, profile, lastActive: Date.now(), createdAt: Date.now() }
+      })
+    } else {
+      await db.collection('users').doc(userRes.data[0]._id).update({
+        data: { profile, lastActive: Date.now() }
+      })
+    }
+  } catch (e) {
+    console.error('保存用户画像失败', e)
+  }
+
   const ageMap = { 1: '18岁以下', 2: '18-25岁', 3: '26-35岁', 4: '36-45岁', 5: '45岁以上' }
   const prompt = `根据以下用户画像，推荐一个合适的学习主题：
 

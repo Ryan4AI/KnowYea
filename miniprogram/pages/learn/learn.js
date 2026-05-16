@@ -565,59 +565,53 @@ Page({
   },
 
   onSubmitProfile() {
-    const { profileForm, occupationOptions, interestOptions } = this.data
-    if (profileForm.occupationIndex < 0) {
-      wx.showToast({ title: '请选择职业', icon: 'none' })
-      return
-    }
+    try {
+      const { profileForm, occupationOptions, interestOptions } = this.data
+      if (profileForm.occupationIndex < 0) {
+        wx.showToast({ title: '请选择职业', icon: 'none' })
+        return
+      }
 
-    const profile = {
-      age: profileForm.ageIndex + 1,
-      occupation: occupationOptions[profileForm.occupationIndex],
-      interests: profileForm.interestIndexes.map(i => interestOptions[i]),
-    }
+      // 确保用户已登录
+      if (!app.globalData.openid) {
+        wx.showToast({ title: '登录异常，请重启小程序', icon: 'none' })
+        return
+      }
 
-    // 先保存用户画像到云函数（预计 1 秒）
-    wx.showLoading({ title: '🎯 分析兴趣...', mask: true })
+      const profile = {
+        age: profileForm.ageIndex + 1,
+        occupation: occupationOptions[profileForm.occupationIndex],
+        interests: profileForm.interestIndexes.map(i => interestOptions[i]),
+      }
 
-    wx.cloud.callFunction({
-      name: 'updateUserProfile',
-      data: { openid: app.globalData.openid, profile },
-      success: res => {
-        wx.hideLoading()
-        if (!res.result || !res.result.success) {
-          wx.showToast({ title: res.result?.error || '保存失败', icon: 'none' })
-          return
-        }
+      // 跳过 updateUserProfile，直接调 generateTheme（内部已包含保存画像）
+      const interval = this.startGenLoading()
 
-        // 开始 AI 生成课程（调云函数，云函数再调 MiniMax）
-        const interval = this.startGenLoading()
-
-        wx.cloud.callFunction({
-          name: 'generateTheme',
-          data: { openid: app.globalData.openid, profile },
-          success: genRes => {
-            this.stopGenLoading(interval)
-            if (genRes.result && genRes.result.success) {
-              this.setData({
-                showProfileSetup: false,
-                pendingTheme: genRes.result.theme,
-              })
-            } else {
-              wx.showToast({ title: genRes.result?.error || '保存失败', icon: 'none' })
-            }
-          },
-          fail: () => {
-            this.stopGenLoading(interval)
-            wx.showToast({ title: '网络错误', icon: 'none' })
+      wx.cloud.callFunction({
+        name: 'generateTheme',
+        data: { openid: app.globalData.openid, profile },
+        success: genRes => {
+          this.stopGenLoading(interval)
+          if (genRes.result && genRes.result.success) {
+            this.setData({
+              showProfileSetup: false,
+              pendingTheme: genRes.result.theme,
+            })
+          } else {
+            wx.showToast({ title: genRes.result?.error || '生成失败', icon: 'none' })
           }
-        })
-      },
-      fail: () => {
-        wx.hideLoading()
-        wx.showToast({ title: '保存失败', icon: 'none' })
-      },
-    })
+        },
+        fail: () => {
+          this.stopGenLoading(interval)
+          wx.showToast({ title: '网络错误', icon: 'none' })
+        }
+      })
+    } catch(e) {
+      console.error('[onSubmitProfile error]', e)
+      wx.hideLoading()
+      this.stopGenLoading(null)
+      wx.showModal({ title: '出错了', content: e.message || '未知错误', showCancel: false })
+    }
   },
 
   onConfirmTheme() {
