@@ -1,0 +1,9 @@
+{
+  "name": "debugOnboarding",
+  "version": "1.0.0",
+  "description": "调试：检查用户 onboarding 状态",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}
