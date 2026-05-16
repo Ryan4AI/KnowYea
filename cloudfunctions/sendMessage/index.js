@@ -1,4 +1,4 @@
-// 云函数：sendMessage - AI 对话 + 消息保存
+// 云函数：sendMessage - AI 对话 + 消息保存 + 请求日志
 const cloud = require('wx-server-sdk')
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
@@ -46,17 +46,44 @@ function callMiniMax(messages) {
   })
 }
 
+// 日志记录
+async function logAIRequest(params) {
+  try {
+    await db.collection('user_ai_logs').add({ data: {
+      type: 'sendMessage',
+      openid: params.openid || '',
+      themeId: params.themeId || '',
+      nodeId: params.nodeId || '',
+      promptPreview: JSON.stringify(params.messages || []).slice(0, 2000),
+      response: (params.response || '').slice(0, 3000),
+      score: params.score || null,
+      durationMs: params.durationMs || 0,
+      status: params.status || 'success',
+      error: params.error || '',
+      isCompleted: params.isCompleted || false,
+      createdAt: Date.now(),
+    }})
+  } catch(e) {
+    console.error('[logAIRequest] 写入失败', e.message)
+  }
+}
+
 exports.main = async (event, context) => {
   const { openid, themeId, nodeId, content, reviewMode, miniMaxMessages, themeName, nodeTitle, nodeObjective, historyMessages, userText } = event
 
   // 模式1：客户端传了 miniMaxMessages（预格式化，直接 AI 调用）
   if (miniMaxMessages && miniMaxMessages.length > 0) {
     if (!openid) return { success: false, error: '缺少 openid' }
+    const startTime = Date.now()
     try {
       const aiRes = await callMiniMax(miniMaxMessages)
       const aiReply = aiRes.choices?.[0]?.message?.content || ''
-      if (!aiReply) return { success: false, error: 'AI 返回为空' }
+      if (!aiReply) throw new Error('AI 返回为空')
       const isCompleted = aiReply.includes('[完成]')
+
+      // 提取评分
+      const scoreMatch = aiReply.match(/\[评分\]\s*(\d+)/)
+      const score = scoreMatch ? parseInt(scoreMatch[1]) : null
 
       // 保存消息到数据库
       if (themeId && nodeId) {
@@ -65,18 +92,33 @@ exports.main = async (event, context) => {
         await convCol.add({ data: { id: 'user_' + now, openid, themeId, nodeId, role: 'user', content: userText || '', createdAt: now } })
         await convCol.add({ data: { id: 'ai_' + now + 1, openid, themeId, nodeId, role: 'ai', content: aiReply, createdAt: now + 1 } })
 
-        // 如果 AI 回复包含评分，记录到 user_progress
-        const scoreMatch = aiReply.match(/\[评分\](\d+)/)
-        if (scoreMatch) {
-          const score = parseInt(scoreMatch[1])
+        if (score !== null) {
           await db.collection('user_progress').add({
             data: { openid, themeId, nodeId, score, recordedAt: Date.now() }
           })
         }
       }
 
+      // 异步记录日志（不影响主流程返回）
+      logAIRequest({
+        openid, themeId, nodeId,
+        messages: miniMaxMessages,
+        response: aiReply,
+        score, durationMs: Date.now() - startTime,
+        status: 'success', isCompleted,
+      })
+
       return { success: true, aiReply, isCompleted }
     } catch (e) {
+      // 错误也记日志
+      logAIRequest({
+        openid, themeId, nodeId,
+        messages: miniMaxMessages,
+        response: '',
+        score: null, durationMs: Date.now() - startTime,
+        status: 'error', error: e.message,
+        isCompleted: false,
+      })
       return { success: false, error: e.message }
     }
   }

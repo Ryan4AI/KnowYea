@@ -44,6 +44,28 @@ function callMiniMax(messages) {
   })
 }
 
+// 日志记录
+async function logAIRequest(params) {
+  try {
+    await db.collection('user_ai_logs').add({ data: {
+      type: 'generateTheme',
+      openid: params.openid || '',
+      themeId: params.themeId || '',
+      nodeId: '',
+      promptPreview: JSON.stringify(params.messages || []).slice(0, 2000),
+      response: (params.response || '').slice(0, 3000),
+      score: null,
+      durationMs: params.durationMs || 0,
+      status: params.status || 'success',
+      error: params.error || '',
+      isCompleted: false,
+      createdAt: Date.now(),
+    }})
+  } catch(e) {
+    console.error('[logAIRequest] 写入失败', e.message)
+  }
+}
+
 exports.main = async (event, context) => {
   const { openid, profile } = event
   if (!openid || !profile) {
@@ -117,13 +139,18 @@ exports.main = async (event, context) => {
 JSON格式：
 {"name":"主题名称","description":"主题描述（一句话概括，吸引人）","tags":["标签"],"nodes":[{"title":"节点标题","learningObjective":"告诉AI讲师要教什么（具体可讲）","completionSignal":"用户怎样才算学会了（对话内可验证）"}]}`
 
+  const miniMaxMessages = [
+    { role: 'system', content: systemPrompt },
+    { role: 'user', content: prompt }
+  ]
+
+  const startTime = Date.now()
+
   try {
-    const aiRes = await callMiniMax([
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: prompt }
-    ])
+    const aiRes = await callMiniMax(miniMaxMessages)
     const raw = aiRes.choices?.[0]?.message?.content
     if (!raw) {
+      logAIRequest({ openid, messages: miniMaxMessages, response: '', status: 'error', error: 'AI 返回为空', durationMs: Date.now() - startTime })
       return { success: false, error: 'AI 返回为空' }
     }
 
@@ -133,6 +160,7 @@ JSON格式：
     const themeData = JSON.parse(jsonMatch ? jsonMatch[0] : cleaned)
 
     if (!themeData.name || !themeData.nodes || !themeData.nodes.length) {
+      logAIRequest({ openid, messages: miniMaxMessages, response: raw, status: 'error', error: 'JSON格式不正确', durationMs: Date.now() - startTime })
       return { success: false, error: 'AI 返回格式不正确' }
     }
 
@@ -175,11 +203,14 @@ JSON格式：
       data: { openid, themeId, plantLevel: 1, points: 0, decorations: [], updatedAt: Date.now() }
     })
 
+    logAIRequest({ openid, themeId, messages: miniMaxMessages, response: raw, status: 'success', durationMs: Date.now() - startTime })
+
     return {
       success: true,
       theme: { _id: themeId, name: themeData.name, description: themeData.description, totalNodes: themeData.nodes.length },
     }
   } catch (e) {
+    logAIRequest({ openid, messages: miniMaxMessages, response: '', status: 'error', error: e.message, durationMs: Date.now() - startTime })
     console.error('generateTheme 错误:', e.message)
     return { success: false, error: e.message }
   }
