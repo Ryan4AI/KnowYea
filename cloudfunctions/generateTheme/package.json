@@ -4,7 +4,6 @@
   "description": "生成主题云函数",
   "main": "index.js",
   "dependencies": {
-    "needle": "^3.5.0",
     "wx-server-sdk": "~2.6.3"
   },
   "scripts": {

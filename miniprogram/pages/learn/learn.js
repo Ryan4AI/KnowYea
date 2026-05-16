@@ -253,22 +253,19 @@ Page({
       { role: 'user', content }
     ]
 
-    // 直接调 MiniMax API
-    wx.request({
-      url: 'https://api.minimaxi.com/v1/chat/completions',
-      method: 'POST',
-      header: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer sk-cp-c5wSwWsnIcUkewTEe9JhETRKZNyJ1OBnphm_4B1HdOV0LMNh9vP80kJFBKZV5jpCtp22_xyBUtF0zRAwgWaxU4YECc_LL8GPzEj6GVOHmMiovcfwylDgCDM'
-      },
+    // 通过云函数调 MiniMax API（不受域名白名单限制）
+    wx.cloud.callFunction({
+      name: 'sendMessage',
       data: {
-        model: 'MiniMax-M2.7',
-        messages: miniMaxMessages,
-        max_tokens: 2048
+        openid: app.globalData.openid,
+        themeId: theme?._id || '',
+        nodeId: node?._id || '',
+        miniMaxMessages,
+        userText: content,
       },
       success: res => {
-        if (res.statusCode === 200 && res.data?.choices?.[0]?.message?.content) {
-          const aiReply = res.data.choices[0].message.content
+        if (res.result && res.result.success && res.result.aiReply) {
+          const aiReply = res.result.aiReply
           const isCompleted = aiReply.includes('[完成]')
           const aiMsg = {
             id: 'ai_' + Date.now(),
@@ -278,7 +275,6 @@ Page({
             createdAt: Date.now(),
             timeStr: formatTime(Date.now()),
           }
-
           this.setData({
             messages: [...this.data.messages, aiMsg],
             isCompleted,
@@ -286,22 +282,9 @@ Page({
             isLoading: false,
           })
           this.scrollToBottom()
-
-          // 异步保存到云数据库（不阻塞 UI）
-          wx.cloud.callFunction({
-            name: 'sendMessage',
-            data: {
-              openid: app.globalData.openid,
-              themeId: theme?._id || '',
-              nodeId: node?._id || '',
-              userMsg: content,
-              aiReply,
-              reviewMode,
-            }
-          })
         } else {
           this.setData({ isLoading: false })
-          wx.showToast({ title: 'AI 请求失败', icon: 'none' })
+          wx.showToast({ title: res.result?.error || 'AI 请求失败', icon: 'none' })
         }
       },
       fail: err => {
@@ -571,8 +554,14 @@ Page({
   },
 
   stopGenLoading(interval) {
-    if (interval) clearInterval(interval)
-    this.setData({ showGenLoading: false })
+    try {
+      if (interval) clearInterval(interval)
+      this.setData({ showGenLoading: false })
+    } catch(e) {
+      console.error('[stopGenLoading error]', e)
+      // fallback: 确保 loading 消失
+      this.setData({ showGenLoading: false })
+    }
   },
 
   onSubmitProfile() {
@@ -601,76 +590,21 @@ Page({
           return
         }
 
-        // 开始 AI 生成课程（显示进度条）
+        // 开始 AI 生成课程（调云函数，云函数再调 MiniMax）
         const interval = this.startGenLoading()
 
-        const ageMap = { 1: '18岁以下', 2: '18-25岁', 3: '26-35岁', 4: '36-45岁', 5: '45岁以上' }
-        const prompt = `根据以下用户画像，推荐一个合适的学习主题：
-
-用户信息：
-- 年龄：${ageMap[profile.age] || '25-35岁'}
-- 职业：${profile.occupation || '职场人士'}
-- 兴趣：${profile.interests?.join('、') || '通用知识'}
-
-请生成一个适合该用户的学习主题。要求与用户的兴趣或职业发展相关，节点数量由AI根据内容复杂度自行决定，不设上限。
-
-请严格以 JSON 格式输出（不要用 markdown 代码块）：
-{"name":"主题名称","description":"主题描述","tags":["标签"],"nodes":[{"title":"节点标题","learningObjective":"学习目标","completionSignal":"完成标准"}]}`
-
-        wx.request({
-          url: 'https://api.minimaxi.com/v1/chat/completions',
-          method: 'POST',
-          header: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer sk-cp-c5wSwWsnIcUkewTEe9JhETRKZNyJ1OBnphm_4B1HdOV0LMNh9vP80kJFBKZV5jpCtp22_xyBUtF0zRAwgWaxU4YECc_LL8GPzEj6GVOHmMiovcfwylDgCDM'
-          },
-          data: {
-            model: 'MiniMax-M2.7',
-            messages: [
-              { role: 'system', content: '你是一位专业的教育专家。根据用户画像推荐学习主题，用 JSON 格式输出，不要使用 markdown 代码块包裹。' },
-              { role: 'user', content: prompt }
-            ],
-            max_tokens: 4096
-          },
-          success: aiRes => {
-            if (aiRes.statusCode === 200 && aiRes.data?.choices?.[0]?.message?.content) {
-              let themeData
-              try {
-                const raw = aiRes.data.choices[0].message.content
-                // 去掉 <think> 标签和 markdown 包裹，提取 JSON
-                const cleaned = raw.replace(/<think>[\s\S]*?<\/think>/g, '').replace(/```json\s*/g, '').replace(/```\s*/g, '').trim()
-                const jsonMatch = cleaned.match(/\{[\s\S]*\}/)
-                const jsonStr = jsonMatch ? jsonMatch[0] : cleaned
-                themeData = JSON.parse(jsonStr)
-              } catch (e) {
-                this.stopGenLoading(interval)
-                wx.showToast({ title: '无法解析课程数据', icon: 'none' })
-                return
-              }
-
-              // 保存到云函数数据库
-              wx.cloud.callFunction({
-                name: 'generateTheme',
-                data: { openid: app.globalData.openid, themeData },
-                success: genRes => {
-                  this.stopGenLoading(interval)
-                  if (genRes.result && genRes.result.success) {
-                    this.setData({
-                      showProfileSetup: false,
-                      pendingTheme: genRes.result.theme,
-                    })
-                  } else {
-                    wx.showToast({ title: genRes.result?.error || '保存失败', icon: 'none' })
-                  }
-                },
-                fail: () => {
-                  this.stopGenLoading(interval)
-                  wx.showToast({ title: '保存失败', icon: 'none' })
-                }
+        wx.cloud.callFunction({
+          name: 'generateTheme',
+          data: { openid: app.globalData.openid, profile },
+          success: genRes => {
+            this.stopGenLoading(interval)
+            if (genRes.result && genRes.result.success) {
+              this.setData({
+                showProfileSetup: false,
+                pendingTheme: genRes.result.theme,
               })
             } else {
-              this.stopGenLoading(interval)
-              wx.showToast({ title: 'AI 生成失败', icon: 'none' })
+              wx.showToast({ title: genRes.result?.error || '保存失败', icon: 'none' })
             }
           },
           fail: () => {
@@ -737,55 +671,15 @@ Page({
 严格以 JSON 格式输出（不要用 markdown 代码块）：
 {"name":"主题名称","description":"主题描述","tags":["标签"],"nodes":[{"title":"节点标题","learningObjective":"学习目标","completionSignal":"完成标准"}]}`
 
-    wx.request({
-      url: 'https://api.minimaxi.com/v1/chat/completions',
-      method: 'POST',
-      header: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer sk-cp-c5wSwWsnIcUkewTEe9JhETRKZNyJ1OBnphm_4B1HdOV0LMNh9vP80kJFBKZV5jpCtp22_xyBUtF0zRAwgWaxU4YECc_LL8GPzEj6GVOHmMiovcfwylDgCDM'
-      },
-      data: {
-        model: 'MiniMax-M2.7',
-        messages: [
-          { role: 'system', content: '你是一位专业的教育专家。根据用户画像推荐学习主题，用 JSON 格式输出。' },
-          { role: 'user', content: prompt }
-        ],
-        max_tokens: 4096
-      },
-      success: aiRes => {
-        if (aiRes.statusCode === 200 && aiRes.data?.choices?.[0]?.message?.content) {
-          let themeData
-          try {
-            const raw = aiRes.data.choices[0].message.content
-            const cleaned = raw.replace(/<think>[\s\S]*?<\/think>/g, '').replace(/```json\s*/g, '').replace(/```\s*/g, '').trim()
-            const jsonMatch = cleaned.match(/\{[\s\S]*\}/)
-            const jsonStr = jsonMatch ? jsonMatch[0] : cleaned
-            themeData = JSON.parse(jsonStr)
-          } catch (e) {
-            this.stopGenLoading(interval)
-            wx.showToast({ title: '无法解析课程数据', icon: 'none' })
-            return
-          }
-
-          wx.cloud.callFunction({
-            name: 'generateTheme',
-            data: { openid: app.globalData.openid, themeData },
-            success: genRes => {
-              this.stopGenLoading(interval)
-              if (genRes.result && genRes.result.success) {
-                this.setData({ pendingTheme: genRes.result.theme })
-              } else {
-                wx.showToast({ title: genRes.result?.error || '保存失败', icon: 'none' })
-              }
-            },
-            fail: () => {
-              this.stopGenLoading(interval)
-              wx.showToast({ title: '保存失败', icon: 'none' })
-            }
-          })
+    wx.cloud.callFunction({
+      name: 'generateTheme',
+      data: { openid: app.globalData.openid, profile },
+      success: genRes => {
+        this.stopGenLoading(interval)
+        if (genRes.result && genRes.result.success) {
+          this.setData({ pendingTheme: genRes.result.theme })
         } else {
-          this.stopGenLoading(interval)
-          wx.showToast({ title: 'AI 生成失败', icon: 'none' })
+          wx.showToast({ title: genRes.result?.error || '保存失败', icon: 'none' })
         }
       },
       fail: () => {
