@@ -113,19 +113,15 @@ module.exports = { contains: contains };
               <block wx:for="{{item.blocks}}" wx:for-item="block" wx:key="index">
                 <view wx:if="{{block.type === 'text'}}" class="plain-text"><rich-text nodes="{{block.html}}"></rich-text></view>
                 <view wx:elif="{{block.type === '概念'}}" class="concept-card">
-                  <view class="card-header">📚 概念</view>
                   <view class="card-body"><rich-text nodes="{{block.html || block.text}}"></rich-text></view>
                 </view>
                 <view wx:elif="{{block.type === '例子'}}" class="example-card">
-                  <view class="card-header">💡 例子</view>
                   <view class="card-body"><rich-text nodes="{{block.html || block.text}}"></rich-text></view>
                 </view>
                 <view wx:elif="{{block.type === '总结'}}" class="summary-card">
-                  <view class="card-header">📝 总结</view>
                   <view class="card-body"><rich-text nodes="{{block.html || block.text}}"></rich-text></view>
                 </view>
                 <view wx:elif="{{block.type === '评价'}}" class="evaluation-card">
-                  <view class="card-header">💬 评价</view>
                   <view class="card-body"><rich-text nodes="{{block.html || block.text}}"></rich-text></view>
                 </view>
                 <view wx:elif="{{block.type === '评分'}}" class="score-badge">
