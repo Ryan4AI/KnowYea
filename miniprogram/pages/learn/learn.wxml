@@ -170,7 +170,7 @@ module.exports = { contains: contains };
       </view>
 
       <view class="profile-field">
-        <text class="field-label">兴趣（可选，逗号分隔）</text>
+        <text class="field-label">兴趣（可多选）</text>
         <view class="interest-tags">
           <view
             wx:for="{{interestOptions}}"
@@ -179,6 +179,15 @@ module.exports = { contains: contains };
             data-index="{{index}}"
             bindtap="onInterestToggle"
           >{{item}}</view>
+          <!-- 自定义兴趣标签 -->
+          <view
+            wx:if="{{!showCustomInterestInput}}"
+            class="interest-tag interest-custom"
+            bindtap="onShowCustomInterest"
+          >✏️ 自定义</view>
+        </view>
+        <view wx:if="{{showCustomInterestInput}}" class="custom-interest-row">
+          <input class="custom-interest-input" placeholder="输入兴趣，回车添加" bindconfirm="onCustomInterestConfirm" bindblur="onCustomInterestBlur" />
         </view>
       </view>
 

@@ -93,6 +93,7 @@ Page({
     showAchievementPopup: false,
     currentAchievement: null,
     showProfileSetup: false,
+    showCustomInterestInput: false,
     profileForm: {
       ageIndex: 2,
       occupationIndex: -1,
@@ -513,6 +514,35 @@ Page({
     this.setData({ 'profileForm.interestIndexes': indexes })
   },
 
+  onShowCustomInterest() {
+    this.setData({ showCustomInterestInput: true })
+  },
+
+  onCustomInterestConfirm(e) {
+    const text = (e.detail.value || '').trim()
+    if (text) {
+      const options = [...this.data.interestOptions]
+      const idx = options.length
+      options.push(text)
+      const indexes = [...this.data.profileForm.interestIndexes]
+      indexes.push(String(idx))
+      this.setData({
+        interestOptions: options,
+        'profileForm.interestIndexes': indexes,
+        showCustomInterestInput: false,
+      })
+    }
+  },
+
+  onCustomInterestBlur(e) {
+    const text = (e.detail.value || '').trim()
+    if (text) {
+      this.onCustomInterestConfirm(e)
+    } else {
+      this.setData({ showCustomInterestInput: false })
+    }
+  },
+
   onSubmitProfile() {
     const { profileForm, occupationOptions, interestOptions } = this.data
     if (profileForm.occupationIndex < 0) {
@@ -540,12 +570,8 @@ Page({
         }
 
         // 客户端直接调 MiniMax 生成课程
-        let step = 0
-        const STEPS = ['📚 构建知识体系...', '🧠 生成课程内容...', '✨ 即将完成...']
-        const interval = setInterval(() => {
-          step = (step + 1) % STEPS.length
-          wx.showLoading({ title: STEPS[step], mask: true })
-        }, 1200)
+        // 不用循环，Minimax 一般需要 10-20 秒
+        wx.showLoading({ title: '🧠 生成课程内容…', mask: true })
 
         const ageMap = { 1: '18岁以下', 2: '18-25岁', 3: '26-35岁', 4: '36-45岁', 5: '45岁以上' }
         const prompt = `根据以下用户画像，推荐一个合适的学习主题：
@@ -586,7 +612,7 @@ Page({
                 const jsonStr = jsonMatch ? jsonMatch[0] : cleaned
                 themeData = JSON.parse(jsonStr)
               } catch (e) {
-                clearInterval(interval)
+                wx.hideLoading()
                 wx.hideLoading()
                 wx.showToast({ title: '无法解析课程数据', icon: 'none' })
                 return
@@ -597,7 +623,7 @@ Page({
                 name: 'generateTheme',
                 data: { openid: app.globalData.openid, themeData },
                 success: genRes => {
-                  clearInterval(interval)
+                  wx.hideLoading()
                   wx.hideLoading()
                   if (genRes.result && genRes.result.success) {
                     this.setData({
@@ -609,19 +635,19 @@ Page({
                   }
                 },
                 fail: () => {
-                  clearInterval(interval)
+                  wx.hideLoading()
                   wx.hideLoading()
                   wx.showToast({ title: '保存失败', icon: 'none' })
                 }
               })
             } else {
-              clearInterval(interval)
+              wx.hideLoading()
               wx.hideLoading()
               wx.showToast({ title: 'AI 生成失败', icon: 'none' })
             }
           },
           fail: () => {
-            clearInterval(interval)
+            wx.hideLoading()
             wx.hideLoading()
             wx.showToast({ title: '网络错误', icon: 'none' })
           }
