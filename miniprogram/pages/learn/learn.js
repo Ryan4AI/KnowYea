@@ -94,6 +94,10 @@ Page({
     currentAchievement: null,
     showProfileSetup: false,
     showCustomInterestInput: false,
+    // 课程生成加载进度
+    showGenLoading: false,
+    genProgress: 0,
+    genStageText: '',
     profileForm: {
       ageIndex: 2,
       occupationIndex: -1,
@@ -543,6 +547,34 @@ Page({
     }
   },
 
+  // 课程生成进度动画
+  startGenLoading() {
+    this.setData({
+      showGenLoading: true,
+      genProgress: 0,
+      genStageText: '🎯 分析你的兴趣和学习需求…',
+    })
+    const ESTIMATED_SECONDS = 15
+    const startTime = Date.now()
+    const progressInterval = setInterval(() => {
+      const elapsed = (Date.now() - startTime) / 1000
+      const pct = Math.min(Math.floor(elapsed / ESTIMATED_SECONDS * 100), 95)
+      let text
+      if (pct <= 20) text = '🎯 分析你的兴趣和学习需求…'
+      else if (pct <= 40) text = '📚 设计课程大纲与知识框架…'
+      else if (pct <= 60) text = '🧠 构建知识点与概念讲解…'
+      else if (pct <= 80) text = '✍️ 生成练习与互动内容…'
+      else text = '✨ 即将完成，打磨细节…'
+      this.setData({ genProgress: pct, genStageText: text })
+    }, 200)
+    return progressInterval
+  },
+
+  stopGenLoading(interval) {
+    if (interval) clearInterval(interval)
+    this.setData({ showGenLoading: false })
+  },
+
   onSubmitProfile() {
     const { profileForm, occupationOptions, interestOptions } = this.data
     if (profileForm.occupationIndex < 0) {
@@ -556,27 +588,21 @@ Page({
       interests: profileForm.interestIndexes.map(i => interestOptions[i]),
     }
 
-    // 先保存用户画像到云函数
+    // 先保存用户画像到云函数（预计 1 秒）
     wx.showLoading({ title: '🎯 分析兴趣...', mask: true })
 
     wx.cloud.callFunction({
       name: 'updateUserProfile',
       data: { openid: app.globalData.openid, profile },
       success: res => {
+        wx.hideLoading()
         if (!res.result || !res.result.success) {
-          wx.hideLoading()
           wx.showToast({ title: res.result?.error || '保存失败', icon: 'none' })
           return
         }
 
-        // 客户端直接调 MiniMax 生成课程（约 10-20 秒）
-        // 显示实时等待秒数，让用户知道系统仍在工作，而不是猜测进度
-        let elapsed = 0
-        const interval = setInterval(() => {
-          elapsed++
-          wx.showLoading({ title: `🧠 课程生成中… ${elapsed}s`, mask: true })
-        }, 1000)
-        wx.showLoading({ title: '🧠 课程生成中…', mask: true })
+        // 开始 AI 生成课程（显示进度条）
+        const interval = this.startGenLoading()
 
         const ageMap = { 1: '18岁以下', 2: '18-25岁', 3: '26-35岁', 4: '36-45岁', 5: '45岁以上' }
         const prompt = `根据以下用户画像，推荐一个合适的学习主题：
@@ -586,10 +612,10 @@ Page({
 - 职业：${profile.occupation || '职场人士'}
 - 兴趣：${profile.interests?.join('、') || '通用知识'}
 
-请生成一个适合该用户的学习主题。要求与用户的兴趣或职业发展相关。节点数量 8-12 个。
+请生成一个适合该用户的学习主题。要求与用户的兴趣或职业发展相关，节点数量由AI根据内容复杂度自行决定，不设上限。
 
 请严格以 JSON 格式输出（不要用 markdown 代码块）：
-{"name":"主题名称","description":"主题描述","totalNodes":节点数量,"tags":["标签"],"nodes":[{"title":"节点标题","learningObjective":"学习目标","completionSignal":"完成标准"}]}`
+{"name":"主题名称","description":"主题描述","tags":["标签"],"nodes":[{"title":"节点标题","learningObjective":"学习目标","completionSignal":"完成标准"}]}`
 
         wx.request({
           url: 'https://api.minimaxi.com/v1/chat/completions',
@@ -617,8 +643,7 @@ Page({
                 const jsonStr = jsonMatch ? jsonMatch[0] : cleaned
                 themeData = JSON.parse(jsonStr)
               } catch (e) {
-                clearInterval(interval)
-                wx.hideLoading()
+                this.stopGenLoading(interval)
                 wx.showToast({ title: '无法解析课程数据', icon: 'none' })
                 return
               }
@@ -628,8 +653,7 @@ Page({
                 name: 'generateTheme',
                 data: { openid: app.globalData.openid, themeData },
                 success: genRes => {
-                  clearInterval(interval)
-                  wx.hideLoading()
+                  this.stopGenLoading(interval)
                   if (genRes.result && genRes.result.success) {
                     this.setData({
                       showProfileSetup: false,
@@ -640,20 +664,17 @@ Page({
                   }
                 },
                 fail: () => {
-                  clearInterval(interval)
-                  wx.hideLoading()
+                  this.stopGenLoading(interval)
                   wx.showToast({ title: '保存失败', icon: 'none' })
                 }
               })
             } else {
-              clearInterval(interval)
-              wx.hideLoading()
+              this.stopGenLoading(interval)
               wx.showToast({ title: 'AI 生成失败', icon: 'none' })
             }
           },
           fail: () => {
-            clearInterval(interval)
-            wx.hideLoading()
+            this.stopGenLoading(interval)
             wx.showToast({ title: '网络错误', icon: 'none' })
           }
         })
@@ -700,12 +721,8 @@ Page({
       interests: profileForm.interestIndexes.map(i => interestOptions[i]),
     }
 
-    let elapsed = 0
-    const interval = setInterval(() => {
-      elapsed++
-      wx.showLoading({ title: `🧠 重新生成… ${elapsed}s`, mask: true })
-    }, 1000)
-    wx.showLoading({ title: '🧠 重新生成…', mask: true })
+    // 显示进度条进行重新生成
+    const interval = this.startGenLoading()
 
     const ageMap = { 1: '18岁以下', 2: '18-25岁', 3: '26-35岁', 4: '36-45岁', 5: '45岁以上' }
     const prompt = `根据以下用户画像，推荐一个合适的学习主题：
@@ -715,10 +732,10 @@ Page({
 - 职业：${profile.occupation || '职场人士'}
 - 兴趣：${profile.interests?.join('、') || '通用知识'}
 
-请生成一个适合该用户的全新学习主题，不要和之前推荐的重叠。节点数量 8-12 个。
+请生成一个适合该用户的全新学习主题，不要和之前推荐的重叠。节点数量由AI根据内容复杂度自行决定，不设上限。
 
 严格以 JSON 格式输出（不要用 markdown 代码块）：
-{"name":"主题名称","description":"主题描述","totalNodes":节点数量,"tags":["标签"],"nodes":[{"title":"节点标题","learningObjective":"学习目标","completionSignal":"完成标准"}]}`
+{"name":"主题名称","description":"主题描述","tags":["标签"],"nodes":[{"title":"节点标题","learningObjective":"学习目标","completionSignal":"完成标准"}]}`
 
     wx.request({
       url: 'https://api.minimaxi.com/v1/chat/completions',
@@ -745,8 +762,7 @@ Page({
             const jsonStr = jsonMatch ? jsonMatch[0] : cleaned
             themeData = JSON.parse(jsonStr)
           } catch (e) {
-            clearInterval(interval)
-            wx.hideLoading()
+            this.stopGenLoading(interval)
             wx.showToast({ title: '无法解析课程数据', icon: 'none' })
             return
           }
@@ -755,8 +771,7 @@ Page({
             name: 'generateTheme',
             data: { openid: app.globalData.openid, themeData },
             success: genRes => {
-              clearInterval(interval)
-              wx.hideLoading()
+              this.stopGenLoading(interval)
               if (genRes.result && genRes.result.success) {
                 this.setData({ pendingTheme: genRes.result.theme })
               } else {
@@ -764,20 +779,17 @@ Page({
               }
             },
             fail: () => {
-              clearInterval(interval)
-              wx.hideLoading()
+              this.stopGenLoading(interval)
               wx.showToast({ title: '保存失败', icon: 'none' })
             }
           })
         } else {
-          clearInterval(interval)
-          wx.hideLoading()
+          this.stopGenLoading(interval)
           wx.showToast({ title: 'AI 生成失败', icon: 'none' })
         }
       },
       fail: () => {
-        clearInterval(interval)
-        wx.hideLoading()
+        this.stopGenLoading(interval)
         wx.showToast({ title: '网络错误', icon: 'none' })
       }
     })

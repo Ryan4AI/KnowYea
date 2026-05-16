@@ -621,3 +621,69 @@
   margin-top: 32rpx;
   padding: 16rpx;
 }
+
+/* 课程生成加载动画 */
+.gen-loading-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.gen-loading-card {
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 60rpx 50rpx;
+  width: 560rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.gen-loading-icon {
+  font-size: 72rpx;
+  margin-bottom: 24rpx;
+  animation: genPulse 1.5s ease-in-out infinite;
+}
+@keyframes genPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+.gen-loading-stage {
+  font-size: 30rpx;
+  color: #333;
+  font-weight: 500;
+  margin-bottom: 32rpx;
+  text-align: center;
+  min-height: 40rpx;
+}
+.gen-progress-track {
+  width: 100%;
+  height: 8rpx;
+  background: #f0f0f0;
+  border-radius: 4rpx;
+  overflow: hidden;
+  margin-bottom: 12rpx;
+}
+.gen-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6c5ce7, #a29bfe);
+  border-radius: 4rpx;
+  transition: width 0.3s ease;
+}
+.gen-progress-pct {
+  font-size: 24rpx;
+  color: #999;
+  font-family: monospace;
+  margin-bottom: 8rpx;
+}
+.gen-loading-tip {
+  font-size: 24rpx;
+  color: #aaa;
+  text-align: center;
+  line-height: 1.6;
+}
