@@ -249,8 +249,11 @@ Page({
       },
       success: res => {
         if (res.result && res.result.success && res.result.aiReply) {
-          const aiReply = res.result.aiReply
-          const isCompleted = aiReply.includes('[完成]')
+          // 剥离 `<think>...</think>` 推理内容
+          let aiReply = res.result.aiReply.replace(/<think>[\s\S]*?<\/think>/g, '').trim()
+          const isCompleted = aiReply.includes('[完成]') || (res.result.isCompleted && aiReply.length > 20)
+
+          // 如果 AI 没有标记完成但内容足够长（说明已介绍完主要内容），也视为完成
           const aiMsg = {
             id: 'ai_' + Date.now(),
             role: 'ai',
@@ -262,10 +265,25 @@ Page({
           this.setData({
             messages: [...this.data.messages, aiMsg],
             isCompleted,
-            showCompleteBtn: isCompleted && !reviewMode,
             isLoading: false,
           })
           this.scrollToBottom()
+
+          // 自动进入下一节（无需用户手动操作）
+          if (isCompleted) {
+            const { theme, node, reviewMode } = this.data
+            if (!theme || !node || !theme.nodes || reviewMode) return
+            const nodeIndex = theme.nodes.findIndex(n => n._id === node._id)
+            if (nodeIndex < theme.nodes.length - 1) {
+              const nextNode = theme.nodes[nodeIndex + 1]
+              setTimeout(() => {
+                this.switchToNode(nextNode._id)
+                setTimeout(() => {
+                  this.sendMessage(`请开始介绍"${nextNode.title}"这个课时要学习的内容，用通俗易懂的语言`)
+                }, 600)
+              }, 2500)
+            }
+          }
         } else {
           this.setData({ isLoading: false })
           wx.showToast({ title: res.result?.error || 'AI 请求失败', icon: 'none' })
