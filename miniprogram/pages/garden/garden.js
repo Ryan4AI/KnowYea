@@ -1,15 +1,33 @@
 // pages/garden/garden.js — 知识花园（入口+课程列表+个人中心合一）
 const app = getApp()
 
+const PLANT_LEVELS = [
+  { threshold: 0, emoji: '🌱', name: '种子' },
+  { threshold: 10, emoji: '🌿', name: '嫩芽' },
+  { threshold: 30, emoji: '🌾', name: '稻穗' },
+  { threshold: 60, emoji: '🌻', name: '开花' },
+  { threshold: 120, emoji: '🪴', name: '盆景' },
+  { threshold: 250, emoji: '🌳', name: '大树' },
+  { threshold: 500, emoji: '🏡', name: '花园' },
+]
+
+function calcPlant(completedNodes) {
+  let level = 0
+  for (let i = PLANT_LEVELS.length - 1; i >= 0; i--) {
+    if (completedNodes >= PLANT_LEVELS[i].threshold) {
+      return { level: i + 1, ...PLANT_LEVELS[i] }
+    }
+  }
+  return { level: 1, ...PLANT_LEVELS[0] }
+}
+
 Page({
   data: {
     isLoading: true,
     // 花园
-    plantLevel: 0,
+    plant: { level: 1, emoji: '🌱', name: '种子' },
     plantPoints: 0,
-    plantEmoji: '🌱',
     // 用户
-    user: null,
     stats: {
       completedNodes: 0,
       completedThemes: 0,
@@ -19,6 +37,7 @@ Page({
     achievements: [],
     // 课程
     themes: [],
+    lastActiveTheme: null,
   },
 
   onLoad() {
@@ -48,10 +67,7 @@ Page({
     .then(res => {
       if (res.result?.success && res.result.gardens?.length > 0) {
         const g = res.result.gardens[0]
-        this.setData({
-          plantLevel: g.plantLevel || 0,
-          plantPoints: g.points || 0,
-        })
+        this.setData({ plantPoints: g.points || 0 })
       }
     })
     .catch(() => {})
@@ -60,14 +76,6 @@ Page({
     .then(res => {
       if (res.result?.success) {
         let themes = res.result.themes || []
-        themes.forEach(t => {
-          const completed = t.completedCount || 0
-          if (completed >= 10) t.plantEmoji = '🍎'
-          else if (completed >= 7) t.plantEmoji = '🌸'
-          else if (completed >= 4) t.plantEmoji = '🌾'
-          else if (completed >= 1) t.plantEmoji = '🌿'
-          else t.plantEmoji = '🌱'
-        })
         this.setData({ themes })
       }
     })
@@ -76,10 +84,24 @@ Page({
     wx.cloud.callFunction({ name: 'getUserProfile', data: { openid: app.globalData.openid } })
     .then(res => {
       if (res.result?.success) {
+        const stats = res.result.stats
+        // 计算植物等级
+        const plant = calcPlant(stats.completedNodes || 0)
+        // 找到最近学习的课程（从 themes 中取最后活动的）
+        let lastActiveTheme = null
+        const themes = this.data.themes
+        if (themes.length > 0) {
+          lastActiveTheme = themes.reduce((a, b) => {
+            const aTime = a.lastStudiedAt || a.startedAt || 0
+            const bTime = b.lastStudiedAt || b.startedAt || 0
+            return aTime > bTime ? a : b
+          })
+        }
         this.setData({
-          user: res.result.user,
-          stats: res.result.stats,
+          stats,
           achievements: res.result.achievements || [],
+          plant,
+          lastActiveTheme,
         })
       }
     })

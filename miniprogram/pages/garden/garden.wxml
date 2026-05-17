@@ -8,28 +8,42 @@
   <scroll-view class="scroll" scroll-y="{{true}}" wx:else>
     <!-- ===== 花园头部 ===== -->
     <view class="garden-header">
-      <view class="garden-plant">{{plantLevel > 0 ? '🌻' : '🌱'}}</view>
-      <view class="garden-level">{{plantLevel > 0 ? 'Lv.' + plantLevel : '播种中'}}</view>
-      <view class="garden-points">{{plantPoints}} 积分</view>
+      <view class="header-plant-wrap">
+        <view class="header-plant">{{plant.emoji}}</view>
+        <view class="header-level">Lv.{{plant.level}} {{plant.name}}</view>
+      </view>
+      <view class="header-welcome">
+        <text class="header-greeting">🌿 你的知识花园</text>
+        <text class="header-stats">已学习 {{stats.completedNodes}} 个课时 · {{stats.completedThemes}} 门课程</text>
+      </view>
+      <view class="header-points">{{plantPoints}} 积分</view>
     </view>
 
     <!-- ===== 用户统计 ===== -->
     <view class="stats-grid">
       <view class="stat-card">
-        <view class="stat-value">{{stats.completedNodes}}</view>
-        <view class="stat-label">已学课时</view>
+        <view class="stat-card-inner">
+          <view class="stat-value">{{stats.completedNodes}}</view>
+          <view class="stat-label">已学课时</view>
+        </view>
       </view>
       <view class="stat-card">
-        <view class="stat-value">{{stats.completedThemes}}</view>
-        <view class="stat-label">完成课程</view>
+        <view class="stat-card-inner">
+          <view class="stat-value">{{stats.completedThemes}}</view>
+          <view class="stat-label">完成课程</view>
+        </view>
       </view>
       <view class="stat-card">
-        <view class="stat-value">{{stats.totalPoints}}</view>
-        <view class="stat-label">总积分</view>
+        <view class="stat-card-inner">
+          <view class="stat-value">{{stats.totalPoints}}</view>
+          <view class="stat-label">总积分</view>
+        </view>
       </view>
       <view class="stat-card">
-        <view class="stat-value">{{stats.streak}}</view>
-        <view class="stat-label">连续天数</view>
+        <view class="stat-card-inner">
+          <view class="stat-value">{{stats.streak}}</view>
+          <view class="stat-label">连续天数</view>
+        </view>
       </view>
     </view>
 
@@ -47,7 +61,7 @@
       <view class="theme-list" wx:else>
         <view class="theme-item" wx:for="{{themes}}" wx:key="_id">
           <view class="theme-top">
-            <view class="theme-emoji">{{item.plantEmoji || '🌱'}}</view>
+            <view class="theme-emoji">📖</view>
             <view class="theme-info">
               <view class="theme-name">{{item.name}}</view>
               <view class="theme-desc">{{item.description}}</view>

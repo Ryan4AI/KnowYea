@@ -16,7 +16,6 @@
   "pages": [
     "pages/learn/learn",
     "pages/garden/garden",
-    "pages/themes/themes",
     "pages/theme-store/theme-store",
     "pages/profile/profile",
     "pages/history/history",

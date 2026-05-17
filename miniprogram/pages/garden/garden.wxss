@@ -14,11 +14,18 @@
 .garden-header {
   background: linear-gradient(135deg, #1a1a2e, #16213e);
   display: flex; flex-direction: column; align-items: center;
-  padding: 60rpx 0 50rpx;
+  padding: 50rpx 0 40rpx;
 }
-.garden-plant { font-size: 100rpx; margin-bottom: 16rpx; }
-.garden-level { font-size: 40rpx; font-weight: 700; color: #a29bfe; }
-.garden-points { font-size: 26rpx; color: rgba(255,255,255,0.6); margin-top: 8rpx; }
+.header-plant-wrap {
+  display: flex; flex-direction: column; align-items: center;
+  margin-bottom: 16rpx;
+}
+.header-plant { font-size: 80rpx; }
+.header-level { font-size: 28rpx; color: #a29bfe; font-weight: 600; margin-top: 8rpx; }
+.header-welcome { text-align: center; margin-bottom: 8rpx; }
+.header-greeting { font-size: 34rpx; font-weight: 700; color: #fff; display: block; margin-bottom: 4rpx; }
+.header-stats { font-size: 24rpx; color: rgba(255,255,255,0.6); display: block; }
+.header-points { font-size: 24rpx; color: rgba(255,255,255,0.4); }
 
 /* 统计卡片 */
 .stats-grid {
