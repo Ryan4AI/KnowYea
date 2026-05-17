@@ -254,6 +254,6 @@ Page({
 
   // 编辑画像
   onEditProfile() {
-    wx.navigateTo({ url: '/pages/profile/profile' })
+    wx.navigateTo({ url: '/pages/profile/edit/edit?edit=1' })
   },
 })

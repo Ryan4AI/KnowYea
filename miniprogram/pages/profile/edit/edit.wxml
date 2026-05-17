@@ -1,0 +1,51 @@
+<!-- pages/profile/edit/edit.wxml — 个人画像编辑 / 新用户引导 -->
+<view class="page-container">
+  <view class="hero-section">
+    <view class="hero-emoji" wx:if="{{!isEditing}}">👋</view>
+    <view class="hero-emoji" wx:elif>✏️</view>
+    <view class="hero-title" wx:if="{{!isEditing}}">欢迎来到知识胶囊</view>
+    <view class="hero-title" wx:elif>编辑个人画像</view>
+    <view class="hero-desc">{{isEditing ? '修改你的画像信息' : '先填写你的画像，AI 才能为你定制最合适的课程'}}</view>
+  </view>
+
+  <view class="form-card">
+    <!-- 年龄 -->
+    <view class="form-group">
+      <text class="form-label">年龄段</text>
+      <picker mode="selector" range="{{ageRanges}}" value="{{formData.ageIndex}}" bindchange="onAgeChange">
+        <view class="picker-shell {{formData.ageIndex >= 0 ? 'filled' : ''}}">
+          {{formData.ageIndex >= 0 ? ageRanges[formData.ageIndex] : '选择你的年龄段'}}
+          <text class="arrow">›</text>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 职业 -->
+    <view class="form-group">
+      <text class="form-label">职业</text>
+      <picker mode="selector" range="{{occupations}}" value="{{formData.occIndex}}" bindchange="onOccChange">
+        <view class="picker-shell {{formData.occIndex >= 0 ? 'filled' : ''}}">
+          {{formData.occIndex >= 0 ? occupations[formData.occIndex] : '选择你的职业'}}
+          <text class="arrow">›</text>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 兴趣 -->
+    <view class="form-group">
+      <text class="form-label">感兴趣的学习方向 <text class="hint">（可多选）</text></text>
+    </view>
+    <view class="cats" wx:for="{{interestCategories}}" wx:for-item="cat" wx:key="name">
+      <view class="cat-name">{{cat.name}}</view>
+      <view class="cat-tags">
+        <text class="tag {{formData.selectedTags.indexOf(tag) >= 0 ? 'on' : ''}}"
+          wx:for="{{cat.tags}}" wx:for-item="tag" wx:key="tag"
+          bindtap="onToggleTag" data-tag="{{tag}}">{{tag}}</text>
+      </view>
+    </view>
+
+    <button class="save-btn" bindtap="onSave" disabled="{{!canSave}}">
+      {{isSaving ? '保存中...' : isEditing ? '✅ 保存修改' : '✅ 开始学习之旅'}}
+    </button>
+  </view>
+</view>
