@@ -1,17 +1,15 @@
 <!-- pages/profile/edit/edit.wxml — 个人画像编辑 / 新用户引导 -->
 <view class="page-container">
   <view class="hero-section">
-    <view class="hero-emoji" wx:if="{{!isEditing}}">👋</view>
-    <view class="hero-emoji" wx:elif>✏️</view>
-    <view class="hero-title" wx:if="{{!isEditing}}">欢迎来到知识胶囊</view>
-    <view class="hero-title" wx:elif>编辑个人画像</view>
-    <view class="hero-desc">{{isEditing ? '修改你的画像信息' : '先填写你的画像，AI 才能为你定制最合适的课程'}}</view>
+    <view class="hero-emoji">{{isEditing ? '✏️' : '👤'}}</view>
+    <view class="hero-title">{{isEditing ? '编辑个人画像' : '完善个人画像'}}</view>
+    <view class="hero-desc">{{isEditing ? '修改你的画像信息' : '请先填写个人画像，AI 才能为你定制最合适的课程内容和教学节奏'}}</view>
   </view>
 
   <view class="form-card">
     <!-- 年龄 -->
     <view class="form-group">
-      <text class="form-label">年龄段</text>
+      <text class="form-label">年龄范围</text>
       <picker mode="selector" range="{{ageRanges}}" value="{{formData.ageIndex}}" bindchange="onAgeChange">
         <view class="picker-shell {{formData.ageIndex >= 0 ? 'filled' : ''}}">
           {{formData.ageIndex >= 0 ? ageRanges[formData.ageIndex] : '选择你的年龄段'}}
@@ -33,19 +31,34 @@
 
     <!-- 兴趣 -->
     <view class="form-group">
-      <text class="form-label">感兴趣的学习方向 <text class="hint">（可多选）</text></text>
+      <text class="form-label">学习兴趣 <text class="hint">（可多选，推荐标签带 ⭐）</text></text>
     </view>
     <view class="cats" wx:for="{{interestCategories}}" wx:for-item="cat" wx:key="name">
       <view class="cat-name">{{cat.name}}</view>
       <view class="cat-tags">
-        <text class="tag {{formData.selectedTags.indexOf(tag) >= 0 ? 'on' : ''}}"
+        <text class="tag {{formData.selectedTags.indexOf(tag) >= 0 ? 'on' : ''}} {{recommendedTagSet.has(tag) ? 'rec' : ''}}"
           wx:for="{{cat.tags}}" wx:for-item="tag" wx:key="tag"
-          bindtap="onToggleTag" data-tag="{{tag}}">{{tag}}</text>
+          bindtap="onToggleTag" data-tag="{{tag}}">
+          {{recommendedTagSet.has(tag) ? '⭐ ' : ''}}{{tag}}
+        </text>
+      </view>
+    </view>
+
+    <!-- 自定义标签 -->
+    <view class="custom-area">
+      <view class="custom-tags" wx:if="{{formData.customTags.length > 0}}">
+        <text class="ctag" wx:for="{{formData.customTags}}" wx:for-item="t" wx:key="t" bindtap="onRemoveCustom" data-tag="{{t}}">
+          {{t}} ✕
+        </text>
+      </view>
+      <view class="custom-row">
+        <input class="custom-input" placeholder="输入自定义兴趣标签" bindinput="onCustomInput" value="{{customInput}}" />
+        <button class="custom-btn" bindtap="onAddCustom">添加</button>
       </view>
     </view>
 
     <button class="save-btn" bindtap="onSave" disabled="{{!canSave}}">
-      {{isSaving ? '保存中...' : isEditing ? '✅ 保存修改' : '✅ 开始学习之旅'}}
+      {{isSaving ? '保存中...' : isEditing ? '✅ 保存修改' : '✅ 保存画像'}}
     </button>
   </view>
 </view>

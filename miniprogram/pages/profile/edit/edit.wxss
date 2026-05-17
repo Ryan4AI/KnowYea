@@ -14,7 +14,7 @@
 }
 
 .hero-emoji {
-  font-size: 72rpx;
+  font-size: 64rpx;
   margin-bottom: 16rpx;
 }
 
@@ -29,6 +29,7 @@
   font-size: 26rpx;
   color: rgba(255,255,255,0.7);
   line-height: 1.6;
+  padding: 0 20rpx;
 }
 
 /* 表单卡片 */
@@ -41,9 +42,7 @@
   border: 1rpx solid rgba(26,29,46,0.05);
 }
 
-.form-group {
-  margin-bottom: 36rpx;
-}
+.form-group { margin-bottom: 36rpx; }
 
 .form-label {
   font-size: 28rpx;
@@ -78,28 +77,12 @@
   background: #f8f7ff;
 }
 
-.arrow {
-  font-size: 32rpx;
-  color: #ccc;
-}
+.arrow { font-size: 32rpx; color: #ccc; }
 
 /* 兴趣分类 */
-.cats {
-  margin-bottom: 20rpx;
-}
-
-.cat-name {
-  font-size: 24rpx;
-  font-weight: 600;
-  color: #555;
-  margin-bottom: 12rpx;
-}
-
-.cat-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12rpx;
-}
+.cats { margin-bottom: 20rpx; }
+.cat-name { font-size: 24rpx; font-weight: 600; color: #555; margin-bottom: 12rpx; }
+.cat-tags { display: flex; flex-wrap: wrap; gap: 12rpx; }
 
 .tag {
   display: inline-block;
@@ -109,13 +92,73 @@
   font-size: 24rpx;
   color: #666;
   background: #fafafa;
-  transition: all 0.2s;
 }
 
 .tag.on {
   border-color: #6c5ce7;
   background: #f0edff;
   color: #6c5ce7;
+  font-weight: 600;
+}
+
+.tag.rec {
+  border-color: #f0a030;
+  background: #fff8ed;
+  color: #c47a10;
+}
+
+.tag.rec.on {
+  border-color: #6c5ce7;
+  background: #f0edff;
+  color: #6c5ce7;
+}
+
+/* 自定义标签 */
+.custom-area { margin-bottom: 20rpx; }
+
+.custom-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-bottom: 12rpx;
+}
+
+.ctag {
+  display: inline-block;
+  padding: 12rpx 20rpx;
+  border: 2rpx solid #6c5ce7;
+  border-radius: 30rpx;
+  font-size: 24rpx;
+  color: #6c5ce7;
+  background: #f0edff;
+  font-weight: 500;
+}
+
+.custom-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.custom-input {
+  flex: 1;
+  height: 68rpx;
+  background: #f5f6fa;
+  border: 2rpx solid #e0e0e0;
+  border-radius: 16rpx;
+  padding: 0 20rpx;
+  font-size: 26rpx;
+}
+
+.custom-btn {
+  flex-shrink: 0;
+  height: 68rpx;
+  line-height: 68rpx;
+  padding: 0 28rpx;
+  background: #6c5ce7;
+  color: #fff;
+  border-radius: 16rpx;
+  font-size: 26rpx;
   font-weight: 600;
 }
 
@@ -131,9 +174,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 20rpx;
+  margin-top: 24rpx;
 }
 
-.save-btn[disabled] {
-  opacity: 0.4;
-}
+.save-btn[disabled] { opacity: 0.4; }
