@@ -379,20 +379,20 @@ Page({
   // 手动进入下一节
   manualAdvance() {
     const { theme, node } = this.data
-    if (!theme || !node || !theme.nodes) return
-    const nodeIndex = theme.nodes.findIndex(n => n._id === node._id)
-    if (nodeIndex < 0 || nodeIndex >= theme.nodes.length - 1) return
-
-    const nextNode = theme.nodes[nodeIndex + 1]
-    if (!nextNode) {
+    if (!theme || !node) return
+    if (node.order >= theme.totalNodes) {
       wx.showToast({ title: '🎉 已学完全部课时！', icon: 'none' })
       return
     }
+    const nextNodeId = `${theme._id}_node_${node.order + 1}`
     this.setData({ isCompleted: false })
     wx.showLoading({ title: '进入下一节' })
-    this.switchToNode(nextNode._id, () => {
+    this.switchToNode(nextNodeId, () => {
       wx.hideLoading()
-      this.sendMessage(`请开始介绍"${nextNode.title}"这个课时要学习的内容，用通俗易懂的语言`, true)
+      const newNode = this.data.node
+      if (newNode) {
+        this.sendMessage(`请开始介绍"${newNode.title}"这个课时要学习的内容，用通俗易懂的语言`, true)
+      }
     })
   },
 
