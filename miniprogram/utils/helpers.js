@@ -56,7 +56,7 @@ function parseMessageBlocks(content) {
 
   const blocks = []
   // 匹配标签块
-  const pattern = /\[(概念|例子|总结|评价)\]([\s\S]*?)\[\/\1\]|\[题目 type="(choice|open)"\]([\s\S]*?)\[\/题目\]|\[评分\] (\d+)/g
+  const pattern = /\[(概念|例子|总结|评价)\]([\s\S]*?)\[\/\1\]|\[题目\s+type\s*=\s*["']?(choice|open)["']?\]([\s\S]*?)\[\/题目\]|\[评分\]\s*(\d+)/g
   let lastIndex = 0
   let match
 

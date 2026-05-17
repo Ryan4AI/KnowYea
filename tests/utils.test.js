@@ -73,6 +73,22 @@ describe('parseMessageBlocks', () => {
     expect(blocks[0].score).toBe(85)
   })
 
+  test('应该解析不带引号的选择题', () => {
+    const input = '[题目 type=choice]\n1+1等于几？|2|3|4|1\n[/题目]'
+    const blocks = parseMessageBlocks(input)
+    expect(blocks).toHaveLength(1)
+    expect(blocks[0].type).toBe('choice')
+    expect(blocks[0].content).toContain('1+1等于几？')
+  })
+
+  test('应该解析带单引号的选择题', () => {
+    const input = "[题目 type='choice']\n以下哪个是水果？|苹果|桌子|石头|水\n[/题目]"
+    const blocks = parseMessageBlocks(input)
+    expect(blocks).toHaveLength(1)
+    expect(blocks[0].type).toBe('choice')
+    expect(blocks[0].content).toContain('以下哪个是水果？')
+  })
+
   test('应该混合解析多种标签', () => {
     const input = '前面的话[概念]概念内容[/概念]中间的话[例子]例子内容[/例子]结束'
     const blocks = parseMessageBlocks(input)
