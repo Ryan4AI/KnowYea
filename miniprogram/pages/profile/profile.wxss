@@ -1,145 +1,7 @@
 /* pages/profile/profile.wxss */
-page {
-  background: #f5f5f7;
-  min-height: 100vh;
-}
+@import "../../styles/pages.wxss";
 
-.page-container {
-  padding-bottom: 40rpx;
-}
-
-/* ====== 表单模式 — 与 learn 页原引导一致 ====== */
-.onboard-header {
-  text-align: center;
-  padding: 80rpx 40rpx 40rpx;
-}
-
-.onboard-icon { font-size: 64rpx; margin-bottom: 16rpx; }
-
-.onboard-title {
-  font-size: 34rpx;
-  font-weight: 600;
-  color: #1a1a2e;
-  margin-bottom: 8rpx;
-}
-
-.onboard-desc {
-  font-size: 26rpx;
-  color: #999;
-}
-
-.onboard-card {
-  background: #fff;
-  border-radius: 24rpx;
-  padding: 48rpx 40rpx;
-  margin: 0 32rpx;
-  box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.06);
-}
-
-.form-group {
-  margin-bottom: 28rpx;
-}
-
-.form-label {
-  display: block;
-  font-size: 28rpx;
-  color: #555;
-  margin-bottom: 12rpx;
-}
-
-.hint {
-  font-size: 24rpx;
-  color: #aaa;
-  font-weight: normal;
-}
-
-.picker-value {
-  background: #f5f5f7;
-  border-radius: 12rpx;
-  padding: 20rpx 24rpx;
-  font-size: 28rpx;
-  color: #333;
-}
-
-.picker-value.active { color: #333; }
-
-.interest-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12rpx;
-}
-
-.interest-tag {
-  background: #f5f5f7;
-  border-radius: 30rpx;
-  padding: 12rpx 28rpx;
-  font-size: 26rpx;
-  color: #666;
-}
-
-.interest-tag.selected {
-  background: #6366f1;
-  color: #fff;
-}
-
-.interest-tag.recommended {
-  background: #eef2ff;
-  border: 2rpx solid #6366f1;
-  color: #6366f1;
-}
-
-.custom-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12rpx;
-}
-
-.custom-tag {
-  padding: 12rpx 28rpx;
-  background: #fef9e7;
-  border: 2rpx solid #f59e0b;
-  border-radius: 30rpx;
-  font-size: 26rpx;
-  color: #f59e0b;
-}
-
-.custom-interest-row {
-  margin-top: 8rpx;
-}
-
-.custom-interest-btn {
-  display: inline-block;
-  padding: 10rpx 24rpx;
-  background: transparent;
-  border: 2rpx dashed #ccc;
-  border-radius: 30rpx;
-  font-size: 24rpx;
-  color: #999;
-}
-
-.custom-interest-input {
-  background: #f5f5f7;
-  border-radius: 12rpx;
-  padding: 16rpx 24rpx;
-  font-size: 26rpx;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.save-btn {
-  width: 100%;
-  height: 88rpx;
-  line-height: 88rpx;
-  background: #6366f1;
-  color: #fff;
-  font-size: 32rpx;
-  font-weight: 600;
-  border-radius: 16rpx;
-  margin-top: 32rpx;
-  text-align: center;
-}
-
-/* ====== 展示模式 ====== */
+/* ====== 展示模式（已有画像） ====== */
 .profile-header {
   display: flex;
   align-items: center;
@@ -249,4 +111,43 @@ page {
   font-size: 24rpx;
   color: #4a3e60;
   padding: 40rpx 0;
+}
+
+/* ====== 表单模式 - 自定义标签 ====== */
+.custom-tag {
+  padding: 12rpx 28rpx;
+  background: #6366f1;
+  border-radius: 30rpx;
+  font-size: 26rpx;
+  color: #fff;
+}
+
+.custom-interest-row {
+  display: flex;
+  gap: 12rpx;
+  align-items: center;
+}
+
+.custom-interest-input {
+  flex: 1;
+  background: #f5f5f7;
+  border-radius: 12rpx;
+  padding: 16rpx 24rpx;
+  font-size: 26rpx;
+  height: 60rpx;
+  box-sizing: border-box;
+}
+
+.custom-add-btn {
+  flex-shrink: 0;
+  width: 100rpx;
+  height: 60rpx;
+  line-height: 60rpx;
+  background: #6366f1;
+  color: #fff;
+  font-size: 24rpx;
+  border-radius: 12rpx;
+  text-align: center;
+  padding: 0;
+  border: none;
 }

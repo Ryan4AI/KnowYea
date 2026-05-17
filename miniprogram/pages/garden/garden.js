@@ -247,9 +247,25 @@ Page({
     wx.navigateTo({ url: '/pages/theme-store/theme-store' })
   },
 
-  // 生成新课（与添加课程同目的地，但更显眼）
+  // 生成新课（没画像则先去画像收集）
   onNewTheme() {
-    wx.navigateTo({ url: '/pages/theme-store/theme-store' })
+    wx.showLoading({ title: '检查中...' })
+    wx.cloud.callFunction({
+      name: 'getUserProfile',
+      data: { openid: app.globalData.openid },
+      success: res => {
+        wx.hideLoading()
+        if (res.result && res.result.success && res.result.profile) {
+          wx.navigateTo({ url: '/pages/theme-store/theme-store' })
+        } else {
+          wx.navigateTo({ url: '/pages/profile/profile' })
+        }
+      },
+      fail: () => {
+        wx.hideLoading()
+        wx.navigateTo({ url: '/pages/theme-store/theme-store' })
+      }
+    })
   },
 
   // 编辑画像

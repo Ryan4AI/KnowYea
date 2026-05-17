@@ -1,28 +1,32 @@
 <!-- pages/theme-store/theme-store.wxml — AI 课程生成器 -->
+<view class="page">
 <view class="page-container">
-  <view class="hero-section">
-    <view class="hero-icon">🧠</view>
-    <view class="hero-title">AI 课程生成器</view>
-    <view class="hero-desc">输入你想学的内容，AI 为你量身定制一套完整课程</view>
+
+  <!-- 头部 -->
+  <view class="page-header">
+    <view class="page-icon">🧠</view>
+    <view class="page-title">AI 课程生成器</view>
+    <view class="page-desc">输入你想学的内容，AI 为你量身定制一套完整课程</view>
   </view>
 
-  <view wx:if="{{!profileLoaded}}">
-    <!-- 加载中 -->
-    <view class="loading"><text>加载中...</text></view>
+  <!-- 加载中 -->
+  <view class="loading" wx:if="{{!profileLoaded}}">
+    <text>加载中...</text>
   </view>
+
+  <!-- 未设置画像 -->
   <view wx:elif="{{profileLoaded && !userProfile}}">
-    <!-- 未设置画像 -->
-    <view class="profile-missing">
-      <view class="missing-icon">👤</view>
-      <view class="missing-text">请先设置个人画像</view>
-      <view class="missing-desc">AI 需要了解你的年龄、职业和兴趣，才能为你定制课程</view>
-      <button class="missing-btn" bindtap="onGoProfile">去设置 →</button>
-      <view class="missing-note">设置后回来就能生成课程了</view>
+    <view class="white-card centered" style="max-width: 640rpx; margin: 0 auto;">
+      <view class="missing-icon" style="font-size: 72rpx; margin-bottom: 16rpx;">👤</view>
+      <view style="font-size: 32rpx; font-weight: 600; color: #1a1a2e; margin-bottom: 12rpx;">先设置个人画像</view>
+      <view style="font-size: 26rpx; color: #999; margin-bottom: 40rpx; line-height: 1.6;">AI 需要了解你的年龄、职业和兴趣，才能为你定制课程</view>
+      <button class="btn-primary" bindtap="onGoProfile">去设置 →</button>
     </view>
   </view>
+
+  <!-- 输入区 -->
   <view wx:elif="{{userProfile && !newTheme}}">
-    <!-- 输入区 -->
-    <view class="input-area">
+    <view class="white-card">
       <view class="input-wrap">
         <input class="input-field" placeholder="例如：投资理财、心理学入门、AI基础知识..." placeholder-style="color: #999" bindinput="onAIInput" bindconfirm="onAIRecommend" value="{{aiKeyword}}" />
         <button class="gen-btn" bindtap="onAIRecommend" disabled="{{isGenerating}}">{{isGenerating ? '⏳ 生成中...' : '🚀 生成课程'}}</button>
@@ -39,16 +43,16 @@
       </view>
     </view>
   </view>
+
+  <!-- 生成结果 -->
   <view wx:elif="{{userProfile && newTheme}}">
-    <!-- 生成结果 -->
-    <view class="result-section">
-      <view class="result-card">
-        <view class="result-icon">✅</view>
-        <view class="result-name">{{newTheme.name}}</view>
-        <view class="result-desc">课程已生成，AI 正在为你准备第一节课</view>
-        <button class="learn-btn" bindtap="onGoLearn">开始学习 →</button>
-        <button class="again-btn" bindtap="onReset">再生成一个</button>
-      </view>
+    <view class="white-card centered" style="max-width: 640rpx; margin: 0 auto;">
+      <view style="font-size: 72rpx; margin-bottom: 16rpx;">✅</view>
+      <view style="font-size: 34rpx; font-weight: 700; color: #1a1a2e; margin-bottom: 12rpx;">{{newTheme.name}}</view>
+      <view style="font-size: 26rpx; color: #999; margin-bottom: 40rpx;">课程已生成，AI 正在为你准备第一节课</view>
+      <button class="btn-primary" bindtap="onGoLearn">开始学习 →</button>
+      <button class="btn-secondary" bindtap="onReset">再生成一个</button>
     </view>
   </view>
+</view>
 </view>

@@ -1,20 +1,31 @@
 <!-- pages/profile/profile.wxml — 个人中心 -->
+<wxs module="tools">
+var contains = function(arr, value) {
+  if (!arr || !arr.length) return false;
+  for (var i = 0; i < arr.length; i++) {
+    if (arr[i] === value) return true;
+  }
+  return false;
+};
+module.exports = { contains: contains };
+</wxs>
+<view class="page">
 <view class="page-container">
 
   <!-- === 表单模式（画像收集/编辑） === -->
   <block wx:if="{{showForm}}">
-    <view class="onboard-header">
-      <view class="onboard-icon">{{isEditing ? '✏️' : '👤'}}</view>
-      <view class="onboard-title">{{isEditing && userProfile ? '编辑个人画像' : '先了解一下你'}}</view>
-      <view class="onboard-desc">{{isEditing && userProfile ? '修改你的画像信息' : '让 AI 为你量身定制专属课程'}}</view>
+    <view class="page-header">
+      <view class="page-icon">{{isEditing && userProfile ? '✏️' : '👤'}}</view>
+      <view class="page-title">{{isEditing && userProfile ? '编辑个人画像' : '先了解一下你'}}</view>
+      <view class="page-desc">{{isEditing && userProfile ? '修改你的画像信息' : '让 AI 为你量身定制专属课程'}}</view>
     </view>
 
-    <view class="onboard-card">
+    <view class="white-card">
       <!-- 年龄 -->
       <view class="form-group">
         <text class="form-label">年龄</text>
         <picker mode="selector" range="{{ageOptions}}" bindchange="onAgeChange">
-          <view class="picker-value {{profileForm.ageIndex >= 0 ? 'active' : ''}}">
+          <view class="picker-field {{profileForm.ageIndex >= 0 ? 'active' : ''}}">
             {{ageOptions[profileForm.ageIndex] || '请选择'}}
           </view>
         </picker>
@@ -24,7 +35,7 @@
       <view class="form-group">
         <text class="form-label">职业</text>
         <picker mode="selector" range="{{occupationOptions}}" bindchange="onOccupationChange">
-          <view class="picker-value {{profileForm.occupationIndex >= 0 ? 'active' : ''}}">
+          <view class="picker-field {{profileForm.occupationIndex >= 0 ? 'active' : ''}}">
             {{occupationOptions[profileForm.occupationIndex] || '请选择'}}
           </view>
         </picker>
@@ -32,38 +43,38 @@
 
       <!-- 兴趣标签 -->
       <view class="form-group">
-        <text class="form-label">兴趣 <text class="hint">（可多选）</text></text>
-        <view class="interest-tags">
+        <text class="form-label">兴趣 <text class="form-hint">（可多选）</text></text>
+        <view class="tag-list">
           <view
             wx:for="{{interestOptions}}" wx:key="index"
-            class="interest-tag {{profileForm.interestIndexes.indexOf(index) >= 0 ? 'selected' : ''}} {{recommendedTags.indexOf(index) >= 0 ? 'recommended' : ''}}"
+            class="tag-item {{tools.contains(profileForm.interestIndexes, index) ? 'selected' : ''}}"
             data-index="{{index}}"
             bindtap="onInterestToggle"
           >
-            <text wx:if="{{recommendedTags.indexOf(index) >= 0 && profileForm.interestIndexes.indexOf(index) < 0}}">⭐ </text>
             {{item}}
           </view>
         </view>
       </view>
 
-      <!-- 自定义标签 -->
+      <!-- 自定义标签列表 -->
       <view class="form-group" wx:if="{{customInterests.length > 0}}">
         <text class="form-label">自定义</text>
-        <view class="custom-tags">
+        <view class="tag-list">
           <view wx:for="{{customInterests}}" wx:key="index" class="custom-tag" data-index="{{index}}" bindtap="onRemoveCustom">
             {{item}} ✕
           </view>
         </view>
       </view>
 
-      <view wx:if="{{!showCustomInterestInput}}" class="custom-interest-row" bindtap="onShowCustomInterest">
-        <text class="custom-interest-btn">✏️ 添加自定义兴趣</text>
-      </view>
-      <view wx:if="{{showCustomInterestInput}}" class="custom-interest-row">
-        <input class="custom-interest-input" placeholder="输入兴趣（最多8字）" bindconfirm="onCustomInterestConfirm" bindblur="onCustomInterestBlur" />
+      <!-- 添加自定义兴趣 -->
+      <view class="form-group">
+        <view class="custom-interest-row">
+          <input class="custom-interest-input" value="{{_customInputValue}}" placeholder="添加自定义兴趣（最多8字）" bindinput="onCustomInterestInput" bindconfirm="onCustomInterestConfirm" />
+          <button class="custom-add-btn" bindtap="onCustomInterestAdd">添加</button>
+        </view>
       </view>
 
-      <button class="save-btn" disabled="{{isSaving}}" bindtap="onSaveProfile">
+      <button class="btn-primary" disabled="{{isSaving}}" bindtap="onSaveProfile">
         {{isSaving ? '保存中...' : isEditing && userProfile ? '✅ 保存修改' : '✅ 开始学习'}}
       </button>
     </view>
@@ -122,4 +133,5 @@
 
     <view class="slogan"><text>知识胶囊 · 每天几分钟，慢慢变强</text></view>
   </block>
+</view>
 </view>

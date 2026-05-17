@@ -62,9 +62,8 @@ Page({
     ageOptions: AGE_OPTIONS,
     occupationOptions: OCCUPATION_OPTIONS,
     interestOptions: InterestTags,
-    recommendedTags: [],
-    showCustomInterestInput: false,
     customInterests: [],
+    _customInputValue: '',
     isSaving: false,
   },
 
@@ -124,12 +123,10 @@ Page({
       .filter(i => i >= 0)
     const customInterests = (profile.interests || []).filter(t => InterestTags.indexOf(t) < 0)
     const tags = OCCUPATION_OPTIONS[occIndex] ? getRecommendedTags(OCCUPATION_OPTIONS[occIndex]) : []
-    const recommendedTags = tags.map(t => InterestTags.indexOf(t)).filter(i => i >= 0)
     this.setData({
       'profileForm.ageIndex': ageIndex >= 0 ? ageIndex : 2,
       'profileForm.occupationIndex': occIndex >= 0 ? occIndex : -1,
       'profileForm.interestIndexes': interestIndexes,
-      recommendedTags,
       customInterests,
     })
   },
@@ -143,10 +140,10 @@ Page({
     const occIndex = Number(e.detail.value)
     const occupation = OCCUPATION_OPTIONS[occIndex]
     const tags = getRecommendedTags(occupation)
-    const recommendedTags = tags.map(t => InterestTags.indexOf(t)).filter(i => i >= 0)
+    const recIndexes = tags.map(t => InterestTags.indexOf(t)).filter(i => i >= 0)
     this.setData({
       'profileForm.occupationIndex': occIndex,
-      recommendedTags,
+      'profileForm.interestIndexes': recIndexes,
     })
   },
 
@@ -159,8 +156,36 @@ Page({
     this.setData({ 'profileForm.interestIndexes': indexes })
   },
 
-  onShowCustomInterest() {
-    this.setData({ showCustomInterestInput: true })
+  // 添加自定义兴趣（输入框+按钮模式）
+  onCustomInterestAdd() {
+    const val = (this.data._customInputValue || '').trim()
+    if (!val) {
+      wx.showToast({ title: '请输入兴趣', icon: 'none' })
+      return
+    }
+    if (val.length > 8) {
+      wx.showToast({ title: '最多8个字', icon: 'none' })
+      return
+    }
+    const customs = [...this.data.customInterests]
+    if (customs.indexOf(val) >= 0) {
+      wx.showToast({ title: '已添加过了', icon: 'none' })
+      return
+    }
+    customs.push(val)
+    this.setData({ customInterests: customs, _customInputValue: '' })
+  },
+
+  // 绑定输入值
+  onCustomInterestInput(e) {
+    this.setData({ _customInputValue: e.detail.value })
+  },
+
+  onRemoveCustom(e) {
+    const index = e.currentTarget.dataset.index
+    const customs = [...this.data.customInterests]
+    customs.splice(index, 1)
+    this.setData({ customInterests: customs })
   },
 
   onCustomInterestConfirm(e) {
@@ -170,22 +195,13 @@ Page({
       wx.showToast({ title: '最多8个字', icon: 'none' })
       return
     }
-    const customs = this.data.customInterests
-    if (customs.includes(val)) {
-      wx.showToast({ title: '已存在', icon: 'none' })
+    const customs = [...this.data.customInterests]
+    if (customs.indexOf(val) >= 0) {
+      wx.showToast({ title: '已添加过了', icon: 'none' })
       return
     }
     customs.push(val)
-    this.setData({ customInterests: customs, showCustomInterestInput: false })
-  },
-
-  onCustomInterestBlur(e) {
-    const val = (e.detail.value || '').trim()
-    if (val && val.length <= 8 && !this.data.customInterests.includes(val)) {
-      const customs = [...this.data.customInterests, val]
-      this.setData({ customInterests: customs })
-    }
-    this.setData({ showCustomInterestInput: false })
+    this.setData({ customInterests: customs })
   },
 
   onRemoveCustom(e) {
