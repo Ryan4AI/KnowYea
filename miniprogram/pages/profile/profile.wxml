@@ -3,9 +3,12 @@
 
   <!-- 未设置画像 → 编辑表单 -->
   <view wx:if="{{!userProfile}}">
-    <view class="edit-header">
-      <view class="edit-title">📋 完善个人画像</view>
-      <view class="edit-desc">AI 需要了解你的信息，才能为你定制最合适的课程内容和教学节奏</view>
+    <view class="profile-header">
+      <view class="avatar"><text class="avatar-text">✏️</text></view>
+      <view class="user-info">
+        <view class="user-name">完善个人画像</view>
+        <view class="user-slogan">AI 为你定制课程需要了解的信息</view>
+      </view>
     </view>
 
     <view class="form-section">
@@ -14,7 +17,7 @@
         <text class="form-label">年龄范围</text>
         <picker mode="selector" range="{{ageRanges}}" value="{{formData.ageIndex}}" bindchange="onAgeChange">
           <view class="form-picker {{formData.ageIndex >= 0 ? 'picked' : ''}}">
-            {{formData.ageIndex >= 0 ? ageRanges[formData.ageIndex] : '请选择年龄范围'}}
+            <text>{{formData.ageIndex >= 0 ? ageRanges[formData.ageIndex] : '选择你的年龄段'}}</text>
             <text class="picker-arrow">›</text>
           </view>
         </picker>
@@ -25,7 +28,7 @@
         <text class="form-label">职业</text>
         <picker mode="selector" range="{{occupations}}" value="{{formData.occIndex}}" bindchange="onOccChange">
           <view class="form-picker {{formData.occIndex >= 0 ? 'picked' : ''}}">
-            {{formData.occIndex >= 0 ? occupations[formData.occIndex] : '请选择职业'}}
+            <text>{{formData.occIndex >= 0 ? occupations[formData.occIndex] : '选择你的职业'}}</text>
             <text class="picker-arrow">›</text>
           </view>
         </picker>
@@ -33,20 +36,21 @@
 
       <!-- 学习兴趣（多选） -->
       <view class="form-group">
-        <text class="form-label">学习兴趣 <text class="form-hint">（可多选）</text></text>
-      </view>
-      <view class="tag-categories">
-        <view class="tag-category" wx:for="{{interestCategories}}" wx:for-item="cat" wx:key="name">
-          <view class="cat-name">{{cat.name}}</view>
-          <view class="cat-tags">
-            <text class="cat-tag {{formData.selectedTags.indexOf(tag) >= 0 ? 'active' : ''}}"
-              wx:for="{{cat.tags}}" wx:for-item="tag" wx:key="tag"
-              bindtap="onTagToggle" data-tag="{{tag}}">{{tag}}</text>
+        <text class="form-label">学习兴趣</text>
+        <text class="form-hint">可多选，AI 会根据兴趣推荐课程方向</text>
+        <view class="tag-categories">
+          <view class="tag-category" wx:for="{{interestCategories}}" wx:for-item="cat" wx:key="name">
+            <view class="cat-name">{{cat.name}}</view>
+            <view class="cat-tags">
+              <text class="cat-tag {{formData.selectedTags.indexOf(tag) >= 0 ? 'active' : ''}}"
+                wx:for="{{cat.tags}}" wx:for-item="tag" wx:key="tag"
+                bindtap="onTagToggle" data-tag="{{tag}}">{{tag}}</text>
+            </view>
           </view>
         </view>
       </view>
 
-      <!-- 保存按钮 -->
+      <!-- 保存 -->
       <button class="save-btn" bindtap="onSaveProfile" disabled="{{!canSave}}">
         {{isSaving ? '保存中...' : '✅ 保存画像'}}
       </button>
@@ -55,46 +59,36 @@
 
   <!-- 已有画像 → 正常展示 -->
   <view wx:else>
-    <!-- 用户信息头部 -->
     <view class="profile-header">
-      <view class="avatar">
-        <text class="avatar-text">🧑‍🎓</text>
-      </view>
+      <view class="avatar"><text class="avatar-text">🧑‍🎓</text></view>
       <view class="user-info">
         <view class="user-name">{{userProfile.ageRange || '学习者'}}</view>
         <view class="user-slogan">{{profileSlogan}}</view>
       </view>
+      <view class="header-edit" bindtap="onGoEditProfile">
+        <text>✏️</text>
+      </view>
     </view>
 
-    <!-- 统计卡片 -->
     <view class="stats-grid">
-      <view class="stat-card">
-        <view class="stat-card-inner">
-          <view class="stat-value">{{stats.completedNodes}}</view>
-          <view class="stat-label">已完成章节</view>
-        </view>
-      </view>
-      <view class="stat-card">
-        <view class="stat-card-inner">
-          <view class="stat-value">{{stats.completedThemes}}</view>
-          <view class="stat-label">已完成课程</view>
-        </view>
-      </view>
-      <view class="stat-card">
-        <view class="stat-card-inner">
-          <view class="stat-value">{{stats.totalPoints}}</view>
-          <view class="stat-label">总积分</view>
-        </view>
-      </view>
-      <view class="stat-card">
-        <view class="stat-card-inner">
-          <view class="stat-value">{{stats.streak}}</view>
-          <view class="stat-label">连续学习</view>
-        </view>
-      </view>
+      <view class="stat-card"><view class="stat-card-inner">
+        <view class="stat-value">{{stats.completedNodes}}</view>
+        <view class="stat-label">已完成章节</view>
+      </view></view>
+      <view class="stat-card"><view class="stat-card-inner">
+        <view class="stat-value">{{stats.completedThemes}}</view>
+        <view class="stat-label">已完成课程</view>
+      </view></view>
+      <view class="stat-card"><view class="stat-card-inner">
+        <view class="stat-value">{{stats.totalPoints}}</view>
+        <view class="stat-label">总积分</view>
+      </view></view>
+      <view class="stat-card"><view class="stat-card-inner">
+        <view class="stat-value">{{stats.streak}}</view>
+        <view class="stat-label">连续学习</view>
+      </view></view>
     </view>
 
-    <!-- 功能列表 -->
     <view class="menu-list">
       <view class="menu-item" bindtap="onNavigateTo" data-page="history">
         <text class="menu-icon">📜</text>
@@ -124,16 +118,8 @@
         <text class="menu-text">设置</text>
         <text class="menu-arrow">›</text>
       </view>
-      <view class="menu-item" bindtap="onGoEditProfile">
-        <text class="menu-icon">✏️</text>
-        <text class="menu-text">编辑画像</text>
-        <text class="menu-arrow">›</text>
-      </view>
     </view>
 
-    <!-- Slogan -->
-    <view class="slogan">
-      <text>知识胶囊 · 每天几分钟，慢慢变强</text>
-    </view>
+    <view class="slogan"><text>知识胶囊 · 每天几分钟，慢慢变强</text></view>
   </view>
 </view>
