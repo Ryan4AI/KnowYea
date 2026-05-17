@@ -302,44 +302,12 @@ Page({
           this.setData({
             messages: [...this.data.messages, aiMsg],
             isCompleted,
-            // 完成时不隐藏输入栏，改为过渡态保持界面活跃
+            // 完成时显示「下一节」按钮，让用户自己决定何时进入
             isPendingTransition: isCompleted,
-            isLearning: !isCompleted ? true : this.data.isLearning,
-            canSend: !isCompleted,
+            canSend: false,
             isLoading: false,
           })
           this.scrollToBottom()
-
-          // 自动进入下一节
-          if (isCompleted) {
-            const { theme, node, reviewMode } = this.data
-            if (!theme || !node || !theme.nodes || reviewMode) return
-            const nodeIndex = theme.nodes.findIndex(n => n._id === node._id)
-            if (nodeIndex < theme.nodes.length - 1) {
-              const nextNode = theme.nodes[nodeIndex + 1]
-
-              // 显示过渡消息
-              const transMsg = {
-                id: 'trans_' + Date.now(),
-                role: 'system',
-                content: '',
-                createdAt: Date.now(),
-                blocks: [{ type: 'text', text: `✅ 本节完成！即将进入：${nextNode.title}`, html: `<p style="color:#999;text-align:center;font-size:13px;padding:10px;">✅ 本节完成！<br/>即将进入：<b>${nextNode.title}</b></p>` }],
-                timeStr: '',
-              }
-              this.setData({
-                messages: [...this.data.messages, transMsg],
-              }, () => { this.scrollToBottom() })
-
-              setTimeout(() => {
-                this.switchToNode(nextNode._id, () => {
-                  setTimeout(() => {
-                    this.sendMessage(`请开始介绍"${nextNode.title}"这个课时要学习的内容，用通俗易懂的语言`, true)
-                  }, 600)
-                })
-              }, 3000)
-            }
-          }
         } else {
           this.setData({ isLoading: false, canSend: true })
           wx.showToast({ title: 'AI 服务暂时不可用，请重试', icon: 'none' })
@@ -385,21 +353,23 @@ Page({
     }
   },
 
-  // 手动进入下一节（当 AI 未输出 [完成] 标记时）
+  // 手动进入下一节
   manualAdvance() {
-    const { theme, node, isCompleted } = this.data
+    const { theme, node } = this.data
     if (!theme || !node || !theme.nodes) return
     const nodeIndex = theme.nodes.findIndex(n => n._id === node._id)
     if (nodeIndex < 0 || nodeIndex >= theme.nodes.length - 1) return
 
     const nextNode = theme.nodes[nodeIndex + 1]
-    this.setData({ isCompleted: false, isPendingTransition: false, canSend: false })
-    wx.showLoading({ title: '进入下一节...' })
+    if (!nextNode) {
+      wx.showToast({ title: '🎉 已学完全部课时！', icon: 'none' })
+      return
+    }
+    this.setData({ isCompleted: false, isPendingTransition: false })
+    wx.showLoading({ title: '进入下一节' })
     this.switchToNode(nextNode._id, () => {
       wx.hideLoading()
-      setTimeout(() => {
-        this.sendMessage(`请开始介绍"${nextNode.title}"这个课时要学习的内容，用通俗易懂的语言`, true)
-      }, 600)
+      this.sendMessage(`请开始介绍"${nextNode.title}"这个课时要学习的内容，用通俗易懂的语言`, true)
     })
   },
 
@@ -806,7 +776,7 @@ Page({
   },
 
   goBack() {
-    wx.navigateBack({ fail: () => wx.navigateToMiniProgram() })
+    wx.navigateBack({ fail: () => wx.redirectTo({ url: '/pages/index/index' }) })
   },
 
   showThemeInfo() {
@@ -880,7 +850,7 @@ Page({
             content: '确定要退出当前课程吗？',
             success: (r) => {
               if (r.confirm) {
-                wx.navigateBack({ fail: () => wx.navigateToMiniProgram() })
+                wx.navigateBack({ fail: () => wx.redirectTo({ url: '/pages/index/index' }) })
               }
             },
           })
