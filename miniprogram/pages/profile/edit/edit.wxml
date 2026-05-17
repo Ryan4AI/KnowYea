@@ -1,9 +1,12 @@
 <!-- pages/profile/edit/edit.wxml — 个人画像编辑 / 新用户引导 -->
 <view class="page-container">
   <view class="hero-section">
-    <view class="hero-emoji">{{isEditing ? '✏️' : '👤'}}</view>
-    <view class="hero-title">{{isEditing ? '编辑个人画像' : '完善个人画像'}}</view>
-    <view class="hero-desc">{{isEditing ? '修改你的画像信息' : '请先填写个人画像，AI 才能为你定制最合适的课程内容和教学节奏'}}</view>
+    <view class="hero-emoji" wx:if="{{!isEditing}}">👤</view>
+    <view class="hero-emoji" wx:else>✏️</view>
+    <view class="hero-title" wx:if="{{!isEditing}}">先了解一下你</view>
+    <view class="hero-title" wx:else>编辑个人画像</view>
+    <view class="hero-desc" wx:if="{{!isEditing}}">让 AI 为你量身定制专属课程</view>
+    <view class="hero-desc" wx:else>修改你的画像信息</view>
   </view>
 
   <view class="form-card">
@@ -31,7 +34,7 @@
 
     <!-- 兴趣 -->
     <view class="form-group">
-      <text class="form-label">学习兴趣 <text class="hint">（可多选，推荐标签带 ⭐）</text></text>
+      <text class="form-label">兴趣 <text class="hint">（可多选，推荐标签带 ⭐）</text></text>
     </view>
     <view class="cats" wx:for="{{interestCategories}}" wx:for-item="cat" wx:key="name">
       <view class="cat-name">{{cat.name}}</view>
@@ -58,7 +61,7 @@
     </view>
 
     <button class="save-btn" bindtap="onSave" disabled="{{!canSave}}">
-      {{isSaving ? '保存中...' : isEditing ? '✅ 保存修改' : '✅ 保存画像'}}
+      {{isSaving ? '保存中...' : isEditing ? '✅ 保存修改' : '✅ 开始学习'}}
     </button>
   </view>
 </view>
