@@ -8,22 +8,10 @@ var contains = function(arr, value) {
 };
 module.exports = { contains: contains };
 </wxs>
-<!-- 课程生成进度覆盖层 -->
-<view class="gen-loading-mask" wx:if="{{showGenLoading}}">
-  <view class="gen-loading-card">
-    <view class="gen-icon">🧠</view>
-    <view class="gen-title">AI 正在为你定制专属课程</view>
-    <view class="gen-stage">{{genStageText}}</view>
-    <view class="gen-progress-bar">
-      <view class="gen-progress-fill" style="width:{{genProgress}}%"></view>
-    </view>
-    <view class="gen-hint">根据你的兴趣和职业量身打造，请稍候</view>
-  </view>
-</view>
 
 <view class="page">
   <!-- 自定义导航栏 -->
-  <view class="nav-bar" wx:if="{{!showProfileSetup}}" style="padding-top: {{navBarTop}}px">
+  <view class="nav-bar" style="padding-top: {{navBarTop}}px">
     <view class="nav-bar-inner">
       <text class="nav-left" wx:if="{{theme}}" bindtap="onGardenTap">🌱</text>
       <text class="nav-left" wx:else></text>
@@ -32,75 +20,8 @@ module.exports = { contains: contains };
     </view>
   </view>
 
-  <!-- 个人信息设置 -->
-  <view class="profile-setup" wx:if="{{showProfileSetup}}">
-    <view class="profile-card">
-      <view class="profile-icon">👤</view>
-      <view class="profile-title">{{editMode ? '编辑个人画像' : '先了解一下你'}}</view>
-      <view class="profile-subtitle">{{editMode ? '修改你的画像信息' : '让AI为你量身定制专属课程'}}</view>
-
-      <!-- 年龄 -->
-      <view class="form-group">
-        <text class="form-label">年龄</text>
-        <picker mode="selector" range="{{ageOptions}}" bindchange="onAgeChange">
-          <view class="picker-value">{{ageOptions[profileForm.ageIndex] || '请选择'}}</view>
-        </picker>
-      </view>
-
-      <!-- 职业 -->
-      <view class="form-group">
-        <text class="form-label">职业</text>
-        <picker mode="selector" range="{{occupationOptions}}" bindchange="onOccupationChange">
-          <view class="picker-value">{{occupationOptions[profileForm.occupationIndex] || '请选择'}}</view>
-        </picker>
-      </view>
-
-      <!-- 兴趣 -->
-      <view class="form-group">
-        <text class="form-label">兴趣（可多选）</text>
-        <view class="interest-tags">
-          <view
-            wx:for="{{interestOptions}}"
-            wx:key="index"
-            class="interest-tag {{tools.contains(profileForm.interestIndexes, index) ? 'selected' : ''}} {{tools.contains(recommendedTags, index) ? 'recommended' : ''}}"
-            data-index="{{index}}"
-            bindtap="onInterestToggle"
-          ><text wx:if="{{tools.contains(recommendedTags, index) && !tools.contains(profileForm.interestIndexes, index)}}">⭐ </text>{{item}}</view>
-          <view
-            wx:if="{{!showCustomInterestInput}}"
-            class="interest-tag custom"
-            bindtap="onShowCustomInterest"
-          >✏️ 自定义</view>
-        </view>
-        <view wx:if="{{showCustomInterestInput}}" class="custom-interest-row">
-          <input class="custom-interest-input" placeholder="输入兴趣，回车添加" bindconfirm="onCustomInterestConfirm" bindblur="onCustomInterestBlur" />
-        </view>
-      </view>
-
-      <button class="confirm-btn tap-scale" hover-class="tap-scale-hover" bindtap="onSubmitProfile">
-        {{editMode ? '✅ 保存画像' : '开始学习'}}
-      </button>
-    </view>
-  </view>
-
-  <!-- 主题预览弹窗 -->
-  <view class="theme-preview-mask" wx:if="{{pendingTheme}}">
-    <view class="theme-preview-card">
-      <view class="preview-icon">📖</view>
-      <view class="preview-title">{{pendingTheme.name}}</view>
-      <view class="preview-desc">{{pendingTheme.description}}</view>
-      <view class="preview-nodes">
-        <text class="preview-nodes-label">共 {{pendingTheme.totalNodes}} 个课时</text>
-      </view>
-      <view class="preview-actions">
-        <button class="preview-btn secondary" bindtap="onRegenerateTheme">重新生成</button>
-        <button class="preview-btn primary" bindtap="onConfirmTheme">开始学习</button>
-      </view>
-    </view>
-  </view>
-
   <!-- 学习区域 -->
-  <scroll-view class="messages-container" scroll-y="{{true}}" scroll-with-animation="{{true}}" upper-threshold="50" scroll-into-view="msg-bottom" wx:if="{{!showProfileSetup && theme}}">
+  <scroll-view class="messages-container" scroll-y="{{true}}" scroll-with-animation="{{true}}" upper-threshold="50" scroll-into-view="msg-bottom" wx:if="{{theme}}">
     <view class="messages-list" id="msg-list">
       <block wx:for="{{messages}}" wx:key="id">
         <view class="message-item {{item.role}}" id="msg-{{index}}">
@@ -133,7 +54,7 @@ module.exports = { contains: contains };
                 />
               </block>
             </view>
-            <!-- 最后一条 AI 消息完成时的「下一节」按钮 -->
+            <!-- 最后一条 AI 消息且完成时的「下一节」按钮 -->
             <view wx:if="{{item.completed && hasNextNode && index === messages.length - 1}}" class="inline-advance">
               <view class="inline-advance-label">✅ 本节已学完</view>
               <button class="advance-btn" bindtap="manualAdvance">下一节 →</button>
@@ -156,7 +77,7 @@ module.exports = { contains: contains };
     </view>
   </scroll-view>
 
-  <!-- 输入栏（始终显示，不随完成状态隐藏） -->
+  <!-- 输入栏（始终显示） -->
   <view class="input-bar" wx:if="{{theme}}">
     <view class="input-wrapper">
       <textarea
@@ -174,7 +95,7 @@ module.exports = { contains: contains };
   </view>
 
   <!-- 空状态 - 欢迎页 -->
-  <view class="welcome" wx:if="{{!showProfileSetup && !theme && !pendingTheme}}">
+  <view class="welcome" wx:if="{{!theme}}">
     <view class="welcome-icon">📚</view>
     <view class="welcome-title">小知也</view>
     <view class="welcome-desc">碎片时间，系统学习</view>

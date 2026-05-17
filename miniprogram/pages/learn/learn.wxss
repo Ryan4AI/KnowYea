@@ -6,45 +6,6 @@
   background: #f5f5f7;
 }
 
-/* ===== 课程生成进度条 ===== */
-.gen-loading-mask {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-}
-.gen-loading-card {
-  background: #fff;
-  border-radius: 24rpx;
-  padding: 48rpx 40rpx;
-  width: 580rpx;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  box-shadow: 0 8rpx 40rpx rgba(0,0,0,0.15);
-}
-.gen-icon { font-size: 72rpx; margin-bottom: 20rpx; }
-.gen-title { font-size: 32rpx; font-weight: 600; color: #1a1a2e; margin-bottom: 12rpx; }
-.gen-stage { font-size: 28rpx; color: #6366f1; margin-bottom: 24rpx; }
-.gen-progress-bar {
-  width: 100%;
-  height: 8rpx;
-  background: #e8e8f0;
-  border-radius: 4rpx;
-  overflow: hidden;
-  margin-bottom: 20rpx;
-}
-.gen-progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #6366f1, #8b5cf6);
-  border-radius: 4rpx;
-  transition: width 0.5s ease;
-}
-.gen-hint { font-size: 24rpx; color: #999; }
-
 /* ===== 自定义导航栏 ===== */
 .nav-bar {
   background: #fff;
@@ -75,112 +36,6 @@
   flex-shrink: 0;
 }
 
-/* ===== 个人设置 ===== */
-.profile-setup {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 40rpx;
-}
-.profile-card {
-  background: #fff;
-  border-radius: 24rpx;
-  padding: 48rpx 40rpx;
-  width: 100%;
-  max-width: 640rpx;
-  box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.06);
-}
-.profile-icon { text-align: center; font-size: 64rpx; margin-bottom: 16rpx; }
-.profile-title { text-align: center; font-size: 34rpx; font-weight: 600; color: #1a1a2e; }
-.profile-subtitle { text-align: center; font-size: 26rpx; color: #999; margin-bottom: 40rpx; }
-.form-group { margin-bottom: 28rpx; }
-.form-label { font-size: 28rpx; color: #555; margin-bottom: 12rpx; display: block; }
-.picker-value {
-  background: #f5f5f7;
-  border-radius: 12rpx;
-  padding: 20rpx 24rpx;
-  font-size: 28rpx;
-  color: #333;
-}
-.interest-tags { display: flex; flex-wrap: wrap; gap: 12rpx; }
-.interest-tag {
-  background: #f5f5f7;
-  border-radius: 30rpx;
-  padding: 12rpx 28rpx;
-  font-size: 26rpx;
-  color: #666;
-}
-.interest-tag.selected {
-  background: #6366f1;
-  color: #fff;
-}
-.interest-tag.recommended {
-  background: #eef2ff;
-  border: 2rpx solid #6366f1;
-  color: #6366f1;
-}
-.interest-tag.custom {
-  background: transparent;
-  border: 2rpx dashed #ccc;
-  color: #999;
-}
-.custom-interest-row {
-  margin-top: 16rpx;
-}
-.custom-interest-input {
-  background: #f5f5f7;
-  border-radius: 12rpx;
-  padding: 16rpx 24rpx;
-  font-size: 26rpx;
-  width: 100%;
-}
-.confirm-btn {
-  width: 100%;
-  height: 88rpx;
-  line-height: 88rpx;
-  background: #6366f1;
-  color: #fff;
-  font-size: 32rpx;
-  border-radius: 16rpx;
-  margin-top: 32rpx;
-  text-align: center;
-}
-
-/* ===== 主题预览弹窗 ===== */
-.theme-preview-mask {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-}
-.theme-preview-card {
-  background: #fff;
-  border-radius: 24rpx;
-  padding: 48rpx 40rpx;
-  width: 600rpx;
-  text-align: center;
-}
-.preview-icon { font-size: 64rpx; margin-bottom: 16rpx; }
-.preview-title { font-size: 34rpx; font-weight: 600; color: #1a1a2e; margin-bottom: 12rpx; }
-.preview-desc { font-size: 28rpx; color: #666; margin-bottom: 20rpx; }
-.preview-nodes { margin-bottom: 32rpx; }
-.preview-nodes-label { font-size: 26rpx; color: #999; }
-.preview-actions { display: flex; gap: 20rpx; }
-.preview-btn {
-  flex: 1;
-  height: 80rpx;
-  line-height: 80rpx;
-  font-size: 28rpx;
-  border-radius: 16rpx;
-  text-align: center;
-}
-.preview-btn.primary { background: #6366f1; color: #fff; }
-.preview-btn.secondary { background: #f5f5f7; color: #666; }
-
 /* ===== 学习消息区 ===== */
 .messages-container {
   flex: 1;
@@ -190,7 +45,6 @@
 }
 .messages-list { min-height: 100%; }
 
-/* 消息气泡 */
 .message-item {
   display: flex;
   margin-bottom: 24rpx;
@@ -290,8 +144,6 @@
   border-radius: 50%;
   animation: dot-pulse 1.4s ease-in-out infinite;
 }
-
-/* 加载中的文字提示 */
 .loading-label {
   font-size: 24rpx;
   color: #999;
@@ -342,30 +194,7 @@
   color: #999;
 }
 
-/* ===== 下一节按钮 ===== */
-.advance-bar {
-  padding: 16rpx 24rpx;
-  background: #fff;
-  border-top: 1rpx solid #eee;
-  flex-shrink: 0;
-}
-.advance-btn {
-  width: 100%;
-  height: 80rpx;
-  line-height: 80rpx;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  color: #fff;
-  font-size: 30rpx;
-  font-weight: 600;
-  border-radius: 16rpx;
-  text-align: center;
-  letter-spacing: 2rpx;
-}
-.advance-btn::after {
-  border: none;
-}
-
-/* 消息卡内嵌的「下一节」按钮 */
+/* ===== 下一节按钮（消息卡内嵌） ===== */
 .inline-advance {
   margin-top: 20rpx;
   padding-top: 20rpx;
@@ -375,12 +204,19 @@
   align-items: center;
   gap: 12rpx;
 }
-.inline-advance .advance-btn {
+.advance-btn {
   width: 60%;
   height: 72rpx;
   line-height: 72rpx;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff;
   font-size: 28rpx;
+  font-weight: 600;
+  border-radius: 16rpx;
+  text-align: center;
+  letter-spacing: 2rpx;
 }
+.advance-btn::after { border: none; }
 .inline-advance-label {
   font-size: 24rpx;
   color: #22c55e;

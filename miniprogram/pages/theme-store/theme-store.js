@@ -104,7 +104,13 @@ Page({
 
   // 前往个人画像
   onGoProfile() {
-    wx.navigateTo({ url: '/pages/learn/learn?editProfile=1' })
+    wx.navigateTo({ url: '/pages/profile/profile?edit=1' })
+  },
+
+  onLoad(opts) {
+    if (opts && opts.fromOnboard === '1') {
+      wx.showToast({ title: '画像已保存，开始生成你的第一门课程吧！', icon: 'none' })
+    }
   },
 
   // 再生成一个（重置状态）
