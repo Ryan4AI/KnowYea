@@ -58,16 +58,20 @@
   height: 44px;
   padding: 0 20rpx;
 }
+.nav-left {
+  font-size: 36rpx;
+  width: 60rpx;
+  flex-shrink: 0;
+}
 .nav-title {
+  flex: 1;
+  text-align: center;
   font-size: 32rpx;
   font-weight: 600;
   color: #1a1a2e;
-  flex: 1;
 }
 .nav-right {
-  font-size: 36rpx;
   width: 60rpx;
-  text-align: right;
   flex-shrink: 0;
 }
 

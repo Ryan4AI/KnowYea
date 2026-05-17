@@ -25,8 +25,10 @@ module.exports = { contains: contains };
   <!-- 自定义导航栏 -->
   <view class="nav-bar" wx:if="{{!showProfileSetup}}" style="padding-top: {{navBarTop}}px">
     <view class="nav-bar-inner">
+      <text class="nav-left" wx:if="{{theme}}" bindtap="onGardenTap">🌱</text>
+      <text class="nav-left" wx:else></text>
       <text class="nav-title">{{theme.name || '小知也'}}</text>
-      <text class="nav-right" wx:if="{{theme}}" bindtap="onGardenTap">🌱</text>
+      <text class="nav-right"></text>
     </view>
   </view>
 
