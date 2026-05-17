@@ -246,7 +246,7 @@ Page({
       '- 问答题格式：[题目 type="open"]问题描述[/题目]',
       '- 用户回答后，如果需要计分，在下一轮回复中加 [评分]N（N为0-10分）',
       '- 如果确认用户已掌握本课时内容，在回复末尾加 [完成]',
-      '- 如果用户表示"学会了/明白了/继续"等，在回最后加 [完成]',
+      '- 如果用户表示"学会了/明白了/继续"等，在回复最后加 [完成]',
       '',
       '# 出题方式',
       '- 每小节至少出1道题检验用户理解',
@@ -294,15 +294,7 @@ Page({
 
           // 检测评分和完成标记
           const scoreMatch = aiReply.match(/\[评分\]\s*(\d+)/)
-          let isCompleted = aiReply.includes('[完成]')
-          // 如果用户表达了"学会了/继续/好了"等意图，强制完成
-          if (!isCompleted && !isAutoMessage) {
-            const completeIntent = /(学会了|可以了|懂了|明白了|好的?吧|继续|下一[节课]|够了|好了|知道了|了解)/.test(content)
-            if (completeIntent) {
-              isCompleted = true
-              aiReply += '\n\n[完成]'
-            }
-          }
+          let isCompleted = aiReply.includes('[完成]') || aiReply.includes('【完成】')
 
           const aiMsg = {
             id: 'ai_' + Date.now(),
