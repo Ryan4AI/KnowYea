@@ -52,6 +52,14 @@ Page({
     scrollIntoView: '',
     navBarTop: 0,
     courseContext: '',
+    // 课程生成器状态
+    showGenerator: false,
+    genKeyword: '',
+    genLoading: false,
+    genStage: '',
+    genProgress: 0,
+    pendingCourse: null,
+    interestTags: [],
   },
 
   onShow() {
@@ -117,9 +125,35 @@ Page({
           return
         }
 
-        // 有画像但没课程 → 跳转课程商店
+        // 强制进入生成模式（来自花园"生成新课程"）
+        if (context.mode === 'generate') {
+          wx.cloud.callFunction({
+            name: 'getUserProfile',
+            data: { openid: app.globalData.openid }
+          }).then(r => {
+            if (r.result?.success && r.result?.user?.profile) {
+              this.setData({ interestTags: (r.result.user.profile.interests || []).filter(t => t.length > 0) })
+            }
+          }).catch(() => {})
+          this.setData({ showGenerator: true, theme: null, node: null, messages: [] })
+          wx.hideLoading()
+          return
+        }
+
+        // 有画像但没课程 → 在本页展示课程生成器
         if (!currentTheme && !context.themeId) {
-          wx.redirectTo({ url: '/pages/theme-store/theme-store' })
+          // 加载用户的兴趣标签用于生成器
+          wx.cloud.callFunction({
+            name: 'getUserProfile',
+            data: { openid: app.globalData.openid }
+          }).then(res => {
+            if (res.result?.success && res.result?.user?.profile) {
+              const interests = (res.result.user.profile.interests || []).filter(t => t.length > 0)
+              this.setData({ interestTags: interests })
+            }
+          }).catch(() => {})
+          this.setData({ showGenerator: true })
+          wx.hideLoading()
           return
         }
 
@@ -528,7 +562,8 @@ Page({
   },
 
   onGoThemeStore() {
-    wx.navigateTo({ url: '/pages/theme-store/theme-store' })
+    app.setLearnContext({ mode: 'generate' })
+    wx.reLaunch({ url: '/pages/learn/learn' })
   },
 
   onLoadMoreMessages() {
@@ -570,7 +605,8 @@ Page({
   },
 
   onGoThemeStoreFromEmpty() {
-    wx.navigateTo({ url: '/pages/theme-store/theme-store' })
+    app.setLearnContext({ mode: 'generate' })
+    wx.reLaunch({ url: '/pages/learn/learn' })
   },
 
   onGardenTap() {
@@ -612,5 +648,78 @@ Page({
         this.loadHomeData({ themeId: picked._id })
       },
     })
+  },
+
+  // ---- 课程生成器 ----
+  genStages: [
+    { text: '正在分析你的兴趣方向...', progress: 20 },
+    { text: '正在构思课程结构...', progress: 50 },
+    { text: '正在生成课程内容...', progress: 75 },
+    { text: '课程即将准备就绪...', progress: 90 },
+  ],
+
+  onGenInput(e) {
+    this.setData({ genKeyword: e.detail.value || '' })
+  },
+
+  _startGenProgress() {
+    const stages = this.genStages
+    let i = 0
+    const tick = () => {
+      if (i >= stages.length || !this.data.genLoading) return
+      this.setData({ genStage: stages[i].text, genProgress: stages[i].progress })
+      i++
+      if (i < stages.length) setTimeout(tick, 2500)
+    }
+    this.setData({ genStage: '正在准备...', genProgress: 5 })
+    setTimeout(tick, 800)
+  },
+
+  onGenConfirm() {
+    const keyword = (this.data.genKeyword || '').trim()
+    if (!keyword) {
+      wx.showToast({ title: '请输入想学的主题', icon: 'none' })
+      return
+    }
+    this.setData({ genLoading: true })
+    this._startGenProgress()
+    wx.cloud.callFunction({
+      name: 'generateTheme',
+      data: { openid: app.globalData.openid, profile: this.data.userProfile, themeName: keyword },
+      success: res => {
+        if (res.result && res.result.success) {
+          const theme = res.result.theme
+          this.setData({
+            genLoading: false, genProgress: 100, genStage: '✅ 课程已生成',
+            pendingCourse: { id: theme._id, name: theme.name, desc: theme.description || '', nodesCount: theme.totalNodes || 0 },
+          })
+          wx.showToast({ title: '✅ 课程生成成功', icon: 'success' })
+        } else {
+          this.setData({ genLoading: false })
+          wx.showToast({ title: res.result?.error || '创建失败', icon: 'none' })
+        }
+      },
+      fail: err => {
+        this.setData({ genLoading: false })
+        console.error('AI 生成失败', err)
+        wx.showToast({ title: '网络错误，请重试', icon: 'none' })
+      }
+    })
+  },
+
+  onGenExample(e) {
+    this.setData({ genKeyword: e.currentTarget.dataset.keyword })
+    this.onGenConfirm()
+  },
+
+  onGenStart() {
+    const course = this.data.pendingCourse
+    if (!course) return
+    this.setData({ showGenerator: false, pendingCourse: null, genKeyword: '' })
+    this.loadHomeData({ themeId: course.id, mode: 'new' })
+  },
+
+  onGenReset() {
+    this.setData({ genKeyword: '', pendingCourse: null, genStage: '', genProgress: 0 })
   },
 })

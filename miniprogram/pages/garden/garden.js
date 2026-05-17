@@ -255,15 +255,17 @@ Page({
       data: { openid: app.globalData.openid },
       success: res => {
         wx.hideLoading()
-        if (res.result && res.result.success && res.result.profile) {
-          wx.navigateTo({ url: '/pages/theme-store/theme-store' })
+        if (res.result && res.result.success && res.result.user) {
+          app.setLearnContext({ mode: 'generate' })
+          wx.reLaunch({ url: '/pages/learn/learn' })
         } else {
           wx.navigateTo({ url: '/pages/profile/profile' })
         }
       },
       fail: () => {
         wx.hideLoading()
-        wx.navigateTo({ url: '/pages/theme-store/theme-store' })
+        app.setLearnContext({ mode: 'generate' })
+        wx.reLaunch({ url: '/pages/learn/learn' })
       }
     })
   },

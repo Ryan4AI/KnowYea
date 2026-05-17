@@ -243,7 +243,8 @@ Page({
           app.globalData.profileUpdated = Date.now()
           // 首次设置 → 去课程商店生成课程
           if (!this.data.userProfile) {
-            wx.redirectTo({ url: '/pages/theme-store/theme-store?fromOnboard=1' })
+            app.setLearnContext({ mode: 'generate' })
+            wx.redirectTo({ url: '/pages/learn/learn' })
           } else {
             wx.navigateBack({ delta: 1 })
           }

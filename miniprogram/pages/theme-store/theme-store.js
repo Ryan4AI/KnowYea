@@ -1,6 +1,13 @@
 // pages/theme-store/theme-store.js — AI 课程生成器
 const app = getApp()
 
+const GEN_STAGES = [
+  { text: '正在分析你的兴趣方向...', progress: 20 },
+  { text: '正在构思课程结构...', progress: 50 },
+  { text: '正在生成课程内容...', progress: 75 },
+  { text: '课程即将准备就绪...', progress: 90 },
+]
+
 Page({
   data: {
     aiKeyword: '',
@@ -8,6 +15,9 @@ Page({
     isGenerating: false,
     userProfile: null,
     profileLoaded: false,
+    interestTags: [],
+    genStage: '',
+    genProgress: 0,
   },
 
   onShow() {
@@ -21,7 +31,13 @@ Page({
       data: { openid: app.globalData.openid }
     }).then(res => {
       if (res.result?.success && res.result?.user?.profile) {
-        this.setData({ userProfile: res.result.user.profile, profileLoaded: true })
+        const profile = res.result.user.profile
+        const interests = (profile.interests || []).filter(t => t.length > 0)
+        this.setData({
+          userProfile: profile,
+          profileLoaded: true,
+          interestTags: interests,
+        })
       } else {
         this.setData({ profileLoaded: true })
       }
@@ -32,6 +48,24 @@ Page({
 
   onAIInput(e) {
     this.setData({ aiKeyword: e.detail.value || '' })
+  },
+
+  // 进度条动画
+  _startProgress() {
+    let i = 0
+    const tick = () => {
+      if (i >= GEN_STAGES.length || !this.data.isGenerating) return
+      this.setData({
+        genStage: GEN_STAGES[i].text,
+        genProgress: GEN_STAGES[i].progress,
+      })
+      i++
+      if (i < GEN_STAGES.length) {
+        setTimeout(tick, 2500)
+      }
+    }
+    this.setData({ genStage: '正在准备...', genProgress: 5 })
+    setTimeout(tick, 800)
   },
 
   // AI 生成课程
@@ -56,6 +90,7 @@ Page({
     }
 
     this.setData({ isGenerating: true })
+    this._startProgress()
 
     wx.cloud.callFunction({
       name: 'generateTheme',
@@ -65,17 +100,22 @@ Page({
         themeName: keyword,
       },
       success: res => {
-        this.setData({ isGenerating: false })
-
         if (res.result && res.result.success) {
+          const theme = res.result.theme
           this.setData({
+            isGenerating: false,
+            genProgress: 100,
+            genStage: '✅ 课程已生成',
             newTheme: {
-              id: res.result.themeId,
-              name: keyword,
-            }
+              id: theme._id,
+              name: theme.name,
+              desc: theme.description || '',
+              nodesCount: theme.totalNodes || 0,
+            },
           })
           wx.showToast({ title: '✅ 课程生成成功', icon: 'success' })
         } else {
+          this.setData({ isGenerating: false })
           wx.showToast({ title: res.result?.error || '创建失败', icon: 'none' })
         }
       },
@@ -87,7 +127,7 @@ Page({
     })
   },
 
-  // 点击示例标签
+  // 点击兴趣标签
   onExample(e) {
     const keyword = e.currentTarget.dataset.keyword
     this.setData({ aiKeyword: keyword })
@@ -118,6 +158,8 @@ Page({
     this.setData({
       aiKeyword: '',
       newTheme: null,
+      genStage: '',
+      genProgress: 0,
     })
   },
 })
