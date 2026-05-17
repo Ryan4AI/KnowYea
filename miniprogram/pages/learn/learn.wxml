@@ -153,6 +153,11 @@ module.exports = { contains: contains };
     </view>
   </scroll-view>
 
+  <!-- 下一节按钮（节点完成或卡住时的手动过渡） -->
+  <view class="advance-bar" wx:if="{{isCompleted || showCompleteBtn}}">
+    <button class="advance-btn" bindtap="manualAdvance">下一节 →</button>
+  </view>
+
   <!-- 输入栏 -->
   <view class="input-bar" wx:if="{{isLearning || isPendingTransition}}">
     <view class="input-wrapper">

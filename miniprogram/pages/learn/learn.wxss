@@ -317,6 +317,29 @@
   color: #999;
 }
 
+/* ===== 下一节按钮 ===== */
+.advance-bar {
+  padding: 16rpx 24rpx;
+  background: #fff;
+  border-top: 1rpx solid #eee;
+  flex-shrink: 0;
+}
+.advance-btn {
+  width: 100%;
+  height: 80rpx;
+  line-height: 80rpx;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff;
+  font-size: 30rpx;
+  font-weight: 600;
+  border-radius: 16rpx;
+  text-align: center;
+  letter-spacing: 2rpx;
+}
+.advance-btn::after {
+  border: none;
+}
+
 /* ===== 空状态 ===== */
 .welcome {
   flex: 1;

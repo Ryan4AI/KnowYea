@@ -148,6 +148,7 @@ Page({
           showProfileSetup: !!needsOnboarding,
           isCompleted: false,
           isLearning: !!currentNode && !isReviewMode,
+          isPendingTransition: false,
           showCompleteBtn: false,
         })
 
@@ -301,7 +302,9 @@ Page({
           this.setData({
             messages: [...this.data.messages, aiMsg],
             isCompleted,
-            isLearning: !isCompleted,
+            // 完成时不隐藏输入栏，改为过渡态保持界面活跃
+            isPendingTransition: isCompleted,
+            isLearning: !isCompleted ? true : this.data.isLearning,
             canSend: !isCompleted,
             isLoading: false,
           })
@@ -380,6 +383,24 @@ Page({
     if (answer && answer.trim()) {
       this.sendMessage(answer.trim())
     }
+  },
+
+  // 手动进入下一节（当 AI 未输出 [完成] 标记时）
+  manualAdvance() {
+    const { theme, node, isCompleted } = this.data
+    if (!theme || !node || !theme.nodes) return
+    const nodeIndex = theme.nodes.findIndex(n => n._id === node._id)
+    if (nodeIndex < 0 || nodeIndex >= theme.nodes.length - 1) return
+
+    const nextNode = theme.nodes[nodeIndex + 1]
+    this.setData({ isCompleted: false, isPendingTransition: false, canSend: false })
+    wx.showLoading({ title: '进入下一节...' })
+    this.switchToNode(nextNode._id, () => {
+      wx.hideLoading()
+      setTimeout(() => {
+        this.sendMessage(`请开始介绍"${nextNode.title}"这个课时要学习的内容，用通俗易懂的语言`, true)
+      }, 600)
+    })
   },
 
   switchToNode(nodeId, callback) {
@@ -785,22 +806,86 @@ Page({
   },
 
   goBack() {
-    if (this.data.theme) {
-      // 有课程就显示主题切换
-      this.setData({ showThemeSwitcher: true })
-    } else {
-      // 没课程就尝试返回
-      wx.navigateBack({ fail: () => wx.navigateToMiniProgram() })
-    }
+    wx.navigateBack({ fail: () => wx.navigateToMiniProgram() })
   },
 
   showThemeInfo() {
-    const { theme } = this.data
+    const { theme, node } = this.data
     if (!theme) return
     const nodes = theme.nodes || []
+    const nodeIndex = node ? nodes.findIndex(n => n._id === node._id) : -1
+
+    const itemList = ['📋 查看节点列表']
+    if (nodeIndex >= 0 && nodeIndex < nodes.length - 1) {
+      itemList.push('⏩ 跳转到…')
+    }
+    itemList.push('🚪 退出课程')
+
     wx.showActionSheet({
-      itemList: ['课程: ' + theme.name, '共 ' + (theme.totalNodes || nodes.length) + ' 课时', '取消'],
-      success: () => {}
+      itemList,
+      success: (res) => {
+        const tapIdx = res.tapIndex
+        if (tapIdx === 0) {
+          // 显示节点列表
+          const nodeNames = nodes.map((n, i) =>
+            `${i === nodeIndex ? '▶ ' : ''}${n.title}${n === node ? ' (当前)' : ''}`
+          )
+          wx.showActionSheet({
+            itemList: nodeNames.concat(['取消']),
+            success: (r) => {
+              if (r.tapIndex < nodes.length) {
+                const targetNode = nodes[r.tapIndex]
+                if (targetNode._id !== node._id) {
+                  wx.showLoading({ title: '切换节点...' })
+                  this.setData({
+                    isCompleted: false,
+                    isPendingTransition: false,
+                    canSend: false,
+                  })
+                  this.switchToNode(targetNode._id, () => {
+                    wx.hideLoading()
+                  })
+                }
+              }
+            },
+          })
+        } else if (tapIdx === 1 && itemList[tapIdx] === '⏩ 跳转到…') {
+          // 跳转到某节点，复用上面列表
+          const nextNodes = nodes.slice(nodeIndex + 1).map((n, i) =>
+            `[+${i + 1}] ${n.title}`
+          )
+          if (nextNodes.length > 0) {
+            wx.showActionSheet({
+              itemList: nextNodes.concat(['取消']),
+              success: (r) => {
+                if (r.tapIndex < nextNodes.length) {
+                  const targetNode = nodes[nodeIndex + 1 + r.tapIndex]
+                  wx.showLoading({ title: '跳转中...' })
+                  this.setData({
+                    isCompleted: false,
+                    isPendingTransition: false,
+                    canSend: false,
+                  })
+                  this.switchToNode(targetNode._id, () => {
+                    wx.hideLoading()
+                  })
+                }
+              },
+            })
+          }
+        } else {
+          // 退出课程
+          wx.showModal({
+            title: '退出课程',
+            content: '确定要退出当前课程吗？',
+            success: (r) => {
+              if (r.confirm) {
+                wx.navigateBack({ fail: () => wx.navigateToMiniProgram() })
+              }
+            },
+          })
+        }
+      },
     })
   },
 })
