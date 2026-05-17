@@ -79,33 +79,36 @@ exports.main = async (event, context) => {
       const aiReply = aiRes.choices?.[0]?.message?.content || ''
       if (!aiReply) throw new Error('AI 返回为空')
 
+      // 剥离推理标签（不要存到数据库）
+      const noThink = aiReply.replace(/<think>[\s\S]*?<\/think>/g, '').trim()
+
       // 解析尾部 JSON 动作块：{"action":"complete","score":8} 或 {"score":8}
-      let cleanReply = aiReply
+      let cleanReply = noThink
       let isCompleted = false
       let score = null
-      const endBrace = aiReply.lastIndexOf('}')
-      if (endBrace >= 0 && aiReply.slice(endBrace + 1).trim() === '') {
-        const startBrace = aiReply.lastIndexOf('{', endBrace)
+      const endBrace = noThink.lastIndexOf('}')
+      if (endBrace >= 0 && noThink.slice(endBrace + 1).trim() === '') {
+        const startBrace = noThink.lastIndexOf('{', endBrace)
         if (startBrace >= 0) {
           try {
-            const meta = JSON.parse(aiReply.slice(startBrace, endBrace + 1))
+            const meta = JSON.parse(noThink.slice(startBrace, endBrace + 1))
             if (meta.action === 'complete') isCompleted = true
             if (typeof meta.score === 'number') score = meta.score
-            cleanReply = aiReply.slice(0, startBrace).trim()
+            cleanReply = noThink.slice(0, startBrace).trim()
           } catch (e) {
             // 不是合法 JSON，保留原文本
-            cleanReply = aiReply
+            cleanReply = noThink
           }
         }
       }
 
-      // 旧格式兼容：[评分] 和 [完成] 标签（过渡期保留）
+      // 旧格式兼容：[评分] 和 [完成] 标签
       if (!isCompleted && !score) {
-        if (aiReply.includes('[完成]')) {
+        if (noThink.includes('[完成]')) {
           isCompleted = true
-          cleanReply = aiReply.replace(/\[完成\]/g, '').trim()
+          cleanReply = noThink.replace(/\[完成\]/g, '').trim()
         }
-        const legacyScore = aiReply.match(/\[评分\]\s*(\d+)/)
+        const legacyScore = noThink.match(/\[评分\]\s*(\d+)/)
         if (legacyScore) score = parseInt(legacyScore[1])
       }
 

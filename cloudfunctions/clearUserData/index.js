@@ -32,10 +32,10 @@ exports.main = async (event, context) => {
     }
   }
 
-  // 重置 users 集合中的用户进度
+  // 重置 users 集合中的用户进度（保留 profile 但清零学习状态）
   try {
     await db.collection('users').where({ openid }).update({
-      data: { lastActive: Date.now(), profile: _.set(null) }
+      data: { lastActive: Date.now() }
     })
     results['users'] = { updated: true }
   } catch (e) {

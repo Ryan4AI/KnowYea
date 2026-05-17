@@ -76,16 +76,23 @@ exports.main = async (event, context) => {
   try {
     const userRes = await db.collection('users')
       .where({ openid })
-      .limit(1)
       .get()
 
-    if (!userRes.data || userRes.data.length === 0) {
+    if (userRes.data && userRes.data.length > 0) {
+      // 更新所有匹配文档（防止重复），并删除多余
+      for (let i = 0; i < userRes.data.length; i++) {
+        if (i === 0) {
+          await db.collection('users').doc(userRes.data[i]._id).update({
+            data: { profile, lastActive: Date.now() }
+          })
+        } else {
+          // 删除多余的文档
+          try { await db.collection('users').doc(userRes.data[i]._id).remove() } catch(e) {}
+        }
+      }
+    } else {
       await db.collection('users').add({
         data: { openid, profile, lastActive: Date.now(), createdAt: Date.now() }
-      })
-    } else {
-      await db.collection('users').doc(userRes.data[0]._id).update({
-        data: { profile, lastActive: Date.now() }
       })
     }
   } catch (e) {

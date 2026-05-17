@@ -16,6 +16,33 @@ function mdToHtml(text) {
   html = html.replace(/`([^`]+)`/g, '<code style="background:#f0f0f2;padding:2px 6px;border-radius:4px;font-size:13px;color:#e74c3c;">$1</code>')
   // 粗体
   html = html.replace(/\*\*([^*]+)\*\*/g, '<b style="font-weight:600;">$1</b>')
+  // 表格（| A | B | 格式）
+  html = html.replace(/^\|(.+)\|$/gm, (line) => {
+    const cells = line.slice(1, -1).split('|').map(c => c.trim())
+    return cells.join('|')
+  })
+  // 表格头（第二行 --- 分隔线）
+  html = html.replace(/^[-| :]+$/gm, '').replace(/(?:([^|\n]+)\|([^|\n]+))(?:\n([^|\n]+)\|([^|\n]+))?/g, (m) => {
+    return m
+  })
+  // 更健壮的表格处理：前后补换行防止边界问题
+  html = html.replace(/((?:\|[^\n]+\|\n?)+)/g, (tableBlock) => {
+    const rows = tableBlock.trim().split('\n').filter(r => r.trim())
+    if (rows.length < 2) return tableBlock
+    // 第2行（分隔线）只含 | 和 -，跳过
+    const dataRows = rows.filter((r, i) => i !== 1 || !/^[\s|:-]+$/.test(r))
+    const headerRow = dataRows[0]
+    const headers = headerRow.slice(1, -1).split('|').map(h => h.trim()).filter(h => h)
+    let htmlTable = '<table style="width:100%;border-collapse:collapse;margin:8px 0;font-size:14px;background:#fff;border-radius:6px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08);">'
+    htmlTable += '<thead><tr>' + headers.map(h => `<th style="background:#f0f2f5;padding:8px 12px;text-align:left;font-weight:500;border-bottom:2px solid #e8e8e8;">${h}</th>`).join('') + '</tr></thead>'
+    htmlTable += '<tbody>'
+    for (let i = 1; i < dataRows.length; i++) {
+      const rowData = dataRows[i].slice(1, -1).split('|').map(c => c.trim())
+      htmlTable += '<tr>' + rowData.map((c, ci) => `<td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;${ci === 0 ? 'font-weight:500;' : ''}">${c}</td>`).join('') + '</tr>'
+    }
+    htmlTable += '</tbody></table>'
+    return htmlTable
+  })
   // 无序列表 - 先标记
   html = html.split('\n').map(line => {
     if (/^- /.test(line)) return '__LI__' + line.slice(2)
