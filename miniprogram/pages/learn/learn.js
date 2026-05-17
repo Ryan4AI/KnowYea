@@ -787,6 +787,10 @@ Page({
     wx.navigateTo({ url: '/pages/theme-store/theme-store' })
   },
 
+  onGardenTap() {
+    wx.navigateTo({ url: '/pages/garden/garden' })
+  },
+
   showCourseSwitcher() {
     const { theme, learningThemes } = this.data
     if (!theme) return

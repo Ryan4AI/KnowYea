@@ -15,13 +15,13 @@
   "usingComponents": {},
   "pages": [
     "pages/learn/learn",
+    "pages/garden/garden",
     "pages/themes/themes",
     "pages/theme-store/theme-store",
     "pages/profile/profile",
     "pages/history/history",
     "pages/favorites/favorites",
     "pages/achievements/achievements",
-    "pages/garden/garden",
     "pages/settings/settings"
   ],
   "window": {
@@ -29,31 +29,5 @@
     "navigationBarBackgroundColor": "#1a1a2e",
     "navigationBarTextStyle": "white",
     "backgroundColor": "#f4f6fc"
-  },
-  "tabBar": {
-    "color": "#8b90a0",
-    "selectedColor": "#6c5ce7",
-    "backgroundColor": "#ffffff",
-    "borderStyle": "white",
-    "list": [
-      {
-        "pagePath": "pages/learn/learn",
-        "text": "学习",
-        "iconPath": "assets/images/tab-learn.png",
-        "selectedIconPath": "assets/images/tab-learn-active.png"
-      },
-      {
-        "pagePath": "pages/themes/themes",
-        "text": "课程",
-        "iconPath": "assets/images/tab-themes.png",
-        "selectedIconPath": "assets/images/tab-themes-active.png"
-      },
-      {
-        "pagePath": "pages/profile/profile",
-        "text": "我的",
-        "iconPath": "assets/images/tab-profile.png",
-        "selectedIconPath": "assets/images/tab-profile-active.png"
-      }
-    ]
   }
 }

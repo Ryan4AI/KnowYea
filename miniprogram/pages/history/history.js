@@ -35,6 +35,6 @@ Page({
   onItemTap(e) {
     const { themeId, nodeId } = e.currentTarget.dataset
     app.setLearnContext({ themeId, nodeId, mode: 'review' })
-    wx.switchTab({ url: '/pages/learn/learn' })
+    wx.reLaunch({ url: '/pages/learn/learn' })
   },
 })

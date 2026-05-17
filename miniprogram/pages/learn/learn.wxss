@@ -57,7 +57,7 @@
 }
 .header-center { flex: 1; text-align: center; }
 .header-title { font-size: 32rpx; font-weight: 600; color: #1a1a2e; }
-.header-right { width: 80rpx; text-align: right; }
+.header-right { width: 80rpx; text-align: right; font-size: 36rpx; }
 .info-icon { font-size: 36rpx; color: #999; }
 
 /* ===== 个人设置 ===== */

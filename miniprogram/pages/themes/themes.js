@@ -50,7 +50,7 @@ Page({
     })
   },
 
-  // 切换当前学习主题并回到学习页（learn 为 tabBar 页面，必须用 switchTab）
+  // 切换当前学习主题并回到学习页
   switchToLearn(themeId) {
     if (!app.globalData.openid) {
       wx.showToast({ title: '登录中，请稍后再试', icon: 'none' })
@@ -68,7 +68,7 @@ Page({
       success: res => {
         wx.hideLoading()
         if (res.result && res.result.success) {
-          wx.switchTab({ url: '/pages/learn/learn' })
+          wx.reLaunch({ url: '/pages/learn/learn' })
         } else {
           wx.showToast({ title: res.result?.error || '切换失败', icon: 'none' })
         }
@@ -91,7 +91,7 @@ Page({
   onReview(e) {
     const themeId = e.currentTarget.dataset.themeId
     app.setLearnContext({ themeId, mode: 'review' })
-    wx.switchTab({ url: '/pages/learn/learn' })
+    wx.reLaunch({ url: '/pages/learn/learn' })
   },
 
   // 添加主题

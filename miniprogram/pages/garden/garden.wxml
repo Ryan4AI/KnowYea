@@ -1,21 +1,112 @@
-<view class="page-container">
+<view class="page">
+  <!-- 加载状态 -->
   <view class="loading" wx:if="{{isLoading}}">
-    <text class="loading-icon">⏳</text>
-    <text>加载中...</text>
+    <text class="loading-icon">🌱</text>
+    <text class="loading-text">加载中...</text>
   </view>
-  <view class="empty-state" wx:elif="{{gardens.length === 0}}">
-    <text class="empty-icon">🌱</text>
-    <text class="empty-text">还没有植物\n开始学习后每个主题都会长出植物</text>
-  </view>
-  <view class="garden-grid" wx:else>
-    <view class="garden-item" wx:for="{{gardens}}" wx:key="themeId">
-      <view class="plant-icon">{{item.plantEmoji}}</view>
-      <view class="plant-name">{{item.themeName}}</view>
-      <view class="plant-level">{{item.plantName}}</view>
-      <view class="plant-points">{{item.points}} 积分</view>
-      <view class="plant-decorations" wx:if="{{item.decorations.length > 0}}">
-        <text wx:for="{{item.decorations}}" wx:key="*this">{{item}} </text>
+
+  <scroll-view class="scroll" scroll-y="{{true}}" wx:else>
+    <!-- ===== 花园头部 ===== -->
+    <view class="garden-header">
+      <view class="garden-plant">{{plantLevel > 0 ? '🌻' : '🌱'}}</view>
+      <view class="garden-level">{{plantLevel > 0 ? 'Lv.' + plantLevel : '播种中'}}</view>
+      <view class="garden-points">{{plantPoints}} 积分</view>
+    </view>
+
+    <!-- ===== 用户统计 ===== -->
+    <view class="stats-grid">
+      <view class="stat-card">
+        <view class="stat-value">{{stats.completedNodes}}</view>
+        <view class="stat-label">已学课时</view>
+      </view>
+      <view class="stat-card">
+        <view class="stat-value">{{stats.completedThemes}}</view>
+        <view class="stat-label">完成课程</view>
+      </view>
+      <view class="stat-card">
+        <view class="stat-value">{{stats.totalPoints}}</view>
+        <view class="stat-label">总积分</view>
+      </view>
+      <view class="stat-card">
+        <view class="stat-value">{{stats.streak}}</view>
+        <view class="stat-label">连续天数</view>
       </view>
     </view>
-  </view>
+
+    <!-- ===== 我的课程 ===== -->
+    <view class="section">
+      <view class="section-header">
+        <text class="section-title">📖 我的课程</text>
+        <text class="section-action" bindtap="onAddTheme">➕ 添加</text>
+      </view>
+
+      <view class="empty-state" wx:if="{{themes.length === 0}}">
+        <text class="empty-text">还没有课程，去添加一个吧</text>
+      </view>
+
+      <view class="theme-list" wx:else>
+        <view class="theme-item" wx:for="{{themes}}" wx:key="_id">
+          <view class="theme-top">
+            <view class="theme-emoji">{{item.plantEmoji || '🌱'}}</view>
+            <view class="theme-info">
+              <view class="theme-name">{{item.name}}</view>
+              <view class="theme-desc">{{item.description}}</view>
+            </view>
+          </view>
+
+          <view class="theme-progress">
+            <view class="progress-bar">
+              <view class="progress-fill" style="width:{{item.progressPercent || 0}}%"></view>
+            </view>
+            <text class="progress-text">{{item.completedCount || 0}}/{{item.totalNodes}}</text>
+          </view>
+
+          <view class="theme-actions">
+            <button class="btn primary" bindtap="onContinue" data-theme-id="{{item._id}}">
+              {{item.status === 'completed' ? '重新学习' : '继续学习'}}
+            </button>
+            <button class="btn secondary" bindtap="onReview" data-theme-id="{{item._id}}">复习</button>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- ===== 功能菜单 ===== -->
+    <view class="section">
+      <view class="section-header">
+        <text class="section-title">⚡ 更多</text>
+      </view>
+
+      <view class="menu-list">
+        <view class="menu-item" bindtap="onEditProfile">
+          <text class="menu-icon">👤</text>
+          <text class="menu-text">个人画像</text>
+          <text class="menu-arrow">›</text>
+        </view>
+        <view class="menu-item" bindtap="onNavigateTo" data-page="history">
+          <text class="menu-icon">📜</text>
+          <text class="menu-text">历史记录</text>
+          <text class="menu-arrow">›</text>
+        </view>
+        <view class="menu-item" bindtap="onNavigateTo" data-page="favorites">
+          <text class="menu-icon">❤️</text>
+          <text class="menu-text">我的收藏</text>
+          <text class="menu-arrow">›</text>
+        </view>
+        <view class="menu-item" bindtap="onNavigateTo" data-page="achievements">
+          <text class="menu-icon">🏆</text>
+          <text class="menu-text">成就</text>
+          <text class="menu-arrow">›</text>
+        </view>
+        <view class="menu-item" bindtap="onNavigateTo" data-page="settings">
+          <text class="menu-icon">⚙️</text>
+          <text class="menu-text">设置</text>
+          <text class="menu-arrow">›</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 底部留白 -->
+    <view class="footer">知识胶囊 · 每天几分钟，慢慢变强</view>
+  </scroll-view>
 </view>

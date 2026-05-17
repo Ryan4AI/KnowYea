@@ -19,7 +19,7 @@ function callMiniMax(messages) {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer sk-cp-c5wSwWsnIcUkewTEe9JhETRKZNyJ1OBnphm_4B1HdOV0LMNh9vP80kJFBKZV5jpCtp22_xyBUtF0zRAwgWaxU4YECc_LL8GPzEj6GVOHmMiovcfwylDgCDM'
       },
-      timeout: 30000,
+      timeout: 60000,
     }, res => {
       let body = ''
       const statusCode = res.statusCode
@@ -76,20 +76,13 @@ exports.main = async (event, context) => {
   try {
     const userRes = await db.collection('users')
       .where({ openid })
+      .limit(1)
       .get()
 
     if (userRes.data && userRes.data.length > 0) {
-      // 更新所有匹配文档（防止重复），并删除多余
-      for (let i = 0; i < userRes.data.length; i++) {
-        if (i === 0) {
-          await db.collection('users').doc(userRes.data[i]._id).update({
-            data: { profile, lastActive: Date.now() }
-          })
-        } else {
-          // 删除多余的文档
-          try { await db.collection('users').doc(userRes.data[i]._id).remove() } catch(e) {}
-        }
-      }
+      await db.collection('users').doc(userRes.data[0]._id).update({
+        data: { profile, lastActive: Date.now() }
+      })
     } else {
       await db.collection('users').add({
         data: { openid, profile, lastActive: Date.now(), createdAt: Date.now() }
@@ -163,8 +156,31 @@ JSON格式：
 
     // 清理 <think> 和 markdown，提取 JSON
     const cleaned = raw.replace(/<think>[\s\S]*?<\/think>/g, '').replace(/```json\s*/g, '').replace(/```\s*/g, '').trim()
-    const jsonMatch = cleaned.match(/\{[\s\S]*\}/)
-    const themeData = JSON.parse(jsonMatch ? jsonMatch[0] : cleaned)
+
+    // 提取 JSON — 先信任 AI（提示词要求仅输出 JSON），失败再救急
+    let themeData = null
+    try {
+      themeData = JSON.parse(cleaned)
+    } catch(e) {
+      // 救急：找第一个 { 到最后一个 } 之间
+      const firstBrace = cleaned.indexOf('{')
+      const lastBrace = cleaned.lastIndexOf('}')
+      if (firstBrace >= 0 && lastBrace > firstBrace) {
+        const candidate = cleaned.slice(firstBrace, lastBrace + 1)
+        try {
+          themeData = JSON.parse(candidate)
+        } catch(e2) {
+          // 再救急：依次试每个 { 位置到结尾
+          console.log('[generateTheme] direct parse failed, trying fallback. raw(300):', raw.slice(0, 300))
+          for (let i = cleaned.indexOf('{'); i >= 0; i = cleaned.indexOf('{', i + 1)) {
+            try {
+              themeData = JSON.parse(cleaned.slice(i))
+              break
+            } catch(e3) { /* 继续 */ }
+          }
+        }
+      }
+    }
 
     if (!themeData.name || !themeData.nodes || !themeData.nodes.length) {
       logAIRequest({ openid, messages: miniMaxMessages, response: raw, status: 'error', error: 'JSON格式不正确', durationMs: Date.now() - startTime })

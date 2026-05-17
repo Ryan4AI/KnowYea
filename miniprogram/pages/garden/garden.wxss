@@ -1,14 +1,106 @@
-.page-container { min-height: 100vh; background: #f5f5f5; padding: 20rpx; }
-.loading { display: flex; align-items: center; justify-content: center; padding: 100rpx; color: #999; }
-.loading-icon { font-size: 40rpx; margin-right: 16rpx; animation: rotate 1s linear infinite; }
-@keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 120rpx 40rpx; }
-.empty-icon { font-size: 100rpx; margin-bottom: 30rpx; }
-.empty-text { font-size: 28rpx; color: #999; text-align: center; }
-.garden-grid { display: flex; flex-wrap: wrap; justify-content: space-between; }
-.garden-item { width: 48%; background: white; border-radius: 16rpx; padding: 30rpx; margin-bottom: 20rpx; text-align: center; box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.06); }
-.plant-icon { font-size: 80rpx; margin-bottom: 16rpx; }
-.plant-name { font-size: 26rpx; font-weight: bold; color: #333; }
-.plant-level { font-size: 24rpx; color: #667eea; margin-top: 8rpx; }
-.plant-points { font-size: 22rpx; color: #999; margin-top: 6rpx; }
-.plant-decorations { font-size: 22rpx; color: #ff9800; margin-top: 8rpx; }
+/* 页面基础 */
+.page { height: 100vh; background: #f5f5f7; display: flex; flex-direction: column; }
+.scroll { flex: 1; }
+
+/* 加载 */
+.loading {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 200rpx 0;
+}
+.loading-icon { font-size: 80rpx; margin-bottom: 20rpx; }
+.loading-text { font-size: 28rpx; color: #999; }
+
+/* 花园头部 */
+.garden-header {
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  display: flex; flex-direction: column; align-items: center;
+  padding: 60rpx 0 50rpx;
+}
+.garden-plant { font-size: 100rpx; margin-bottom: 16rpx; }
+.garden-level { font-size: 40rpx; font-weight: 700; color: #a29bfe; }
+.garden-points { font-size: 26rpx; color: rgba(255,255,255,0.6); margin-top: 8rpx; }
+
+/* 统计卡片 */
+.stats-grid {
+  display: flex; flex-wrap: wrap; margin: -20rpx 24rpx 0;
+  position: relative; z-index: 1;
+}
+.stat-card {
+  width: 25%; padding: 12rpx 8rpx; box-sizing: border-box;
+}
+.stat-card-inner {
+  background: #fff; border-radius: 16rpx; padding: 20rpx 8rpx;
+  text-align: center; box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04);
+}
+.stat-value { font-size: 36rpx; font-weight: 700; color: #1a1a2e; }
+.stat-label { font-size: 22rpx; color: #999; margin-top: 4rpx; }
+
+/* 区块 */
+.section { margin: 24rpx; }
+.section-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 16rpx;
+}
+.section-title { font-size: 30rpx; font-weight: 600; color: #1a1a2e; }
+.section-action { font-size: 26rpx; color: #6c5ce7; }
+
+/* 空状态 */
+.empty-state {
+  background: #fff; border-radius: 16rpx; padding: 60rpx 40rpx;
+  text-align: center; box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04);
+}
+.empty-text { font-size: 26rpx; color: #bbb; }
+
+/* 课程列表 */
+.theme-item {
+  background: #fff; border-radius: 16rpx; padding: 24rpx;
+  margin-bottom: 16rpx; box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04);
+}
+.theme-top { display: flex; align-items: flex-start; margin-bottom: 16rpx; }
+.theme-emoji { font-size: 48rpx; margin-right: 16rpx; flex-shrink: 0; }
+.theme-info { flex: 1; }
+.theme-name { font-size: 28rpx; font-weight: 600; color: #1a1a2e; }
+.theme-desc { font-size: 24rpx; color: #999; margin-top: 4rpx; line-height: 1.4; }
+
+.theme-progress { display: flex; align-items: center; margin-bottom: 16rpx; }
+.progress-bar {
+  flex: 1; height: 8rpx; background: #f0f0f0; border-radius: 4rpx;
+  margin-right: 12rpx; overflow: hidden;
+}
+.progress-fill {
+  height: 100%; background: linear-gradient(90deg, #6c5ce7, #a29bfe);
+  border-radius: 4rpx; transition: width 0.3s;
+}
+.progress-text { font-size: 22rpx; color: #999; flex-shrink: 0; }
+
+.theme-actions { display: flex; gap: 12rpx; }
+.btn {
+  flex: 1; height: 64rpx; border-radius: 32rpx; font-size: 26rpx;
+  display: flex; align-items: center; justify-content: center;
+}
+.btn.primary {
+  background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: #fff;
+}
+.btn.secondary {
+  background: #f5f5f7; color: #666;
+}
+
+/* 功能菜单 */
+.menu-list {
+  background: #fff; border-radius: 16rpx; overflow: hidden;
+  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04);
+}
+.menu-item {
+  display: flex; align-items: center; padding: 28rpx 24rpx;
+  border-bottom: 1rpx solid #f5f5f7;
+}
+.menu-item:last-child { border-bottom: none; }
+.menu-icon { font-size: 32rpx; margin-right: 20rpx; }
+.menu-text { flex: 1; font-size: 28rpx; color: #333; }
+.menu-arrow { font-size: 32rpx; color: #ccc; }
+
+/* 底部 */
+.footer {
+  text-align: center; padding: 40rpx 0 60rpx;
+  font-size: 22rpx; color: #ccc;
+}
