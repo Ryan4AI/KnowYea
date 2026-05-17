@@ -29,9 +29,9 @@ Page({
       success: res => {
         if (res.result && res.result.success) {
           const profile = res.result.user?.profile
-          // 没画像 → 跳转到编辑页
+          // 没画像 → 跳转到引导页
           if (!profile) {
-            wx.redirectTo({ url: '/pages/profile/edit/edit' })
+            wx.redirectTo({ url: '/pages/learn/learn' })
             return
           }
           const stats = res.result.stats || { completedNodes: 0, completedThemes: 0, totalPoints: 0, streak: 0 }
@@ -53,7 +53,7 @@ Page({
   },
 
   onGoEditProfile() {
-    wx.navigateTo({ url: '/pages/profile/edit/edit?edit=1' })
+    wx.navigateTo({ url: '/pages/learn/learn' })
   },
 
   onNavigateTo(e) {
