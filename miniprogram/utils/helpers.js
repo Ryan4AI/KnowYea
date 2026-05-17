@@ -82,14 +82,16 @@ function parseMessageBlocks(content) {
   if (!content) return [{ type: 'text', text: '' }]
 
   const blocks = []
-  // 匹配标签块
-  const pattern = /\[(概念|例子|总结|评价)\]([\s\S]*?)\[\/\1\]|\[题目\s+type\s*=\s*["']?(choice|open)["']?\]([\s\S]*?)\[\/题目\]|\[评分\]\s*(\d+)/g
+  // 概念/例子/总结/评价：段首标记，自动延续到下一个标签或结尾
+  // 题目：成对标签，必须 [/题目] 闭合
+  // 评分：单行标记
+  const pattern = /\[(概念|例子|总结|评价)\]([\s\S]*?)(?=\[|$)|\[题目\s+type\s*=\s*["']?(choice|open)["']?\]([\s\S]*?)\[\/题目\]|\[评分\]\s*(\d+)/g
   let lastIndex = 0
   let match
 
   while ((match = pattern.exec(content)) !== null) {
     if (match.index > lastIndex) {
-      const plain = content.slice(lastIndex, match.index).replace(/\[完成\]/g, '').trim()
+      const plain = content.slice(lastIndex, match.index).replace(/\[完成\]/g, '').replace(/\[\/(概念|例子|总结|评价)\]/g, '').trim()
       if (plain) blocks.push({ type: 'text', text: plain, html: mdToHtml(plain) })
     }
     if (match[1]) {
@@ -105,7 +107,7 @@ function parseMessageBlocks(content) {
     lastIndex = pattern.lastIndex
   }
 
-  const rest = content.slice(lastIndex).replace(/\[完成\]/g, '').trim()
+  const rest = content.slice(lastIndex).replace(/\[完成\]/g, '').replace(/\[\/(概念|例子|总结|评价)\]/g, '').trim()
   if (rest) blocks.push({ type: 'text', text: rest, html: mdToHtml(rest) })
   if (blocks.length === 0) {
     blocks.push({ type: 'text', text: content.replace(/\[完成\]/g, '').trim(), html: mdToHtml(content.replace(/\[完成\]/g, '').trim()) })
