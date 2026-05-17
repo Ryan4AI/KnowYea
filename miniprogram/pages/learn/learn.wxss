@@ -115,6 +115,11 @@
   background: #6366f1;
   color: #fff;
 }
+.interest-tag.recommended {
+  background: #eef2ff;
+  border: 2rpx solid #6366f1;
+  color: #6366f1;
+}
 .interest-tag.custom {
   background: transparent;
   border: 2rpx dashed #ccc;

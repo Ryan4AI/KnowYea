@@ -3,14 +3,48 @@ const app = getApp()
 
 const AGE_OPTIONS = ['18岁以下', '18-25岁', '26-35岁', '36-45岁', '45岁以上']
 
-const OCCUPATION_OPTIONS = ['学生', '产品经理', '设计师', '工程师/技术', '运营', '市场/营销', '销售', '财务/金融', 'HR/行政', '创业者', '自由职业', '其他']
-const INTEREST_OPTIONS = ['经济学', '心理学', '思维模型', '商业分析', '自我提升', '效率工具', '科技趋势', '历史', '哲学', '科学']
+const OCCUPATION_OPTIONS = [
+  '大学生', '职场新人',
+  '产品经理', '设计师',
+  '前端工程师', '后端工程师', 'AI与算法', '其他技术',
+  '运营', '市场/营销', '销售',
+  '财务/金融', 'HR/行政', '创业者',
+  '教师/教育', '医疗健康', '媒体/创作',
+  '其他',
+]
 
 const InterestTags = [
-  '经济学', '心理学', '思维模型', '商业分析', '自我提升',
-  '效率工具', '科技趋势', '历史', '哲学', '科学',
-  '管理', '创业', '投资', '沟通', '决策'
+  '项目管理', '职场沟通', '数据分析',
+  '思维模型', '批判性思维', '心理学',
+  'AI入门', '编程思维', '科技趋势',
+  '创业', '投资理财', '经济学',
+  '历史', '哲学', '科学',
+  '自我提升', '学习力', '写作',
 ]
+
+function getRecommendedTags(occupation) {
+  const map = {
+    '大学生': ['学习力', '写作', '编程思维', '自我提升'],
+    '职场新人': ['职场沟通', '自我提升', '学习力', '项目管理'],
+    '产品经理': ['思维模型', '数据分析', '项目管理', '心理学'],
+    '设计师': ['思维模型', '心理学', '写作', '自我提升'],
+    '前端工程师': ['编程思维', 'AI入门', '科技趋势', '学习力'],
+    '后端工程师': ['AI入门', '编程思维', '科技趋势', '数据分析'],
+    'AI与算法': ['AI入门', '科技趋势', '数据分析', '投资理财'],
+    '其他技术': ['科技趋势', '编程思维', 'AI入门', '自我提升'],
+    '运营': ['数据分析', '职场沟通', '写作', '学习力'],
+    '市场/营销': ['数据分析', '心理学', '写作', '经济学'],
+    '销售': ['职场沟通', '心理学', '自我提升', '学习力'],
+    '财务/金融': ['投资理财', '数据分析', '经济学', '思维模型'],
+    'HR/行政': ['职场沟通', '心理学', '项目管理', '自我提升'],
+    '创业者': ['创业', '投资理财', '项目管理', '思维模型'],
+    '教师/教育': ['心理学', '学习力', '写作', '科学'],
+    '医疗健康': ['科学', '心理学', '自我提升', '学习力'],
+    '媒体/创作': ['写作', '心理学', '自我提升', '学习力'],
+  }
+  return map[occupation] || ['自我提升', '学习力', '思维模型', '职场沟通']
+}
+const INTEREST_OPTIONS = ['经济学', '心理学', '思维模型', '商业分析', '自我提升', '效率工具', '科技趋势', '历史', '哲学', '科学']
 
 const { formatTime, parseMessageBlocks } = require('../../utils/helpers')
 
@@ -76,6 +110,7 @@ Page({
     },
     occupationOptions: OCCUPATION_OPTIONS,
     interestOptions: InterestTags,
+    recommendedTags: [],
     ageOptions: AGE_OPTIONS,
     scrollIntoView: '',
     navBarTop: 0,
@@ -602,7 +637,17 @@ Page({
   },
 
   onOccupationChange(e) {
-    this.setData({ 'profileForm.occupationIndex': Number(e.detail.value) })
+    const occIndex = Number(e.detail.value)
+    const occupation = OCCUPATION_OPTIONS[occIndex]
+    const tags = getRecommendedTags(occupation)
+    // 找到推荐标签在 interestOptions 中的下标
+    const recommendedTags = tags
+      .map(t => InterestTags.indexOf(t))
+      .filter(i => i >= 0)
+    this.setData({
+      'profileForm.occupationIndex': occIndex,
+      recommendedTags,
+    })
   },
 
   onInterestToggle(e) {

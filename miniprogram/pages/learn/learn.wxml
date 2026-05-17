@@ -62,10 +62,10 @@ module.exports = { contains: contains };
           <view
             wx:for="{{interestOptions}}"
             wx:key="index"
-            class="interest-tag {{tools.contains(profileForm.interestIndexes, index) ? 'selected' : ''}}"
+            class="interest-tag {{tools.contains(profileForm.interestIndexes, index) ? 'selected' : ''}} {{tools.contains(recommendedTags, index) ? 'recommended' : ''}}"
             data-index="{{index}}"
             bindtap="onInterestToggle"
-          >{{item}}</view>
+          ><text wx:if="{{tools.contains(recommendedTags, index) && !tools.contains(profileForm.interestIndexes, index)}}">⭐ </text>{{item}}</view>
           <view
             wx:if="{{!showCustomInterestInput}}"
             class="interest-tag custom"
