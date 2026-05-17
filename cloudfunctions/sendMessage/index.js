@@ -78,11 +78,36 @@ exports.main = async (event, context) => {
       const aiRes = await callMiniMax(miniMaxMessages)
       const aiReply = aiRes.choices?.[0]?.message?.content || ''
       if (!aiReply) throw new Error('AI 返回为空')
-      const isCompleted = aiReply.includes('[完成]')
 
-      // 提取评分
-      const scoreMatch = aiReply.match(/\[评分\]\s*(\d+)/)
-      const score = scoreMatch ? parseInt(scoreMatch[1]) : null
+      // 解析尾部 JSON 动作块：{"action":"complete","score":8} 或 {"score":8}
+      let cleanReply = aiReply
+      let isCompleted = false
+      let score = null
+      const endBrace = aiReply.lastIndexOf('}')
+      if (endBrace >= 0 && aiReply.slice(endBrace + 1).trim() === '') {
+        const startBrace = aiReply.lastIndexOf('{', endBrace)
+        if (startBrace >= 0) {
+          try {
+            const meta = JSON.parse(aiReply.slice(startBrace, endBrace + 1))
+            if (meta.action === 'complete') isCompleted = true
+            if (typeof meta.score === 'number') score = meta.score
+            cleanReply = aiReply.slice(0, startBrace).trim()
+          } catch (e) {
+            // 不是合法 JSON，保留原文本
+            cleanReply = aiReply
+          }
+        }
+      }
+
+      // 旧格式兼容：[评分] 和 [完成] 标签（过渡期保留）
+      if (!isCompleted && !score) {
+        if (aiReply.includes('[完成]')) {
+          isCompleted = true
+          cleanReply = aiReply.replace(/\[完成\]/g, '').trim()
+        }
+        const legacyScore = aiReply.match(/\[评分\]\s*(\d+)/)
+        if (legacyScore) score = parseInt(legacyScore[1])
+      }
 
       // 保存消息到数据库（自动消息不存用户输入）
       if (themeId && nodeId) {
@@ -91,7 +116,7 @@ exports.main = async (event, context) => {
         if (!event.isAutoMessage) {
           await convCol.add({ data: { id: 'user_' + now, openid, themeId, nodeId, role: 'user', content: userText || '', createdAt: now } })
         }
-        await convCol.add({ data: { id: 'ai_' + now + 1, openid, themeId, nodeId, role: 'ai', content: aiReply, createdAt: now + 1 } })
+        await convCol.add({ data: { id: 'ai_' + now + 1, openid, themeId, nodeId, role: 'ai', content: cleanReply, createdAt: now + 1 } })
 
         if (score !== null) {
           await db.collection('user_progress').add({
@@ -104,12 +129,12 @@ exports.main = async (event, context) => {
       logAIRequest({
         openid, themeId, nodeId,
         messages: miniMaxMessages,
-        response: aiReply,
+        response: cleanReply,
         score, durationMs: Date.now() - startTime,
         status: 'success', isCompleted,
       })
 
-      return { success: true, aiReply, isCompleted }
+      return { success: true, aiReply: cleanReply, isCompleted }
     } catch (e) {
       // 错误也记日志
       logAIRequest({

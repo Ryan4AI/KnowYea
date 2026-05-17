@@ -244,9 +244,9 @@ Page({
       '# 出题与评分',
       '- 选择题格式：[题目 type="choice"]问题描述|选项A|选项B|选项C|选项D[/题目]',
       '- 问答题格式：[题目 type="open"]问题描述[/题目]',
-      '- 用户回答后，如果需要计分，在下一轮回复中加 [评分]N（N为0-10分）',
-      '- 如果确认用户已掌握本课时内容，在回复末尾加 [完成]',
-      '- 如果用户表示"学会了/明白了/继续"等，在回复最后加 [完成]',
+      '- 需要计分时，在回复最后加 JSON 块：{"score":N}（N为0-10分）',
+      '- 确认用户掌握本课时内容后，在回复最后加：{"action":"complete","score":N}',
+      '- 如果用户表示"学会了/明白了/继续"等，也应输出 complete JSON',
       '',
       '# 出题方式',
       '- 每小节至少出1道题检验用户理解',
@@ -255,19 +255,19 @@ Page({
       '- 问答题用于引导用户思考和表达',
       '',
       '# 评分标准',
-      '- 完全正确、深入理解 → [评分]9 或 [评分]10',
-      '- 基本正确、理解到位 → [评分]7 或 [评分]8',
-      '- 部分正确、部分偏差 → [评分]5 或 [评分]6',
-      '- 理解不足、方向偏差 → [评分]3 或 [评分]4',
-      '- 完全不对 → [评分]1 或 [评分]2',
+      '- 完全正确、深入理解 → score: 9-10',
+      '- 基本正确、理解到位 → score: 7-8',
+      '- 部分正确、部分偏差 → score: 5-6',
+      '- 理解不足、方向偏差 → score: 3-4',
+      '- 完全不对 → score: 1-2',
       '',
       '# 教学流程',
       '1. 先用[概念]讲解本课时核心知识点',
       '2. 用[例子]列举相关例子辅助理解',
       '3. 出题检验（选择题或问答题）',
-      '4. 根据用户的回答给出反馈和[评分]',
+      '4. 根据用户的回答给出反馈和评分（用 JSON 块）',
       '5. 必要时再用讲解加深巩固',
-      '6. 确认用户理解后，在回复末尾标注 [完成]',
+      '6. 确认用户理解后，在回复末尾加 complete JSON 块',
     ].join('\n')
 
     const miniMaxMessages = [
@@ -292,9 +292,9 @@ Page({
           // 剥离 `<think>...</think>` 推理内容
           let aiReply = res.result.aiReply.replace(/<think>[\s\S]*?<\/think>/g, '').trim()
 
-          // 检测评分和完成标记
-          const scoreMatch = aiReply.match(/\[评分\]\s*(\d+)/)
-          let isCompleted = aiReply.includes('[完成]') || aiReply.includes('【完成】')
+          // 使用云函数返回的结构化字段
+          const isCompleted = !!res.result.isCompleted
+          const score = res.result.score || null
 
           const aiMsg = {
             id: 'ai_' + Date.now(),
@@ -303,7 +303,7 @@ Page({
             blocks: parseMessageBlocks(aiReply),
             createdAt: Date.now(),
             timeStr: formatTime(Date.now()),
-            score: scoreMatch ? parseInt(scoreMatch[1]) : null,
+            score: score,
           }
           this.setData({
             messages: [...this.data.messages, aiMsg],
