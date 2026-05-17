@@ -92,7 +92,7 @@ exports.main = async (event, context) => {
     console.error('保存用户画像失败', e)
   }
 
-  const ageMap = { 1: '18岁以下', 2: '18-25岁', 3: '26-35岁', 4: '36-45岁', 5: '45岁以上' }
+  const ageMap = { 1: '18岁以下', 2: '18-25岁', 3: '26-35岁', 4: '36-45岁', 5: '46岁以上' }
 
   // 用户指定主题 vs 根据画像推荐
   let prompt
