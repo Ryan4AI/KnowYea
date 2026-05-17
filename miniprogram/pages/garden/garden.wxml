@@ -10,13 +10,27 @@
     <view class="garden-header">
       <view class="header-plant-wrap">
         <view class="header-plant">{{plant.emoji}}</view>
-        <view class="header-level">Lv.{{plant.level}} {{plant.name}}</view>
+        <view class="header-level">「{{plant.title}}」</view>
+        <view class="header-name">Lv.{{plant.level}} {{plant.name}}</view>
       </view>
       <view class="header-welcome">
         <text class="header-greeting">🌿 你的知识花园</text>
         <text class="header-stats">已学习 {{stats.completedNodes}} 个课时 · {{stats.completedThemes}} 门课程</text>
       </view>
+      <!-- 下一等级进度 -->
+      <view class="next-level-wrap" wx:if="{{plant.nextThreshold}}">
+        <view class="next-level-bar">
+          <view class="next-level-fill" style="width:{{(stats.completedNodes / plant.nextThreshold) * 100}}%"></view>
+        </view>
+        <text class="next-level-text">还需 {{plant.nextThreshold - stats.completedNodes}} 课时 → {{plant.nextName}}</text>
+      </view>
       <view class="header-points">{{plantPoints}} 积分</view>
+    </view>
+
+    <!-- ===== 连续学习 ===== -->
+    <view class="streak-bar" wx:if="{{stats.streak > 0}}">
+      <text class="streak-icon">🔥</text>
+      <text class="streak-text">{{stats.streak}} 天 · {{streakText}}</text>
     </view>
 
     <!-- ===== 用户统计 ===== -->

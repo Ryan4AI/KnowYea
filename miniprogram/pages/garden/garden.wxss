@@ -14,18 +14,42 @@
 .garden-header {
   background: linear-gradient(135deg, #1a1a2e, #16213e);
   display: flex; flex-direction: column; align-items: center;
-  padding: 50rpx 0 40rpx;
+  padding: 50rpx 0 30rpx;
 }
 .header-plant-wrap {
   display: flex; flex-direction: column; align-items: center;
   margin-bottom: 16rpx;
 }
 .header-plant { font-size: 80rpx; }
-.header-level { font-size: 28rpx; color: #a29bfe; font-weight: 600; margin-top: 8rpx; }
+.header-level { font-size: 32rpx; color: #a29bfe; font-weight: 600; }
+.header-name { font-size: 24rpx; color: rgba(162,155,254,0.6); margin-top: 4rpx; }
 .header-welcome { text-align: center; margin-bottom: 8rpx; }
 .header-greeting { font-size: 34rpx; font-weight: 700; color: #fff; display: block; margin-bottom: 4rpx; }
 .header-stats { font-size: 24rpx; color: rgba(255,255,255,0.6); display: block; }
 .header-points { font-size: 24rpx; color: rgba(255,255,255,0.4); }
+
+/* 下一等级进度 */
+.next-level-wrap {
+  width: 60%; margin: 12rpx auto 0; text-align: center;
+}
+.next-level-bar {
+  height: 6rpx; background: rgba(255,255,255,0.15); border-radius: 3rpx; overflow: hidden;
+}
+.next-level-fill {
+  height: 100%; background: linear-gradient(90deg, #6c5ce7, #a29bfe);
+  border-radius: 3rpx; transition: width 0.5s;
+}
+.next-level-text { font-size: 20rpx; color: rgba(255,255,255,0.35); margin-top: 6rpx; display: block; }
+
+/* 连续学习 */
+.streak-bar {
+  display: flex; align-items: center; justify-content: center;
+  margin: -10rpx 24rpx 0; padding: 16rpx; background: #fff7ed;
+  border-radius: 16rpx; position: relative; z-index: 1;
+  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04);
+}
+.streak-icon { font-size: 32rpx; margin-right: 10rpx; }
+.streak-text { font-size: 24rpx; color: #c2410c; }
 
 /* 统计卡片 */
 .stats-grid {

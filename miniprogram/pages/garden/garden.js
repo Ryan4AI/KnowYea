@@ -2,23 +2,53 @@
 const app = getApp()
 
 const PLANT_LEVELS = [
-  { threshold: 0, emoji: '🌱', name: '种子' },
-  { threshold: 10, emoji: '🌿', name: '嫩芽' },
-  { threshold: 30, emoji: '🌾', name: '稻穗' },
-  { threshold: 60, emoji: '🌻', name: '开花' },
-  { threshold: 120, emoji: '🪴', name: '盆景' },
-  { threshold: 250, emoji: '🌳', name: '大树' },
-  { threshold: 500, emoji: '🏡', name: '花园' },
+  { threshold: 0,    emoji: '🌱', name: '种子', title: '初学者' },
+  { threshold: 10,   emoji: '🌿', name: '嫩芽', title: '勤学者' },
+  { threshold: 30,   emoji: '🌾', name: '稻穗', title: '探索者' },
+  { threshold: 60,   emoji: '🌻', name: '开花', title: '求知者' },
+  { threshold: 120,  emoji: '🪴', name: '盆景', title: '博学者' },
+  { threshold: 250,  emoji: '🌳', name: '大树', title: '智识者' },
+  { threshold: 500,  emoji: '🏡', name: '花园', title: '终身学习者' },
+]
+
+const STREAK_MILESTONES = [
+  { days: 0,   text: '' },
+  { days: 1,   text: '🏅 第一天，好的开始' },
+  { days: 3,   text: '🔥 连续 3 天，保持势头' },
+  { days: 7,   text: '🔥🔥 一周打卡，习惯养成中' },
+  { days: 14,  text: '🔥🔥🔥 两周坚持，了不起' },
+  { days: 30,  text: '🔥🔥🔥🔥 一个月！你是认真的' },
+  { days: 60,  text: '🔥🔥🔥🔥🔥 两月如一日，高手' },
+  { days: 100, text: '🏆 百日学习者！超越 99% 的人' },
 ]
 
 function calcPlant(completedNodes) {
   let level = 0
   for (let i = PLANT_LEVELS.length - 1; i >= 0; i--) {
     if (completedNodes >= PLANT_LEVELS[i].threshold) {
-      return { level: i + 1, ...PLANT_LEVELS[i] }
+      level = i
+      break
     }
   }
-  return { level: 1, ...PLANT_LEVELS[0] }
+  const current = PLANT_LEVELS[level]
+  const next = PLANT_LEVELS[level + 1]
+  return {
+    level: level + 1,
+    ...current,
+    nextThreshold: next ? next.threshold : null,
+    nextName: next ? next.name : null,
+  }
+}
+
+function calcStreak(days) {
+  let text = ''
+  for (let i = STREAK_MILESTONES.length - 1; i >= 0; i--) {
+    if (days >= STREAK_MILESTONES[i].days) {
+      text = STREAK_MILESTONES[i].text
+      break
+    }
+  }
+  return text
 }
 
 Page({
@@ -27,6 +57,7 @@ Page({
     // 花园
     plant: { level: 1, emoji: '🌱', name: '种子' },
     plantPoints: 0,
+    streakText: '',
     // 用户
     stats: {
       completedNodes: 0,
@@ -100,11 +131,13 @@ Page({
           })
         }
         const unlockedAchievements = (res.result.achievements || []).filter(a => a.unlocked).length
+        const streakText = calcStreak(stats.streak || 0)
         this.setData({
           stats,
           achievements: res.result.achievements || [],
           unlockedAchievements,
           plant,
+          streakText,
           lastActiveTheme,
         })
       }
