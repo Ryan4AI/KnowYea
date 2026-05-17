@@ -161,8 +161,8 @@ Page({
           isLearning: !!currentNode && !isReviewMode && !nodeCompleted,
           isPendingTransition: false,
           showCompleteBtn: false,
-          hasNextNode: currentTheme?.nodes && currentNode
-            ? currentNode._id !== currentTheme.nodes[currentTheme.nodes.length - 1]._id
+          hasNextNode: currentTheme?.totalNodes && currentNode?.order
+            ? currentNode.order < currentTheme.totalNodes
             : false,
         })
 
@@ -726,7 +726,7 @@ Page({
             messages: [],
             isCompleted: false,
             showCompleteBtn: false,
-            hasNextNode: (res.result.currentTheme?.nodes || pendingTheme?.nodes || []).length > 0,
+            hasNextNode: (res.result.currentNode?.order || 0) < (res.result.currentTheme?.totalNodes || 0),
           }, () => {
             // setData 完成后才发消息，确保 node 已经更新
             this.sendMessage('请开始介绍这个课时要学习的内容，用通俗易懂的语言', true)
