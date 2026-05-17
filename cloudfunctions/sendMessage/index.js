@@ -95,6 +95,17 @@ exports.main = async (event, context) => {
             if (meta.action === 'complete') isCompleted = true
             if (typeof meta.score === 'number') score = meta.score
             cleanReply = noThink.slice(0, startBrace).trim()
+            // 提取摘要（跨课程上下文用）
+            let summary = ''
+            if (meta.summary && typeof meta.summary === 'string') {
+              summary = meta.summary.trim()
+            }
+            // 保存课时摘要
+            if (summary && themeId && nodeId) {
+              db.collection('user_lesson_summaries').add({
+                data: { openid, themeId, nodeId, summary, score, createdAt: Date.now() }
+              }).catch(e => console.error('[saveSummary] 失败', e.message))
+            }
           } catch (e) {
             // 不是合法 JSON，保留原文本
             cleanReply = noThink

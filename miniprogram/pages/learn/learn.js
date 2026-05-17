@@ -114,6 +114,7 @@ Page({
     ageOptions: AGE_OPTIONS,
     scrollIntoView: '',
     navBarTop: 0,
+    courseContext: '', // 跨课程学习档案文本
   },
 
   onShow() {
@@ -207,6 +208,9 @@ Page({
           wx.showToast({ title: '复习模式', icon: 'none' })
         }
 
+        // 异步加载跨课程学习档案
+        this.refreshCourseContext()
+
         // 执行回调（如自动进入下一节后发送消息）
         if (typeof context.callback === 'function') {
           context.callback()
@@ -241,6 +245,23 @@ Page({
           this.setData({ learningThemes })
         }
       },
+    })
+  },
+
+  // 刷新跨课程学习档案
+  refreshCourseContext() {
+    const { theme } = this.data
+    if (!app.globalData.openid) return
+
+    wx.cloud.callFunction({
+      name: 'getCourseContext',
+      data: { openid: app.globalData.openid, currentThemeId: theme?._id || '' },
+      success: res => {
+        if (res.result?.success && res.result.context) {
+          this.setData({ courseContext: res.result.context })
+        }
+      },
+      fail: () => {} // 静默失败，不影响主流程
     })
   },
 
@@ -281,6 +302,9 @@ Page({
       `- 兴趣：${(this.data.userProfile?.interests || []).join('、') || '未知'}`,
       `- 年龄：${['18岁以下','18-25岁','26-35岁','36-45岁','45岁以上'][(this.data.userProfile?.age || 3)-1] || '26-35岁'}`,
       '',
+      '# 学习档案（跨课程上下文）',
+      this.data.courseContext || '暂无历史学习记录。用户首次使用课程。',
+      '',
       '# 格式说明',
       '你可以使用以下标签组织回复（段首标签自动延续到下一个标签，不需要写关闭）：',
       '- [概念]核心概念解释 → 用于定义和解释核心概念',
@@ -299,6 +323,8 @@ Page({
       '- 需要计分时：{"score":N}（N为0-10分）',
       '- 确认用户掌握本课时后：{"action":"complete","score":N}',
       '- 用户说"学会了/明白了/继续"时也输出 complete JSON',
+      '- 完成时额外输出 summary 字段，一句话总结用户对本课时的掌握情况：{"action":"complete","score":N,"summary":"用户对X概念理解清晰，Y概念需要更多练习"}',
+      '- summary 是跨课程上下文的核心数据，AI下次对话会参考，请认真撰写',
       '',
       '# 评分标准',
       '- 完全正确、深入理解 → 9-10分',
