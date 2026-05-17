@@ -97,6 +97,12 @@ Page({
 
     this.setData({ isLoading: true })
 
+    // 先显示缓存（避免白屏）
+    const cached = wx.getStorageSync('garden_cache')
+    if (cached) {
+      this.setData({ ...cached, isLoading: true })
+    }
+
     // 并行加载
     wx.cloud.callFunction({ name: 'getGarden', data: { openid: app.globalData.openid } })
     .then(res => {
@@ -140,6 +146,9 @@ Page({
           streakText,
           lastActiveTheme,
         })
+        // 主数据到齐后，缓存（排除 isLoading）
+        const { isLoading, ...cache } = this.data
+        wx.setStorageSync('garden_cache', cache)
       }
     })
     .catch(() => {})
@@ -220,6 +229,11 @@ Page({
 
   // 添加课程
   onAddTheme() {
+    wx.navigateTo({ url: '/pages/theme-store/theme-store' })
+  },
+
+  // 生成新课（与添加课程同目的地，但更显眼）
+  onNewTheme() {
     wx.navigateTo({ url: '/pages/theme-store/theme-store' })
   },
 

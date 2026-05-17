@@ -80,7 +80,16 @@
   background: #fff; border-radius: 16rpx; padding: 60rpx 40rpx;
   text-align: center; box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04);
 }
-.empty-text { font-size: 26rpx; color: #bbb; }
+.empty-text { font-size: 26rpx; color: #bbb; display: block; margin-bottom: 20rpx; }
+
+/* 生成新课卡片 */
+.new-theme-card {
+  display: flex; align-items: center; justify-content: center;
+  padding: 24rpx; margin: 0 24rpx 16rpx;
+  background: linear-gradient(135deg, #f0edff, #e8e4ff);
+  border-radius: 20rpx; font-size: 28rpx; color: #6c5ce7; font-weight: 600;
+  box-shadow: 0 2rpx 12rpx rgba(108,92,231,0.12);
+}
 
 /* 课程列表 */
 .theme-item {
