@@ -76,6 +76,7 @@ Page({
     interestOptions: InterestTags,
     ageOptions: AGE_OPTIONS,
     scrollIntoView: '',
+    navBarTop: 0,
   },
 
   onShow() {
@@ -84,6 +85,14 @@ Page({
   },
 
   async bootstrap() {
+    // 自定义导航栏：计算状态栏高度
+    try {
+      const sys = wx.getSystemInfoSync()
+      this.setData({ navBarTop: sys.statusBarHeight })
+    } catch(e) {
+      this.setData({ navBarTop: 44 })
+    }
+
     await app.waitForLogin()
     console.log('[bootstrap] openid:', app.globalData.openid)
     this.setData({ openid: app.globalData.openid || '' })

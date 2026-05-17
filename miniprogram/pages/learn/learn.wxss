@@ -45,20 +45,31 @@
 }
 .gen-hint { font-size: 24rpx; color: #999; }
 
-/* ===== 顶部导航 ===== */
-.header {
+/* ===== 自定义导航栏 ===== */
+.nav-bar {
+  background: #fff;
+  flex-shrink: 0;
+  border-bottom: 1rpx solid #eee;
+}
+.nav-bar-inner {
   display: flex;
   align-items: center;
-  height: 88rpx;
+  justify-content: space-between;
+  height: 44px;
   padding: 0 20rpx;
-  background: #fff;
-  border-bottom: 1rpx solid #eee;
+}
+.nav-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #1a1a2e;
+  flex: 1;
+}
+.nav-right {
+  font-size: 36rpx;
+  width: 60rpx;
+  text-align: right;
   flex-shrink: 0;
 }
-.header-center { flex: 1; text-align: center; }
-.header-title { font-size: 32rpx; font-weight: 600; color: #1a1a2e; }
-.header-right { width: 80rpx; text-align: right; font-size: 36rpx; }
-.info-icon { font-size: 36rpx; color: #999; }
 
 /* ===== 个人设置 ===== */
 .profile-setup {

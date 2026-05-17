@@ -5,7 +5,5 @@
     "plant": "/components/plant/plant",
     "achievement-popup": "/components/achievement-popup/achievement-popup"
   },
-  "navigationBarTitleText": "学习",
-  "navigationBarBackgroundColor": "#1a1a2e",
-  "navigationBarTextStyle": "white"
+  "navigationStyle": "custom"
 }
