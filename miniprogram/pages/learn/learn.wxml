@@ -24,11 +24,8 @@ module.exports = { contains: contains };
 <view class="page">
   <!-- 顶部导航 -->
   <view class="header" wx:if="{{!showProfileSetup}}">
-    <view class="header-left" bindtap="goBack">
-      <text class="back-icon">←</text>
-    </view>
     <view class="header-center">
-      <text class="header-title">{{theme.name || '学习'}}</text>
+      <text class="header-title">{{theme.name || '小知也'}}</text>
     </view>
     <view class="header-right" wx:if="{{theme}}" bindtap="showThemeInfo">
       <text class="info-icon">⋯</text>

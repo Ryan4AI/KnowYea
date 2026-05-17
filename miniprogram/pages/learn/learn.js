@@ -775,30 +775,18 @@ Page({
     wx.navigateTo({ url: '/pages/theme-store/theme-store' })
   },
 
-  goBack() {
-    wx.navigateBack({ fail: () => wx.redirectTo({ url: '/pages/index/index' }) })
-  },
-
   showThemeInfo() {
     const { theme, node } = this.data
     if (!theme) return
     const nodes = theme.nodes || []
     const nodeIndex = node ? nodes.findIndex(n => n._id === node._id) : -1
 
-    const itemList = ['📋 查看节点列表']
-    if (nodeIndex >= 0 && nodeIndex < nodes.length - 1) {
-      itemList.push('⏩ 跳转到…')
-    }
-    itemList.push('🚪 退出课程')
-
     wx.showActionSheet({
-      itemList,
+      itemList: ['📋 查看节点列表', '🚪 退出课程'],
       success: (res) => {
-        const tapIdx = res.tapIndex
-        if (tapIdx === 0) {
-          // 显示节点列表
+        if (res.tapIndex === 0) {
           const nodeNames = nodes.map((n, i) =>
-            `${i === nodeIndex ? '▶ ' : ''}${n.title}${n === node ? ' (当前)' : ''}`
+            `${i === nodeIndex ? '▶ ' : ''}${n.title}${n._id === node._id ? ' (当前)' : ''}`
           )
           wx.showActionSheet({
             itemList: nodeNames.concat(['取消']),
@@ -806,51 +794,19 @@ Page({
               if (r.tapIndex < nodes.length) {
                 const targetNode = nodes[r.tapIndex]
                 if (targetNode._id !== node._id) {
-                  wx.showLoading({ title: '切换节点...' })
-                  this.setData({
-                    isCompleted: false,
-                    isPendingTransition: false,
-                    canSend: false,
-                  })
-                  this.switchToNode(targetNode._id, () => {
-                    wx.hideLoading()
-                  })
+                  this.setData({ isCompleted: false, isPendingTransition: false })
+                  this.switchToNode(targetNode._id)
                 }
               }
             },
           })
-        } else if (tapIdx === 1 && itemList[tapIdx] === '⏩ 跳转到…') {
-          // 跳转到某节点，复用上面列表
-          const nextNodes = nodes.slice(nodeIndex + 1).map((n, i) =>
-            `[+${i + 1}] ${n.title}`
-          )
-          if (nextNodes.length > 0) {
-            wx.showActionSheet({
-              itemList: nextNodes.concat(['取消']),
-              success: (r) => {
-                if (r.tapIndex < nextNodes.length) {
-                  const targetNode = nodes[nodeIndex + 1 + r.tapIndex]
-                  wx.showLoading({ title: '跳转中...' })
-                  this.setData({
-                    isCompleted: false,
-                    isPendingTransition: false,
-                    canSend: false,
-                  })
-                  this.switchToNode(targetNode._id, () => {
-                    wx.hideLoading()
-                  })
-                }
-              },
-            })
-          }
         } else {
-          // 退出课程
           wx.showModal({
             title: '退出课程',
             content: '确定要退出当前课程吗？',
             success: (r) => {
               if (r.confirm) {
-                wx.navigateBack({ fail: () => wx.redirectTo({ url: '/pages/index/index' }) })
+                wx.exitMiniProgram()
               }
             },
           })
