@@ -8,68 +8,106 @@ Page({
     searchKeyword: '',
     selectedCategory: 'all',
     isLoading: false,
-    categories: [
-      { id: 'all', name: '全部' },
-      { id: 'economics', name: '经济学' },
-      { id: 'psychology', name: '心理学' },
-      { id: 'business', name: '商业' },
-      { id: 'thinking', name: '思维' },
-    ],
+    userInterests: [],
+    userThemeIds: [],
+    categories: [{ id: 'all', name: '全部' }],
+    newTheme: null, // AI 生成成功后暂存
+    aiKeyword: '',
   },
 
-  onLoad() {
+  onShow() {
     this.loadStoreThemes()
   },
 
-  // 加载主题库
+  // 加载主题库 + 用户数据
   loadStoreThemes() {
+    if (!app.globalData.openid) {
+      const checkId = setInterval(() => {
+        if (app.globalData.openid) {
+          clearInterval(checkId)
+          this.loadStoreThemes()
+        }
+      }, 300)
+      return
+    }
+
     this.setData({ isLoading: true })
 
-    // 从云端获取预置主题库
-    wx.cloud.callFunction({
-      name: 'getStoreThemes',
-      data: {},
-      success: res => {
-        this.setData({ isLoading: false })
+    // 并行加载预置课程 + 用户兴趣 + 已有课程
+    Promise.all([
+      new Promise(resolve => {
+        wx.cloud.callFunction({ name: 'getStoreThemes', data: {} })
+          .then(res => resolve(res.result?.themes || []))
+          .catch(() => resolve(this.getSimulatedThemes()))
+      }),
+      new Promise(resolve => {
+        wx.cloud.callFunction({ name: 'getUserProfile', data: { openid: app.globalData.openid } })
+          .then(res => resolve(res.result?.user?.profile?.interests || []))
+          .catch(() => resolve([]))
+      }),
+      new Promise(resolve => {
+        wx.cloud.callFunction({ name: 'getThemes', data: { openid: app.globalData.openid } })
+          .then(res => resolve((res.result?.themes || []).map(t => t._id)))
+          .catch(() => resolve([]))
+      }),
+    ]).then(([themes, interests, userThemeIds]) => {
+      // 构建分类：用户兴趣标签 + 全部
+      const allCategories = [{ id: 'all', name: '全部' }]
+      const added = new Set()
+      for (const id of userThemeIds) added.add(id)
 
-        if (res.result && res.result.success) {
-          this.setData({
-            themes: res.result.themes || [],
-            filteredThemes: res.result.themes || [],
-          })
-        }
-      },
-      fail: err => {
-        this.setData({ isLoading: false })
-        console.error('加载主题库失败', err)
-        // 使用模拟数据
-        this.setData({
-          themes: this.getSimulatedThemes(),
-          filteredThemes: this.getSimulatedThemes(),
-        })
+      // 标记已添加
+      for (const t of themes) {
+        t.added = added.has(t._id)
       }
+
+      // 根据主题的 tags 提取分类
+      const tagSet = new Set()
+      for (const t of themes) {
+        if (t.tags) for (const tag of t.tags) tagSet.add(tag)
+      }
+      // 优先展示用户感兴趣的 tag
+      for (const interest of interests) {
+        if (tagSet.has(interest.toLowerCase().replace(/\s/g, ''))) {
+          allCategories.push({ id: interest, name: interest, recommended: true })
+        }
+      }
+      // 补充其他 tag
+      for (const tag of tagSet) {
+        if (!allCategories.find(c => c.id === tag)) {
+          allCategories.push({ id: tag, name: tag })
+        }
+      }
+
+      this.setData({
+        themes,
+        userInterests: interests,
+        userThemeIds,
+        categories: allCategories,
+        isLoading: false,
+      })
+      this.filterThemes()
     })
   },
 
-  // 搜索
+  // 搜索（防抖不要了，小程序 bindinput 够快）
   onSearch(e) {
-    const keyword = e.detail.value
-    this.setData({ searchKeyword: keyword })
+    this.setData({ searchKeyword: e.detail.value || '' })
     this.filterThemes()
   },
 
   // 筛选主题
   filterThemes() {
     const { themes, searchKeyword, selectedCategory } = this.data
-
     let filtered = themes
 
-    // 按分类筛选
     if (selectedCategory !== 'all') {
-      filtered = filtered.filter(t => t.tags?.includes(selectedCategory))
+      const kw = selectedCategory.toLowerCase()
+      filtered = filtered.filter(t =>
+        (t.tags || []).some(tag => tag.toLowerCase() === kw)
+      )
     }
 
-    // 按关键词搜索
     if (searchKeyword) {
       const kw = searchKeyword.toLowerCase()
       filtered = filtered.filter(t =>
@@ -106,10 +144,15 @@ Page({
 
         if (res.result && res.result.success) {
           wx.showToast({ title: '添加成功', icon: 'success' })
-          // 跳转到主题页面
-          setTimeout(() => {
-            wx.navigateBack()
-          }, 1500)
+          // 本地标记已添加，刷新列表
+          const userThemeIds = [...this.data.userThemeIds, themeId]
+          this.setData({ userThemeIds })
+          const themes = this.data.themes.map(t => {
+            if (t._id === themeId) t.added = true
+            return t
+          })
+          this.setData({ themes })
+          this.filterThemes()
         } else {
           wx.showToast({ title: res.result?.error || '添加失败', icon: 'none' })
         }
@@ -122,14 +165,21 @@ Page({
     })
   },
 
+  onAIInput(e) {
+    this.setData({ aiKeyword: e.detail.value || '' })
+  },
+
   // AI 推荐主题
-  onAIRecommend(e) {
-    const keyword = e.detail.value?.trim()
+  onAIRecommend() {
+    const keyword = this.data.aiKeyword.trim()
     if (!keyword) {
       wx.showToast({ title: '请输入想学的主题', icon: 'none' })
       return
     }
+    this.doGenerate(keyword)
+  },
 
+  doGenerate(keyword) {
     wx.showLoading({ title: 'AI 生成中...' })
 
     wx.cloud.callFunction({
@@ -142,10 +192,15 @@ Page({
         wx.hideLoading()
 
         if (res.result && res.result.success) {
-          wx.showToast({ title: '主题创建成功', icon: 'success' })
-          setTimeout(() => {
-            wx.navigateBack()
-          }, 1500)
+          // 不跳转，留在页面显示结果
+          this.setData({
+            newTheme: {
+              id: res.result.themeId,
+              name: keyword,
+              description: `已生成「${keyword}」专属课程`,
+            }
+          })
+          wx.showToast({ title: '生成成功', icon: 'success' })
         } else {
           wx.showToast({ title: res.result?.error || '创建失败', icon: 'none' })
         }
@@ -156,6 +211,14 @@ Page({
         wx.showToast({ title: '网络错误', icon: 'none' })
       }
     })
+  },
+
+  // 前往学习生成的课程
+  onGoLearn() {
+    const { newTheme } = this.data
+    if (!newTheme) return
+    app.setLearnContext({ themeId: newTheme.id, mode: 'new' })
+    wx.reLaunch({ url: '/pages/learn/learn' })
   },
 
   // 获取模拟主题数据

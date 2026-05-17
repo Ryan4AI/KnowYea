@@ -1,15 +1,21 @@
 <!-- pages/theme-store/theme-store.wxml -->
 <view class="page-container">
-  <!-- AI 推荐区域 -->
-  <view class="ai-recommend">
-    <view class="ai-recommend-title">🤖 AI 智能推荐</view>
-    <view class="ai-recommend-input">
-      <input
-        placeholder="输入想学的课程，如：投资理财、心理学、历史..."
-        placeholder-style="color: rgba(255,255,255,0.7)"
-        bindconfirm="onAIRecommend"
-      />
-      <button class="ai-recommend-btn" bindtap="onAIRecommend">生成</button>
+  <!-- AI 生成区域 -->
+  <view class="ai-section">
+    <view class="ai-title">🤖 AI 生成新课</view>
+    <view class="ai-input-wrap">
+      <input class="ai-input" placeholder="输入想学的课程，如：投资理财、心理学、历史..." bindinput="onAIInput" bindconfirm="onAIRecommend" />
+      <button class="ai-btn" bindtap="onAIRecommend">生成</button>
+    </view>
+
+    <!-- 生成结果 -->
+    <view class="ai-result" wx:if="{{newTheme}}">
+      <view class="result-icon">✅</view>
+      <view class="result-info">
+        <view class="result-name">{{newTheme.name}}</view>
+        <view class="result-desc">{{newTheme.description}}</view>
+      </view>
+      <button class="result-btn" bindtap="onGoLearn">前往学习 →</button>
     </view>
   </view>
 
@@ -17,54 +23,49 @@
   <view class="search-area">
     <view class="search-input-wrapper">
       <text class="search-icon">🔍</text>
-      <input
-        class="search-input"
-        placeholder="搜索课程"
-        bindinput="onSearch"
-        value="{{searchKeyword}}"
-      />
+      <input class="search-input" placeholder="搜索预置课程" bindinput="onSearch" value="{{searchKeyword}}" />
     </view>
   </view>
 
-  <!-- 分类标签 -->
+  <!-- 分类标签（根据用户兴趣动态） -->
   <view class="category-tabs">
     <view
-      class="tab-item {{selectedCategory === item.id ? 'active' : ''}}"
+      class="tab-item {{selectedCategory === item.id ? 'active' : ''}} {{item.recommended ? 'recommended' : ''}}"
       wx:for="{{categories}}"
       wx:key="id"
       bindtap="onSelectCategory"
       data-category="{{item.id}}"
     >
       {{item.name}}
+      <text class="tag-hint" wx:if="{{item.recommended}}">推荐</text>
     </view>
   </view>
 
   <!-- Loading -->
   <view class="loading" wx:if="{{isLoading}}">
-    <text class="loading-icon">⏳</text>
     <text>加载中...</text>
+  </view>
+
+  <!-- 无结果 -->
+  <view class="empty-state" wx:elif="{{filteredThemes.length === 0}}">
+    <text class="empty-icon">🔍</text>
+    <text class="empty-text">没有找到相关课程</text>
+    <text class="empty-hint">试试用上方的 AI 生成功能，输入你想学的内容</text>
   </view>
 
   <!-- 课程网格 -->
   <view class="theme-grid" wx:else>
-    <view
-      class="theme-card"
-      wx:for="{{filteredThemes}}"
-      wx:key="_id"
-    >
-      <view class="theme-cover">{{item.emoji}}</view>
+    <view class="theme-card" wx:for="{{filteredThemes}}" wx:key="_id">
+      <view class="theme-cover">{{item.emoji || '📚'}}</view>
       <view class="theme-name">{{item.name}}</view>
       <view class="theme-desc">{{item.description}}</view>
       <view class="theme-meta">
-        <text>{{item.nodeCount}} 个章节</text>
-        <button
-          class="add-btn {{item.added ? 'added' : ''}}"
-          bindtap="onAddTheme"
-          data-theme-id="{{item._id}}"
-          disabled="{{item.added}}"
-        >
-          {{item.added ? '✓ 已添加' : '+ 添加'}}
-        </button>
+        <text>{{item.nodeCount || item.totalNodes || '?'}} 个章节</text>
+        <view class="add-btn-wrap">
+          <button class="add-btn {{item.added ? 'added' : ''}}" bindtap="onAddTheme" data-theme-id="{{item._id}}" disabled="{{item.added}}">
+            {{item.added ? '✓ 已添加' : '+ 添加'}}
+          </button>
+        </view>
       </view>
     </view>
   </view>
