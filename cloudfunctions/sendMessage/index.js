@@ -116,7 +116,7 @@ exports.main = async (event, context) => {
         if (!event.isAutoMessage) {
           await convCol.add({ data: { id: 'user_' + now, openid, themeId, nodeId, role: 'user', content: userText || '', createdAt: now } })
         }
-        await convCol.add({ data: { id: 'ai_' + now + 1, openid, themeId, nodeId, role: 'ai', content: cleanReply, createdAt: now + 1 } })
+        await convCol.add({ data: { id: 'ai_' + now + 1, openid, themeId, nodeId, role: 'ai', content: cleanReply, createdAt: now + 1, isCompleted } })
 
         if (score !== null) {
           await db.collection('user_progress').add({

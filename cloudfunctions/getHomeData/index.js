@@ -34,6 +34,7 @@ exports.main = async (event, context) => {
     let currentTheme = null
     let currentNode = null
     let messages = []
+    let nodeCompleted = false
     let hasMoreMessages = false
     let garden = null
 
@@ -101,8 +102,15 @@ exports.main = async (event, context) => {
             role: doc.role,
             content: doc.content,
             createdAt: doc.createdAt,
+            isCompleted: doc.isCompleted || false,
           }))
           hasMoreMessages = convRes.data.length >= messageLimit
+
+          // 检查最后一条 AI 消息是否标记了完成
+          const lastAiMsg = [...messages].reverse().find(m => m.role === 'ai')
+          if (lastAiMsg && (lastAiMsg.isCompleted || lastAiMsg.content.includes('[完成]'))) {
+            nodeCompleted = true
+          }
         }
       }
     }
@@ -138,6 +146,7 @@ exports.main = async (event, context) => {
       currentTheme,
       currentNode,
       messages,
+      nodeCompleted,
       hasMoreMessages,
       messageOffset,
       user,

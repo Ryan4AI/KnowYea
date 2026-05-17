@@ -121,6 +121,7 @@ Page({
           currentTheme,
           currentNode,
           messages,
+          nodeCompleted,
           garden,
           needsOnboarding,
           isReviewMode,
@@ -147,8 +148,8 @@ Page({
           hasMoreMessages: !!hasMoreMessages,
           messageOffset: messageOffset || 0,
           showProfileSetup: !!needsOnboarding,
-          isCompleted: false,
-          isLearning: !!currentNode && !isReviewMode,
+          isCompleted: !!nodeCompleted,
+          isLearning: !!currentNode && !isReviewMode && !nodeCompleted,
           isPendingTransition: false,
           showCompleteBtn: false,
           hasNextNode: currentTheme?.nodes && currentNode
