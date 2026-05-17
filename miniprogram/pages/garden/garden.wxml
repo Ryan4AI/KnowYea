@@ -84,11 +84,11 @@
     <view class="section">
       <view class="section-header">
         <text class="section-title">📖 我的课程</text>
-        <text class="section-action" bindtap="onAddTheme">➕ 添加</text>
       </view>
 
       <view class="empty-state" wx:if="{{themes.length === 0}}">
-        <text class="empty-text">还没有课程</text>
+        <text class="empty-intro">🌿 你还没有课程</text>
+        <text class="empty-sub">告诉我你想学什么，AI 会为你量身定制课程</text>
         <view class="new-theme-card" bindtap="onNewTheme">✨ 让 AI 生成第一门课</view>
       </view>
 
@@ -109,6 +109,10 @@
               <view class="progress-fill" style="width:{{item.progressPercent || 0}}%"></view>
             </view>
             <text class="progress-text">{{item.completedCount || 0}}/{{item.totalNodes}}</text>
+          </view>
+
+          <view class="theme-last-node" wx:if="{{item.currentNodeOrder > 1}}">
+            <text>上次学到：第 {{item.currentNodeOrder - 1}} 课时</text>
           </view>
 
           <view class="theme-actions">

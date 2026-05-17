@@ -101,6 +101,8 @@
   text-align: center; box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04);
 }
 .empty-text { font-size: 26rpx; color: #bbb; display: block; margin-bottom: 20rpx; }
+.empty-intro { font-size: 28rpx; color: #666; font-weight: 600; display: block; margin-bottom: 6rpx; }
+.empty-sub { font-size: 24rpx; color: #999; display: block; margin-bottom: 24rpx; }
 
 /* 生成新课卡片 */
 .new-theme-card {
@@ -132,6 +134,9 @@
   border-radius: 4rpx; transition: width 0.3s;
 }
 .progress-text { font-size: 22rpx; color: #999; flex-shrink: 0; }
+
+.theme-last-node { margin: 0 0 12rpx; }
+.theme-last-node text { font-size: 22rpx; color: #bbb; }
 
 .theme-actions { display: flex; gap: 12rpx; }
 .btn {
