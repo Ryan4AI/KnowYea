@@ -1,6 +1,6 @@
 /* pages/profile/profile.wxss */
 page {
-  background: #0f0f1a;
+  background: #f5f5f7;
   min-height: 100vh;
 }
 
@@ -8,35 +8,32 @@ page {
   padding-bottom: 40rpx;
 }
 
-/* ====== 表单模式 ====== */
+/* ====== 表单模式 — 与 learn 页原引导一致 ====== */
 .onboard-header {
   text-align: center;
   padding: 80rpx 40rpx 40rpx;
-  background: linear-gradient(135deg, #1a1040 0%, #0f0f1a 60%, #0a1628 100%);
 }
 
-.onboard-icon {
-  font-size: 80rpx;
-  margin-bottom: 20rpx;
-}
+.onboard-icon { font-size: 64rpx; margin-bottom: 16rpx; }
 
 .onboard-title {
-  font-size: 36rpx;
-  font-weight: 700;
-  color: #f0e6ff;
-  margin-bottom: 12rpx;
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin-bottom: 8rpx;
 }
 
 .onboard-desc {
   font-size: 26rpx;
-  color: #9a8cb0;
+  color: #999;
 }
 
 .onboard-card {
-  margin: -40rpx 24rpx 0;
-  background: #1a1a2e;
-  border-radius: 20rpx;
-  padding: 32rpx 28rpx;
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 48rpx 40rpx;
+  margin: 0 32rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.06);
 }
 
 .form-group {
@@ -45,103 +42,100 @@ page {
 
 .form-label {
   display: block;
-  font-size: 26rpx;
-  color: #c0b4d8;
+  font-size: 28rpx;
+  color: #555;
   margin-bottom: 12rpx;
 }
 
 .hint {
-  font-size: 22rpx;
-  color: #7a6e90;
+  font-size: 24rpx;
+  color: #aaa;
+  font-weight: normal;
 }
 
 .picker-value {
-  background: #242038;
-  padding: 20rpx 24rpx;
+  background: #f5f5f7;
   border-radius: 12rpx;
+  padding: 20rpx 24rpx;
   font-size: 28rpx;
-  color: #7a6e90;
+  color: #333;
 }
 
-.picker-value.active {
-  color: #f0e6ff;
-}
+.picker-value.active { color: #333; }
 
 .interest-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 14rpx;
+  gap: 12rpx;
 }
 
 .interest-tag {
-  padding: 14rpx 24rpx;
-  background: #242038;
-  border: 2rpx solid #242038;
+  background: #f5f5f7;
   border-radius: 30rpx;
-  font-size: 24rpx;
-  color: #c0b4d8;
-  transition: all 0.2s;
+  padding: 12rpx 28rpx;
+  font-size: 26rpx;
+  color: #666;
 }
 
 .interest-tag.selected {
-  background: linear-gradient(135deg, #7c4dff, #5c3dc0);
-  border-color: #7c4dff;
+  background: #6366f1;
   color: #fff;
 }
 
-.interest-tag.recommended:not(.selected) {
-  border-color: #7c4dff;
-  background: rgba(124, 77, 255, 0.1);
+.interest-tag.recommended {
+  background: #eef2ff;
+  border: 2rpx solid #6366f1;
+  color: #6366f1;
 }
 
 .custom-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 14rpx;
+  gap: 12rpx;
 }
 
 .custom-tag {
-  padding: 14rpx 24rpx;
-  background: rgba(255, 193, 7, 0.15);
-  border: 2rpx solid rgba(255, 193, 7, 0.4);
+  padding: 12rpx 28rpx;
+  background: #fef9e7;
+  border: 2rpx solid #f59e0b;
   border-radius: 30rpx;
-  font-size: 24rpx;
-  color: #ffc107;
+  font-size: 26rpx;
+  color: #f59e0b;
 }
 
 .custom-interest-row {
-  margin-bottom: 28rpx;
+  margin-top: 8rpx;
 }
 
 .custom-interest-btn {
   display: inline-block;
-  padding: 14rpx 24rpx;
-  background: rgba(124, 77, 255, 0.1);
-  border: 2rpx dashed rgba(124, 77, 255, 0.3);
+  padding: 10rpx 24rpx;
+  background: transparent;
+  border: 2rpx dashed #ccc;
   border-radius: 30rpx;
   font-size: 24rpx;
-  color: #7c4dff;
+  color: #999;
 }
 
 .custom-interest-input {
-  background: #242038;
-  padding: 20rpx 24rpx;
+  background: #f5f5f7;
   border-radius: 12rpx;
-  font-size: 28rpx;
-  color: #f0e6ff;
+  padding: 16rpx 24rpx;
+  font-size: 26rpx;
   width: 100%;
   box-sizing: border-box;
 }
 
 .save-btn {
   width: 100%;
-  padding: 24rpx 0;
-  background: linear-gradient(135deg, #7c4dff, #5c3dc0);
-  border: none;
-  border-radius: 16rpx;
+  height: 88rpx;
+  line-height: 88rpx;
+  background: #6366f1;
   color: #fff;
-  font-size: 30rpx;
+  font-size: 32rpx;
   font-weight: 600;
+  border-radius: 16rpx;
+  margin-top: 32rpx;
   text-align: center;
 }
 

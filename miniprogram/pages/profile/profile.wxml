@@ -5,14 +5,14 @@
   <block wx:if="{{showForm}}">
     <view class="onboard-header">
       <view class="onboard-icon">{{isEditing ? '✏️' : '👤'}}</view>
-      <view class="onboard-title">{{isEditing ? '编辑个人画像' : '先了解一下你'}}</view>
-      <view class="onboard-desc">{{isEditing ? '修改你的画像信息' : '让 AI 为你量身定制专属课程'}}</view>
+      <view class="onboard-title">{{isEditing && userProfile ? '编辑个人画像' : '先了解一下你'}}</view>
+      <view class="onboard-desc">{{isEditing && userProfile ? '修改你的画像信息' : '让 AI 为你量身定制专属课程'}}</view>
     </view>
 
     <view class="onboard-card">
       <!-- 年龄 -->
       <view class="form-group">
-        <text class="form-label">年龄段</text>
+        <text class="form-label">年龄</text>
         <picker mode="selector" range="{{ageOptions}}" bindchange="onAgeChange">
           <view class="picker-value {{profileForm.ageIndex >= 0 ? 'active' : ''}}">
             {{ageOptions[profileForm.ageIndex] || '请选择'}}
@@ -32,7 +32,7 @@
 
       <!-- 兴趣标签 -->
       <view class="form-group">
-        <text class="form-label">兴趣 <text class="hint">（可多选，推荐标签带 ⭐）</text></text>
+        <text class="form-label">兴趣 <text class="hint">（可多选）</text></text>
         <view class="interest-tags">
           <view
             wx:for="{{interestOptions}}" wx:key="index"
@@ -64,7 +64,7 @@
       </view>
 
       <button class="save-btn" disabled="{{isSaving}}" bindtap="onSaveProfile">
-        {{isSaving ? '保存中...' : isEditing ? '✅ 保存修改' : '✅ 开始学习'}}
+        {{isSaving ? '保存中...' : isEditing && userProfile ? '✅ 保存修改' : '✅ 开始学习'}}
       </button>
     </view>
   </block>

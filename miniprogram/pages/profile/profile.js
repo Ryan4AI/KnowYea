@@ -225,8 +225,8 @@ Page({
         this.setData({ isSaving: false })
         if (res.result?.success) {
           app.globalData.profileUpdated = Date.now()
-          // 如果是首次设置画像 → 去课程商店生成课程
-          if (!this.data.userProfile && !this.data.isEditing) {
+          // 首次设置 → 去课程商店生成课程
+          if (!this.data.userProfile) {
             wx.redirectTo({ url: '/pages/theme-store/theme-store?fromOnboard=1' })
           } else {
             wx.navigateBack({ delta: 1 })
