@@ -15,7 +15,7 @@
         data-index="{{index}}"
       >
         <text class="option-label">{{item.label}}</text>
-        <rich-text class="option-text" nodes="{{item.html}}"></rich-text>
+        <text class="option-text">{{item.text}}</text>
       </view>
     </block>
   </view>

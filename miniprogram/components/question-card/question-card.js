@@ -72,8 +72,6 @@ Component({
 
         const questionText = parts[0] || content.substring(0, 60)
         const questionHtml = mdToHtml(questionText, 'font-size:28rpx;color:#1a1d2e;line-height:1.65;')
-        const optTextStyle = 'font-size:27rpx;color:#2d3254;line-height:1.45;'
-        options = options.map(opt => ({ ...opt, html: mdToHtml(opt.text, optTextStyle) }))
         this.setData({ questionText, questionHtml, options })
       } else {
         this.setData({ questionText: content, options: [] })
