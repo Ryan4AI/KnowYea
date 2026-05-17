@@ -152,6 +152,7 @@ module.exports = { contains: contains };
         <view class="dot"></view>
         <view class="dot"></view>
       </view>
+      <text class="loading-label">AI 生成中…</text>
     </view>
   </scroll-view>
 

@@ -388,12 +388,24 @@ Page({
     const nextNodeId = `${theme._id}_node_${node.order + 1}`
     this.setData({ isCompleted: false })
     wx.showLoading({ title: '进入下一节' })
-    this.switchToNode(nextNodeId, () => {
-      wx.hideLoading()
-      const newNode = this.data.node
-      if (newNode) {
-        this.sendMessage(`请开始介绍"${newNode.title}"这个课时要学习的内容，用通俗易懂的语言`, true)
-      }
+
+    // 先完成当前课时（持久化进度），再切换
+    wx.cloud.callFunction({
+      name: 'completeNode',
+      data: {
+        openid: app.globalData.openid,
+        themeId: theme._id,
+        nodeId: node._id,
+      },
+      complete: () => {
+        this.switchToNode(nextNodeId, () => {
+          wx.hideLoading()
+          const newNode = this.data.node
+          if (newNode) {
+            this.sendMessage(`请开始介绍"${newNode.title}"这个课时要学习的内容，用通俗易懂的语言`, true)
+          }
+        })
+      },
     })
   },
 
@@ -402,8 +414,8 @@ Page({
     const loadingMsg = {
       id: 'loading_' + Date.now(),
       role: 'ai',
-      content: '⏳ 正在加载下一节...',
-      blocks: [{ type: 'text', text: '⏳ 正在加载下一节...' }],
+      content: '⏳ AI 正在生成下一节内容...',
+      blocks: [{ type: 'text', text: '⏳ AI 正在生成下一节内容…' }],
       createdAt: Date.now(),
       timeStr: formatTime(Date.now()),
     }
