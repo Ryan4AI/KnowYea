@@ -151,7 +151,7 @@ module.exports = { contains: contains };
   </scroll-view>
 
   <!-- 下一节按钮 -->
-  <view class="advance-bar" wx:if="{{hasNextNode}}">
+  <view class="advance-bar" wx:if="{{isCompleted && hasNextNode}}">
     <button class="advance-btn" bindtap="manualAdvance">下一节 →</button>
   </view>
 
