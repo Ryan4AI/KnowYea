@@ -7,6 +7,7 @@ Page({
     newTheme: null,
     isGenerating: false,
     userProfile: null,
+    profileLoaded: false,
   },
 
   onShow() {
@@ -20,9 +21,13 @@ Page({
       data: { openid: app.globalData.openid }
     }).then(res => {
       if (res.result?.success && res.result?.user?.profile) {
-        this.setData({ userProfile: res.result.user.profile })
+        this.setData({ userProfile: res.result.user.profile, profileLoaded: true })
+      } else {
+        this.setData({ profileLoaded: true })
       }
-    }).catch(() => {})
+    }).catch(() => {
+      this.setData({ profileLoaded: true })
+    })
   },
 
   onAIInput(e) {
@@ -39,7 +44,14 @@ Page({
 
     const { userProfile } = this.data
     if (!userProfile) {
-      wx.showToast({ title: '请先完善个人画像再生成课程', icon: 'none' })
+      wx.showModal({
+        title: '需要个人画像',
+        content: 'AI 需要了解你的年龄、职业和兴趣才能生成定制课程，现在去设置？',
+        confirmText: '去设置',
+        success: res => {
+          if (res.confirm) this.onGoProfile()
+        }
+      })
       return
     }
 
@@ -88,6 +100,11 @@ Page({
     if (!newTheme) return
     app.setLearnContext({ themeId: newTheme.id, mode: 'new' })
     wx.reLaunch({ url: '/pages/learn/learn' })
+  },
+
+  // 前往个人画像
+  onGoProfile() {
+    wx.navigateTo({ url: '/pages/profile/profile' })
   },
 
   // 再生成一个（重置状态）

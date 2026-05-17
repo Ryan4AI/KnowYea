@@ -6,43 +6,49 @@
     <view class="hero-desc">输入你想学的内容，AI 为你量身定制一套完整课程</view>
   </view>
 
-  <!-- 输入区 -->
-  <view class="input-area" wx:if="{{!newTheme}}">
-    <view class="input-wrap">
-      <input
-        class="input-field"
-        placeholder="例如：投资理财、心理学入门、AI基础知识..."
-        placeholder-style="color: #999"
-        bindinput="onAIInput"
-        bindconfirm="onAIRecommend"
-        value="{{aiKeyword}}"
-      />
-      <button class="gen-btn" bindtap="onAIRecommend" disabled="{{isGenerating}}">
-        {{isGenerating ? '⏳ 生成中...' : '🚀 生成课程'}}
-      </button>
+  <view wx:if="{{!profileLoaded}}">
+    <!-- 加载中 -->
+    <view class="loading"><text>加载中...</text></view>
+  </view>
+  <view wx:elif="{{profileLoaded && !userProfile}}">
+    <!-- 未设置画像 -->
+    <view class="profile-missing">
+      <view class="missing-icon">👤</view>
+      <view class="missing-text">请先设置个人画像</view>
+      <view class="missing-desc">AI 需要了解你的年龄、职业和兴趣，才能为你定制课程</view>
+      <button class="missing-btn" bindtap="onGoProfile">去设置 →</button>
+      <view class="missing-note">设置后回来就能生成课程了</view>
     </view>
-
-    <!-- 示例 -->
-    <view class="examples">
-      <text class="examples-label">试试这些方向：</text>
-      <view class="example-tags">
-        <text class="example-tag" bindtap="onExample" data-keyword="投资理财">投资理财</text>
-        <text class="example-tag" bindtap="onExample" data-keyword="心理学">心理学</text>
-        <text class="example-tag" bindtap="onExample" data-keyword="AI入门">AI入门</text>
-        <text class="example-tag" bindtap="onExample" data-keyword="沟通技巧">沟通技巧</text>
-        <text class="example-tag" bindtap="onExample" data-keyword="思维模型">思维模型</text>
+  </view>
+  <view wx:elif="{{userProfile && !newTheme}}">
+    <!-- 输入区 -->
+    <view class="input-area">
+      <view class="input-wrap">
+        <input class="input-field" placeholder="例如：投资理财、心理学入门、AI基础知识..." placeholder-style="color: #999" bindinput="onAIInput" bindconfirm="onAIRecommend" value="{{aiKeyword}}" />
+        <button class="gen-btn" bindtap="onAIRecommend" disabled="{{isGenerating}}">{{isGenerating ? '⏳ 生成中...' : '🚀 生成课程'}}</button>
+      </view>
+      <view class="examples">
+        <text class="examples-label">试试这些方向：</text>
+        <view class="example-tags">
+          <text class="example-tag" bindtap="onExample" data-keyword="投资理财">投资理财</text>
+          <text class="example-tag" bindtap="onExample" data-keyword="心理学">心理学</text>
+          <text class="example-tag" bindtap="onExample" data-keyword="AI入门">AI入门</text>
+          <text class="example-tag" bindtap="onExample" data-keyword="沟通技巧">沟通技巧</text>
+          <text class="example-tag" bindtap="onExample" data-keyword="思维模型">思维模型</text>
+        </view>
       </view>
     </view>
   </view>
-
-  <!-- 生成结果 -->
-  <view class="result-section" wx:if="{{newTheme}}">
-    <view class="result-card">
-      <view class="result-icon">✅</view>
-      <view class="result-name">{{newTheme.name}}</view>
-      <view class="result-desc">课程已生成，AI 正在为你准备第一节课</view>
-      <button class="learn-btn" bindtap="onGoLearn">开始学习 →</button>
-      <button class="again-btn" bindtap="onReset">再生成一个</button>
+  <view wx:elif="{{userProfile && newTheme}}">
+    <!-- 生成结果 -->
+    <view class="result-section">
+      <view class="result-card">
+        <view class="result-icon">✅</view>
+        <view class="result-name">{{newTheme.name}}</view>
+        <view class="result-desc">课程已生成，AI 正在为你准备第一节课</view>
+        <button class="learn-btn" bindtap="onGoLearn">开始学习 →</button>
+        <button class="again-btn" bindtap="onReset">再生成一个</button>
+      </view>
     </view>
   </view>
 </view>
