@@ -35,9 +35,14 @@ Page({
       streak: 0,
     },
     achievements: [],
+    unlockedAchievements: 0,
     // 课程
     themes: [],
     lastActiveTheme: null,
+    // 预览数据
+    recentHistory: [],
+    favorites: [],
+    favoriteCount: 0,
   },
 
   onLoad() {
@@ -50,7 +55,6 @@ Page({
 
   loadAll() {
     if (!app.globalData.openid) {
-      // 等 openid 就绪
       const checkId = setInterval(() => {
         if (app.globalData.openid) {
           clearInterval(checkId)
@@ -62,7 +66,7 @@ Page({
 
     this.setData({ isLoading: true })
 
-    // 并行加载花园、课程、个人数据
+    // 并行加载
     wx.cloud.callFunction({ name: 'getGarden', data: { openid: app.globalData.openid } })
     .then(res => {
       if (res.result?.success && res.result.gardens?.length > 0) {
@@ -85,11 +89,9 @@ Page({
     .then(res => {
       if (res.result?.success) {
         const stats = res.result.stats
-        // 计算植物等级
         const plant = calcPlant(stats.completedNodes || 0)
-        // 找到最近学习的课程（从 themes 中取最后活动的）
         let lastActiveTheme = null
-        const themes = this.data.themes
+        const themes = this.data.themes || []
         if (themes.length > 0) {
           lastActiveTheme = themes.reduce((a, b) => {
             const aTime = a.lastStudiedAt || a.startedAt || 0
@@ -97,11 +99,34 @@ Page({
             return aTime > bTime ? a : b
           })
         }
+        const unlockedAchievements = (res.result.achievements || []).filter(a => a.unlocked).length
         this.setData({
           stats,
           achievements: res.result.achievements || [],
+          unlockedAchievements,
           plant,
           lastActiveTheme,
+        })
+      }
+    })
+    .catch(() => {})
+
+    // 加载最近历史记录（预览用）
+    wx.cloud.callFunction({ name: 'getHistory', data: { openid: app.globalData.openid, limit: 3 } })
+    .then(res => {
+      if (res.result?.success && res.result.history?.length > 0) {
+        this.setData({ recentHistory: res.result.history })
+      }
+    })
+    .catch(() => {})
+
+    // 加载收藏预览
+    wx.cloud.callFunction({ name: 'getFavorites', data: { openid: app.globalData.openid, limit: 3 } })
+    .then(res => {
+      if (res.result?.success) {
+        this.setData({
+          favorites: res.result.favorites || [],
+          favoriteCount: res.result.count || 0,
         })
       }
     })

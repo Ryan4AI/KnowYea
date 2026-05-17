@@ -104,6 +104,7 @@
 .menu-item:last-child { border-bottom: none; }
 .menu-icon { font-size: 32rpx; margin-right: 20rpx; }
 .menu-text { flex: 1; font-size: 28rpx; color: #333; }
+.menu-badge { font-size: 24rpx; color: #6c5ce7; background: #f0edff; padding: 4rpx 14rpx; border-radius: 20rpx; margin-right: 12rpx; }
 .menu-arrow { font-size: 32rpx; color: #ccc; }
 
 /* 底部 */
