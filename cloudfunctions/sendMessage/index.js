@@ -100,8 +100,8 @@ exports.main = async (event, context) => {
             if (meta.summary && typeof meta.summary === 'string') {
               summary = meta.summary.trim()
             }
-            // 保存课时摘要
-            if (summary && themeId && nodeId) {
+            // 保存课时摘要（仅在课时完成时）
+            if (summary && isCompleted && themeId && nodeId) {
               db.collection('user_lesson_summaries').add({
                 data: { openid, themeId, nodeId, summary, score, createdAt: Date.now() }
               }).catch(e => console.error('[saveSummary] 失败', e.message))
