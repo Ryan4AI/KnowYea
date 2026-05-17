@@ -6,6 +6,23 @@ Page({
     aiKeyword: '',
     newTheme: null,
     isGenerating: false,
+    userProfile: null,
+  },
+
+  onShow() {
+    this.loadUserProfile()
+  },
+
+  loadUserProfile() {
+    if (!app.globalData.openid) return
+    wx.cloud.callFunction({
+      name: 'getUserProfile',
+      data: { openid: app.globalData.openid }
+    }).then(res => {
+      if (res.result?.success && res.result?.user?.profile) {
+        this.setData({ userProfile: res.result.user.profile })
+      }
+    }).catch(() => {})
   },
 
   onAIInput(e) {
@@ -20,12 +37,19 @@ Page({
       return
     }
 
+    const { userProfile } = this.data
+    if (!userProfile) {
+      wx.showToast({ title: '请先完善个人画像再生成课程', icon: 'none' })
+      return
+    }
+
     this.setData({ isGenerating: true })
 
     wx.cloud.callFunction({
       name: 'generateTheme',
       data: {
         openid: app.globalData.openid,
+        profile: userProfile,
         themeName: keyword,
       },
       success: res => {

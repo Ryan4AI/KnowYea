@@ -67,7 +67,7 @@ async function logAIRequest(params) {
 }
 
 exports.main = async (event, context) => {
-  const { openid, profile } = event
+  const { openid, profile, themeName } = event
   if (!openid || !profile) {
     return { success: false, error: '缺少必要参数' }
   }
@@ -93,6 +93,45 @@ exports.main = async (event, context) => {
   }
 
   const ageMap = { 1: '18岁以下', 2: '18-25岁', 3: '26-35岁', 4: '36-45岁', 5: '45岁以上' }
+
+  // 用户指定主题 vs 根据画像推荐
+  let prompt
+  if (themeName) {
+    prompt = `根据以下用户画像和学习需求，生成一个「${themeName}」主题的微型课程：
+
+用户信息：
+- 年龄：${ageMap[profile.age] || '25-35岁'}
+- 职业：${profile.occupation || '职场人士'}
+- 兴趣：${(profile.interests || []).join('、') || '通用知识'}
+
+课程主题：${themeName}
+
+注意：
+1. 内容要贴合「${themeName}」这个主题，同时考虑用户的职业和兴趣背景
+2. 每个节点应是对话内可完成的单一知识点（不是大章节）
+3. 完成标准（completionSignal）必须是对话内就可达成的
+4. 节点间有递进关系
+
+JSON格式：
+{"name":"主题名称","description":"主题描述（一句话概括，吸引人）","tags":["标签"],"nodes":[{"title":"节点标题","learningObjective":"告诉AI讲师要教什么（具体可讲）","completionSignal":"用户怎样才算学会了（对话内可验证）"}]}`
+  } else {
+    prompt = `根据以下用户画像，推荐一个适合对话式微学习的学习主题：
+
+用户信息：
+- 年龄：${ageMap[profile.age] || '25-35岁'}
+- 职业：${profile.occupation || '职场人士'}
+- 兴趣：${(profile.interests || []).join('、') || '通用知识'}
+
+请生成一个适合该用户的微型课程。注意：
+1. 主题与用户的兴趣或职业发展相关
+2. 每个节点应是对话内可完成的单一知识点（不是大章节）
+3. 完成标准（completionSignal）必须是对话内就可达成的
+4. 节点间有递进关系
+
+JSON格式：
+{"name":"主题名称","description":"主题描述（一句话概括，吸引人）","tags":["标签"],"nodes":[{"title":"节点标题","learningObjective":"告诉AI讲师要教什么（具体可讲）","completionSignal":"用户怎样才算学会了（对话内可验证）"}]}`
+  }
+
   const systemPrompt = `你是对话式微学习课程设计师。你的任务是为用户设计一个可以在微信小程序中、通过AI对话完成的微型课程。
 
 # 什么是"对话式微学习"
@@ -122,22 +161,6 @@ exports.main = async (event, context) => {
 
 # 输出格式
 仅输出以下 JSON 格式，不要任何额外文字（包括不要 markdown 包裹）：`
-
-  const prompt = `根据以下用户画像，推荐一个适合对话式微学习的学习主题：
-
-用户信息：
-- 年龄：${ageMap[profile.age] || '25-35岁'}
-- 职业：${profile.occupation || '职场人士'}
-- 兴趣：${(profile.interests || []).join('、') || '通用知识'}
-
-请生成一个适合该用户的微型课程。注意：
-1. 主题与用户的兴趣或职业发展相关
-2. 每个节点应是对话内可完成的单一知识点（不是大章节）
-3. 完成标准（completionSignal）必须是对话内就可达成的
-4. 节点间有递进关系
-
-JSON格式：
-{"name":"主题名称","description":"主题描述（一句话概括，吸引人）","tags":["标签"],"nodes":[{"title":"节点标题","learningObjective":"告诉AI讲师要教什么（具体可讲）","completionSignal":"用户怎样才算学会了（对话内可验证）"}]}`
 
   const miniMaxMessages = [
     { role: 'system', content: systemPrompt },
