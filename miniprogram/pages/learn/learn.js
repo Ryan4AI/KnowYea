@@ -62,6 +62,7 @@ Page({
     genStageText: '',
     genProgress: 0,
     showThemeInfo: false,
+    hasNextNode: false,
     // 课程生成加载进度
     showGenLoading: false,
     genProgress: 0,
@@ -150,6 +151,9 @@ Page({
           isLearning: !!currentNode && !isReviewMode,
           isPendingTransition: false,
           showCompleteBtn: false,
+          hasNextNode: currentTheme?.nodes && currentNode
+            ? currentNode._id !== currentTheme.nodes[currentTheme.nodes.length - 1]._id
+            : false,
         })
 
         if (isReviewMode) {
@@ -222,7 +226,7 @@ Page({
       '',
       '# 回复格式',
       `当前课程：${theme?.name || ''}`,
-      `当前节点：${node?.title || ''}`,
+      `当前课时：${node?.title || ''}`,
       `学习目标：${node?.learningObjective || ''}`,
       '',
       '# 用户信息',
@@ -241,7 +245,7 @@ Page({
       '- 选择题格式：[题目 type="choice"]问题描述|选项A|选项B|选项C|选项D[/题目]',
       '- 问答题格式：[题目 type="open"]问题描述[/题目]',
       '- 用户回答后，如果需要计分，在下一轮回复中加 [评分]N（N为0-10分）',
-      '- 如果确认用户已掌握本节点内容，在回复末尾加 [完成]',
+      '- 如果确认用户已掌握本课时内容，在回复末尾加 [完成]',
       '',
       '# 出题方式',
       '- 每小节至少出1道题检验用户理解',
@@ -421,8 +425,8 @@ Page({
           lightVibrate()
 
           const ACH_META = {
-            first_node: { name: '初学乍道', description: '完成第一个节点', icon: '🌱' },
-            node_10: { name: '十全十美', description: '完成 10 个节点', icon: '🏆' },
+            first_node: { name: '初学乍道', description: '完成第一个课时', icon: '🌱' },
+            node_10: { name: '十全十美', description: '完成 10 个课时', icon: '🏆' },
             first_theme: { name: '有始有终', description: '完成第一个主题', icon: '🌿' },
           }
 
@@ -442,7 +446,7 @@ Page({
           }
 
           wx.showModal({
-            title: '🎉 节点完成！',
+            title: '🎉 课时完成！',
             content: `获得 ${pointsEarned} 积分${newPlantLevel ? '，植物升级了！' : ''}`,
             showCancel: false,
             success: () => {
@@ -705,6 +709,7 @@ Page({
             messages: [],
             isCompleted: false,
             showCompleteBtn: false,
+            hasNextNode: (res.result.currentTheme?.nodes || pendingTheme?.nodes || []).length > 0,
           }, () => {
             // setData 完成后才发消息，确保 node 已经更新
             this.sendMessage('请开始介绍这个课时要学习的内容，用通俗易懂的语言', true)
@@ -734,10 +739,10 @@ Page({
 - 职业：${profile.occupation || '职场人士'}
 - 兴趣：${profile.interests?.join('、') || '通用知识'}
 
-请生成一个适合该用户的全新学习主题，不要和之前推荐的重叠。节点数量由AI根据内容复杂度自行决定，不设上限。
+请生成一个适合该用户的全新学习主题，不要和之前推荐的重叠。课时数量由AI根据内容复杂度自行决定，不设上限。
 
 严格以 JSON 格式输出（不要用 markdown 代码块）：
-{"name":"主题名称","description":"主题描述","tags":["标签"],"nodes":[{"title":"节点标题","learningObjective":"学习目标","completionSignal":"完成标准"}]}`
+{"name":"主题名称","description":"主题描述","tags":["标签"],"nodes":[{"title":"课时标题","learningObjective":"学习目标","completionSignal":"完成标准"}]}`
 
     wx.cloud.callFunction({
       name: 'generateTheme',
@@ -805,7 +810,7 @@ Page({
       `${t._id === currentId ? '✓ ' : ''}${t.name || '未命名课程'}`
     )
     wx.showActionSheet({
-      itemList: names.concat(['取消']),
+      itemList: names,
       success: (r) => {
         const picked = themes[r.tapIndex]
         if (!picked || picked._id === currentId) return

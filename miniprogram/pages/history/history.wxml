@@ -11,7 +11,7 @@
     <view class="history-item" wx:for="{{historyList}}" wx:key="_id" bindtap="onItemTap" data-theme-id="{{item.themeId}}" data-node-id="{{item.nodeId}}">
       <view class="item-left">
         <view class="item-title">{{item.nodeTitle}}</view>
-        <view class="item-meta">{{item.themeName}} · 节点 {{item.nodeOrder}}</view>
+        <view class="item-meta">{{item.themeName}} · 课时 {{item.nodeOrder}}</view>
       </view>
       <view class="item-arrow">›</view>
     </view>
