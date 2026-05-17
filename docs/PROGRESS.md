@@ -1,6 +1,6 @@
 # 小知也 - 开发进度看板
 
-> 最后更新：2026-05-16 04:02
+> 最后更新：2026-05-17 12:05
 
 ---
 
@@ -209,6 +209,13 @@ npm install
 - 修复 project.config.json：添加 cloudfunctionRoot 配置
 - 创建 cloudfunctionTemplate/ 目录
 - 全部 24 个云函数目录均有 package.json ✅
+
+### 2026-05-17 12:05
+- **云函数全量重新部署完成**：23个云函数全部通过 miniprogram-ci `cloud.uploadFunction()` 部署到腾讯云
+  - 核心 AI 函数：sendMessage (19KB) / generateTheme (20KB) / getHomeData (1.8KB) / completeNode (2KB)
+  - 其余函数：login, getThemes, getStoreThemes, getUserProfile, toggleFavorite, getFavorites, getGarden, getHistory, getConversations, initDatabase, switchTheme, updateUserProfile, msgSecCheck, clearUserData, setupCollections, addTheme, checkAchievement, getAchievements, debugOnboarding, debugOpenid
+- **发现 submit_audit API 问题**：AppID 是第三方平台应用，API 返回 86000（should be called only from third party）
+- **解决方案**：需通过微信开发者工具或小程序管理后台手动提交审核（先生本地操作）
 
 ## 📝 备忘
 
