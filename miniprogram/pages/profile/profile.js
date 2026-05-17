@@ -31,7 +31,7 @@ Page({
           const profile = res.result.user?.profile
           // 没画像 → 跳转到引导页
           if (!profile) {
-            wx.redirectTo({ url: '/pages/learn/learn' })
+            wx.redirectTo({ url: '/pages/learn/learn?editProfile=1' })
             return
           }
           const stats = res.result.stats || { completedNodes: 0, completedThemes: 0, totalPoints: 0, streak: 0 }
@@ -53,7 +53,7 @@ Page({
   },
 
   onGoEditProfile() {
-    wx.navigateTo({ url: '/pages/learn/learn' })
+    wx.navigateTo({ url: '/pages/learn/learn?editProfile=1' })
   },
 
   onNavigateTo(e) {

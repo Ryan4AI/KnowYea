@@ -36,8 +36,8 @@ module.exports = { contains: contains };
   <view class="profile-setup" wx:if="{{showProfileSetup}}">
     <view class="profile-card">
       <view class="profile-icon">👤</view>
-      <view class="profile-title">先了解一下你</view>
-      <view class="profile-subtitle">让AI为你量身定制专属课程</view>
+      <view class="profile-title">{{editMode ? '编辑个人画像' : '先了解一下你'}}</view>
+      <view class="profile-subtitle">{{editMode ? '修改你的画像信息' : '让AI为你量身定制专属课程'}}</view>
 
       <!-- 年龄 -->
       <view class="form-group">
@@ -78,7 +78,7 @@ module.exports = { contains: contains };
       </view>
 
       <button class="confirm-btn tap-scale" hover-class="tap-scale-hover" bindtap="onSubmitProfile">
-        开始学习
+        {{editMode ? '✅ 保存画像' : '开始学习'}}
       </button>
     </view>
   </view>

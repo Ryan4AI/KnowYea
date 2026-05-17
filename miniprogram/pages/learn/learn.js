@@ -110,6 +110,13 @@ Page({
     scrollIntoView: '',
     navBarTop: 0,
     courseContext: '', // 跨课程学习档案文本
+    editMode: false,   // 仅编辑画像，不启动学习
+  },
+
+  onLoad(opts) {
+    if (opts && opts.editProfile === '1') {
+      this.setData({ editMode: true })
+    }
   },
 
   onShow() {
@@ -133,6 +140,38 @@ Page({
     const context = app.consumeLearnContext()
     if (context) {
       this.loadHomeData(context)
+      return
+    }
+
+    // 编辑画像模式：跳过正常加载，直接显示引导页
+    if (this.data.editMode) {
+      // 尝试加载已有画像回填表单
+      wx.cloud.callFunction({
+        name: 'getUserProfile',
+        data: { openid: app.globalData.openid },
+        success: res => {
+          const prof = res.result?.user?.profile
+          if (prof) {
+            const ageIndex = AGE_OPTIONS.indexOf(prof.ageRange)
+            const occIndex = OCCUPATION_OPTIONS.indexOf(prof.occupation)
+            const interests = (prof.interests || []).filter(t => InterestTags.indexOf(t) >= 0)
+            // 兴趣存的是标签名，转为 index
+            const interestIndexes = interests.map(t => InterestTags.indexOf(t)).filter(i => i >= 0)
+            const occupation = OCCUPATION_OPTIONS[occIndex]
+            const tags = occupation ? getRecommendedTags(occupation) : []
+            const recommendedTags = tags.map(t => InterestTags.indexOf(t)).filter(i => i >= 0)
+            this.setData({
+              'profileForm.ageIndex': ageIndex >= 0 ? ageIndex : 2,
+              'profileForm.occupationIndex': occIndex >= 0 ? occIndex : -1,
+              'profileForm.interestIndexes': interestIndexes,
+              recommendedTags,
+            })
+          }
+        },
+        complete: () => {
+          this.setData({ showProfileSetup: true })
+        }
+      })
       return
     }
 
@@ -739,7 +778,7 @@ Page({
   },
 
   onSubmitProfile() {
-    const { profileForm, occupationOptions, interestOptions } = this.data
+    const { profileForm, occupationOptions, interestOptions, editMode } = this.data
     if (profileForm.occupationIndex < 0) {
       wx.showToast({ title: '请选择职业', icon: 'none' })
       return
@@ -754,6 +793,29 @@ Page({
       age: profileForm.ageIndex + 1,
       occupation: occupationOptions[profileForm.occupationIndex],
       interests: profileForm.interestIndexes.map(i => interestOptions[i]),
+    }
+
+    // 编辑画像模式：只保存，不生成课程
+    if (editMode) {
+      wx.showLoading({ title: '保存中...' })
+      wx.cloud.callFunction({
+        name: 'updateUserProfile',
+        data: { openid: app.globalData.openid, profile: { ageRange: AGE_OPTIONS[profileForm.ageIndex], occupation: profile.occupation, interests: profile.interests } },
+        success: res => {
+          wx.hideLoading()
+          if (res.result?.success) {
+            app.globalData.profileUpdated = Date.now()
+            wx.navigateBack({ delta: 1 })
+          } else {
+            wx.showToast({ title: '保存失败', icon: 'none' })
+          }
+        },
+        fail: () => {
+          wx.hideLoading()
+          wx.showToast({ title: '网络错误', icon: 'none' })
+        },
+      })
+      return
     }
 
     const genInterval = this.startGenLoading()

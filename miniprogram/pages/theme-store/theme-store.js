@@ -104,7 +104,7 @@ Page({
 
   // 前往个人画像
   onGoProfile() {
-    wx.navigateTo({ url: '/pages/learn/learn' })
+    wx.navigateTo({ url: '/pages/learn/learn?editProfile=1' })
   },
 
   // 再生成一个（重置状态）
