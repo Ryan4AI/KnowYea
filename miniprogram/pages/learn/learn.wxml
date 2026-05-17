@@ -133,6 +133,11 @@ module.exports = { contains: contains };
                 />
               </block>
             </view>
+            <!-- 最后一条 AI 消息完成时的「下一节」按钮 -->
+            <view wx:if="{{item.completed && hasNextNode && index === messages.length - 1}}" class="inline-advance">
+              <view class="inline-advance-label">✅ 本节已学完</view>
+              <button class="advance-btn" bindtap="manualAdvance">下一节 →</button>
+            </view>
             <view wx:if="{{item.blocks.length > 0}}" class="message-time">{{item.timeStr}}</view>
           </view>
         </view>
@@ -150,13 +155,8 @@ module.exports = { contains: contains };
     </view>
   </scroll-view>
 
-  <!-- 下一节按钮 -->
-  <view class="advance-bar" wx:if="{{isCompleted && hasNextNode}}">
-    <button class="advance-btn" bindtap="manualAdvance">下一节 →</button>
-  </view>
-
-  <!-- 输入栏 -->
-  <view class="input-bar" wx:if="{{isLearning || isPendingTransition}}">
+  <!-- 输入栏（始终显示，不随完成状态隐藏） -->
+  <view class="input-bar" wx:if="{{theme}}">
     <view class="input-wrapper">
       <textarea
         class="text-input"

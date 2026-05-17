@@ -19,6 +19,8 @@ function processMessages(messages) {
     ...msg,
     blocks: parseMessageBlocks(msg.content),
     timeStr: formatTime(msg.createdAt || Date.now()),
+    // 持久化的完成标记映射到前端字段
+    completed: msg.completed || msg.isCompleted || false,
   }))
 }
 
@@ -320,13 +322,12 @@ Page({
             createdAt: Date.now(),
             timeStr: formatTime(Date.now()),
             score: score,
+            completed: isCompleted,
           }
           this.setData({
             messages: [...this.data.messages, aiMsg],
             isCompleted,
-            // 完成时显示「下一节」按钮，让用户自己决定何时进入
-            isPendingTransition: isCompleted,
-            canSend: false,
+            canSend: this.data.inputValue.trim().length > 0,
             isLoading: false,
           })
           this.scrollToBottom()
@@ -387,7 +388,7 @@ Page({
       wx.showToast({ title: '🎉 已学完全部课时！', icon: 'none' })
       return
     }
-    this.setData({ isCompleted: false, isPendingTransition: false })
+    this.setData({ isCompleted: false })
     wx.showLoading({ title: '进入下一节' })
     this.switchToNode(nextNode._id, () => {
       wx.hideLoading()
