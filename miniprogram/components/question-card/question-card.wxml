@@ -1,7 +1,9 @@
 <!-- components/question-card/question-card.wxml -->
 <view class="question-card">
   <view class="question-type">{{isOpenAnswer ? '💬 开放题' : '📝 选择题'}}</view>
-  <view class="question-text">{{questionText || question.content}}</view>
+  <view class="question-text">
+    <rich-text nodes="{{questionHtml}}"></rich-text>
+  </view>
 
   <!-- 选择题选项 -->
   <view wx:if="{{!isOpenAnswer}}" class="options">
@@ -13,7 +15,7 @@
         data-index="{{index}}"
       >
         <text class="option-label">{{item.label}}</text>
-        <text class="option-text">{{item.text}}</text>
+        <rich-text class="option-text" nodes="{{item.html}}"></rich-text>
       </view>
     </block>
   </view>

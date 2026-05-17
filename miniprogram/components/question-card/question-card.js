@@ -1,4 +1,15 @@
 // components/question-card/question-card.js
+// 简易 markdown → HTML（组件内版本，覆盖常用语法）
+function mdToHtml(text, extraStyle) {
+  if (!text) return ''
+  const style = extraStyle || ''
+  let html = text
+    .replace(/\*\*([^*]+)\*\*/g, '<b style="font-weight:600;">$1</b>')
+    .replace(/`([^`]+)`/g, '<code style="background:#f0f0f2;padding:2px 6px;border-radius:4px;font-size:92%;color:#e74c3c;">$1</code>')
+  if (html === text && !style) return '' // 没有 markdown 且无额外样式 → 用 text 标签
+  return style ? `<span style="${style}">${html}</span>` : html
+}
+
 Component({
   properties: {
     question: {
@@ -60,7 +71,10 @@ Component({
         }
 
         const questionText = parts[0] || content.substring(0, 60)
-        this.setData({ questionText, options })
+        const questionHtml = mdToHtml(questionText, 'font-size:28rpx;color:#1a1d2e;line-height:1.65;')
+        const optTextStyle = 'font-size:27rpx;color:#2d3254;line-height:1.45;'
+        options = options.map(opt => ({ ...opt, html: mdToHtml(opt.text, optTextStyle) }))
+        this.setData({ questionText, questionHtml, options })
       } else {
         this.setData({ questionText: content, options: [] })
       }
