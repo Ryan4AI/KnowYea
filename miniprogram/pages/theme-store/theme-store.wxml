@@ -1,72 +1,48 @@
-<!-- pages/theme-store/theme-store.wxml -->
+<!-- pages/theme-store/theme-store.wxml — AI 课程生成器 -->
 <view class="page-container">
-  <!-- AI 生成区域 -->
-  <view class="ai-section">
-    <view class="ai-title">🤖 AI 生成新课</view>
-    <view class="ai-input-wrap">
-      <input class="ai-input" placeholder="输入想学的课程，如：投资理财、心理学、历史..." bindinput="onAIInput" bindconfirm="onAIRecommend" />
-      <button class="ai-btn" bindtap="onAIRecommend">生成</button>
+  <view class="hero-section">
+    <view class="hero-icon">🧠</view>
+    <view class="hero-title">AI 课程生成器</view>
+    <view class="hero-desc">输入你想学的内容，AI 为你量身定制一套完整课程</view>
+  </view>
+
+  <!-- 输入区 -->
+  <view class="input-area" wx:if="{{!newTheme}}">
+    <view class="input-wrap">
+      <input
+        class="input-field"
+        placeholder="例如：投资理财、心理学入门、AI基础知识..."
+        placeholder-style="color: #999"
+        bindinput="onAIInput"
+        bindconfirm="onAIRecommend"
+        value="{{aiKeyword}}"
+      />
+      <button class="gen-btn" bindtap="onAIRecommend" disabled="{{isGenerating}}">
+        {{isGenerating ? '⏳ 生成中...' : '🚀 生成课程'}}
+      </button>
     </view>
 
-    <!-- 生成结果 -->
-    <view class="ai-result" wx:if="{{newTheme}}">
+    <!-- 示例 -->
+    <view class="examples">
+      <text class="examples-label">试试这些方向：</text>
+      <view class="example-tags">
+        <text class="example-tag" bindtap="onExample" data-keyword="投资理财">投资理财</text>
+        <text class="example-tag" bindtap="onExample" data-keyword="心理学">心理学</text>
+        <text class="example-tag" bindtap="onExample" data-keyword="AI入门">AI入门</text>
+        <text class="example-tag" bindtap="onExample" data-keyword="沟通技巧">沟通技巧</text>
+        <text class="example-tag" bindtap="onExample" data-keyword="思维模型">思维模型</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 生成结果 -->
+  <view class="result-section" wx:if="{{newTheme}}">
+    <view class="result-card">
       <view class="result-icon">✅</view>
-      <view class="result-info">
-        <view class="result-name">{{newTheme.name}}</view>
-        <view class="result-desc">{{newTheme.description}}</view>
-      </view>
-      <button class="result-btn" bindtap="onGoLearn">前往学习 →</button>
-    </view>
-  </view>
-
-  <!-- 搜索 -->
-  <view class="search-area">
-    <view class="search-input-wrapper">
-      <text class="search-icon">🔍</text>
-      <input class="search-input" placeholder="搜索预置课程" bindinput="onSearch" value="{{searchKeyword}}" />
-    </view>
-  </view>
-
-  <!-- 分类标签（根据用户兴趣动态） -->
-  <view class="category-tabs">
-    <view
-      class="tab-item {{selectedCategory === item.id ? 'active' : ''}} {{item.recommended ? 'recommended' : ''}}"
-      wx:for="{{categories}}"
-      wx:key="id"
-      bindtap="onSelectCategory"
-      data-category="{{item.id}}"
-    >
-      {{item.name}}
-      <text class="tag-hint" wx:if="{{item.recommended}}">推荐</text>
-    </view>
-  </view>
-
-  <!-- Loading -->
-  <view class="loading" wx:if="{{isLoading}}">
-    <text>加载中...</text>
-  </view>
-
-  <!-- 无结果 -->
-  <view class="empty-state" wx:elif="{{filteredThemes.length === 0}}">
-    <text class="empty-icon">🔍</text>
-    <text class="empty-text">没有找到相关课程</text>
-    <text class="empty-hint">试试用上方的 AI 生成功能，输入你想学的内容</text>
-  </view>
-
-  <!-- 课程网格 -->
-  <view class="theme-grid" wx:else>
-    <view class="theme-card" wx:for="{{filteredThemes}}" wx:key="_id">
-      <view class="theme-cover">{{item.emoji || '📚'}}</view>
-      <view class="theme-name">{{item.name}}</view>
-      <view class="theme-desc">{{item.description}}</view>
-      <view class="theme-meta">
-        <text>{{item.nodeCount || item.totalNodes || '?'}} 个章节</text>
-        <view class="add-btn-wrap">
-          <button class="add-btn {{item.added ? 'added' : ''}}" bindtap="onAddTheme" data-theme-id="{{item._id}}" disabled="{{item.added}}">
-            {{item.added ? '✓ 已添加' : '+ 添加'}}
-          </button>
-        </view>
-      </view>
+      <view class="result-name">{{newTheme.name}}</view>
+      <view class="result-desc">课程已生成，AI 正在为你准备第一节课</view>
+      <button class="learn-btn" bindtap="onGoLearn">开始学习 →</button>
+      <button class="again-btn" bindtap="onReset">再生成一个</button>
     </view>
   </view>
 </view>
