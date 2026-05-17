@@ -198,22 +198,23 @@ Page({
     const { node, theme, messages, isLoading, reviewMode } = this.data
     if (!content || isLoading || !node) return
 
-    const userMsg = {
+    // 用户消息才加气泡，自动消息（进入下一节）不发气泡
+    const updatedMessages = isAutoMessage ? messages : [...messages, {
       id: 'user_' + Date.now(),
       role: 'user',
       content,
       createdAt: Date.now(),
       blocks: parseMessageBlocks(content),
       timeStr: formatTime(Date.now()),
-    }
+    }]
 
     this.setData({
-      messages: [...messages, userMsg],
-      inputValue: '',
+      messages: updatedMessages,
+      inputValue: isAutoMessage ? this.data.inputValue : '',
       isLoading: true,
       canSend: false,
     })
-    this.scrollToBottom()
+    if (!isAutoMessage) this.scrollToBottom()
 
     // 构建 MiniMax 对话 - 完整提示词 + markdown + 评分 + 历史记录20条
     const sysContent = [
@@ -775,42 +776,47 @@ Page({
     wx.navigateTo({ url: '/pages/theme-store/theme-store' })
   },
 
-  showThemeInfo() {
-    const { theme, node } = this.data
+  showCourseSwitcher() {
+    const { theme, learningThemes } = this.data
     if (!theme) return
-    const nodes = theme.nodes || []
-    const nodeIndex = node ? nodes.findIndex(n => n._id === node._id) : -1
 
+    // 如果还没加载课程列表或列表为空，先加载
+    if (learningThemes.length === 0) {
+      wx.showLoading({ title: '' })
+      wx.cloud.callFunction({
+        name: 'getThemes',
+        data: { openid: app.globalData.openid },
+        success: (res) => {
+          wx.hideLoading()
+          const themes = (res.result?.themes || []).filter(t => t.status === 'learning')
+          this.setData({ learningThemes: themes })
+          this._pickTheme(themes)
+        },
+        fail: () => wx.hideLoading(),
+      })
+    } else {
+      this._pickTheme(learningThemes)
+    }
+  },
+
+  _pickTheme(themes) {
+    const currentId = this.data.theme?._id
+    const names = themes.map(t =>
+      `${t._id === currentId ? '✓ ' : ''}${t.name || '未命名课程'}`
+    )
     wx.showActionSheet({
-      itemList: ['📋 查看节点列表', '🚪 退出课程'],
-      success: (res) => {
-        if (res.tapIndex === 0) {
-          const nodeNames = nodes.map((n, i) =>
-            `${i === nodeIndex ? '▶ ' : ''}${n.title}${n._id === node._id ? ' (当前)' : ''}`
-          )
-          wx.showActionSheet({
-            itemList: nodeNames.concat(['取消']),
-            success: (r) => {
-              if (r.tapIndex < nodes.length) {
-                const targetNode = nodes[r.tapIndex]
-                if (targetNode._id !== node._id) {
-                  this.setData({ isCompleted: false, isPendingTransition: false })
-                  this.switchToNode(targetNode._id)
-                }
-              }
-            },
-          })
-        } else {
-          wx.showModal({
-            title: '退出课程',
-            content: '确定要退出当前课程吗？',
-            success: (r) => {
-              if (r.confirm) {
-                wx.exitMiniProgram()
-              }
-            },
-          })
-        }
+      itemList: names.concat(['取消']),
+      success: (r) => {
+        const picked = themes[r.tapIndex]
+        if (!picked || picked._id === currentId) return
+        this.setData({
+          theme: null,
+          node: null,
+          messages: [],
+          isCompleted: false,
+          isPendingTransition: false,
+        })
+        this.loadHomeData({ themeId: picked._id })
       },
     })
   },

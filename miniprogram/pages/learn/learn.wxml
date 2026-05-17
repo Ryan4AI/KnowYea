@@ -27,8 +27,8 @@ module.exports = { contains: contains };
     <view class="header-center">
       <text class="header-title">{{theme.name || '小知也'}}</text>
     </view>
-    <view class="header-right" wx:if="{{theme}}" bindtap="showThemeInfo">
-      <text class="info-icon">⋯</text>
+    <view class="header-right" wx:if="{{theme}}" bindtap="showCourseSwitcher">
+      <text class="info-icon">📚</text>
     </view>
   </view>
 
