@@ -67,6 +67,19 @@ exports.main = async (event, context) => {
       .limit(1)
       .get()
 
+    // 记录每日学习日志
+    const today = new Date().toISOString().slice(0, 10)
+    const logRes = await db.collection('study_logs').where({ openid, date: today }).limit(1).get()
+    if (logRes.data && logRes.data.length > 0) {
+      await db.collection('study_logs').doc(logRes.data[0]._id).update({
+        data: { count: db.command.inc(1), updatedAt: Date.now() }
+      })
+    } else {
+      await db.collection('study_logs').add({
+        data: { openid, date: today, count: 1, createdAt: Date.now() }
+      })
+    }
+
     let newPlantLevel = null
     let pointsEarned = 10
 

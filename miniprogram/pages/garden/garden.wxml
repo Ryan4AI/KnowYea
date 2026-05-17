@@ -33,6 +33,25 @@
       <text class="streak-text">{{stats.streak}} 天 · {{streakText}}</text>
     </view>
 
+    <!-- ===== 本周学习日历 ===== -->
+    <view class="timeline-section" wx:if="{{timelineDays.length > 0}}">
+      <view class="timeline-header">
+        <text class="timeline-title">📅 本周学习</text>
+        <text class="timeline-total">{{timelineTotal}} 课时</text>
+      </view>
+      <view class="timeline-grid">
+        <view
+          class="timeline-cell {{day.count > 0 ? 'active' : 'empty'}}"
+          wx:for="{{timelineDays}}"
+          wx:key="date"
+        >
+          <view class="cell-weekday">{{day.weekday}}</view>
+          <view class="cell-bar {{'level-' + (day.count > 0 ? Math.min(day.count, 5) : 0)}}"></view>
+          <view class="cell-count">{{day.count || ''}}</view>
+        </view>
+      </view>
+    </view>
+
     <!-- ===== 用户统计 ===== -->
     <view class="stats-grid">
       <view class="stat-card">

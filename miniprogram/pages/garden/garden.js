@@ -74,6 +74,9 @@ Page({
     recentHistory: [],
     favorites: [],
     favoriteCount: 0,
+    // 时间线
+    timelineDays: [],
+    timelineTotal: 0,
   },
 
   onLoad() {
@@ -169,6 +172,18 @@ Page({
         this.setData({
           favorites: res.result.favorites || [],
           favoriteCount: res.result.count || 0,
+        })
+      }
+    })
+    .catch(() => {})
+
+    // 加载学习时间线
+    wx.cloud.callFunction({ name: 'getStudyTimeline', data: { openid: app.globalData.openid } })
+    .then(res => {
+      if (res.result?.success) {
+        this.setData({
+          timelineDays: res.result.days || [],
+          timelineTotal: res.result.total || 0,
         })
       }
     })

@@ -1,0 +1,9 @@
+{
+  "name": "getStudyTimeline",
+  "version": "1.0.0",
+  "description": "获取学习时间线",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}
