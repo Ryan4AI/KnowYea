@@ -23,7 +23,7 @@
 .switcher-panel {
   width: 100%;
   max-height: 72vh;
-  background: linear-gradient(180deg, #fafbff 0%, #ffffff 18%);
+  background: linear-gradient(180deg, rgba(108, 92, 231, 0.03) 0%, var(--capsule-surface) 18%);
   border-radius: 36rpx 36rpx 0 0;
   padding: 12rpx 28rpx calc(28rpx + env(safe-area-inset-bottom));
   box-sizing: border-box;
@@ -59,22 +59,22 @@
 .panel-title {
   font-size: 34rpx;
   font-weight: 800;
-  color: #1a1d2e;
+  color: var(--capsule-ink);
   letter-spacing: 0.5rpx;
 }
 
 .panel-close {
   font-size: 32rpx;
-  color: #9aa0b4;
+  color: var(--capsule-muted);
   padding: 12rpx 20rpx;
   border-radius: 999rpx;
-  background: #f4f6fc;
+  background: var(--capsule-bg);
 }
 
 .panel-subtitle {
   display: block;
   font-size: 24rpx;
-  color: #9aa0b4;
+  color: var(--capsule-muted);
   margin-bottom: 22rpx;
 }
 
@@ -88,14 +88,14 @@
   justify-content: space-between;
   padding: 26rpx 24rpx;
   margin-bottom: 16rpx;
-  background: #fff;
+  background: var(--capsule-surface);
   border-radius: 24rpx;
   border: 2rpx solid rgba(26, 29, 46, 0.06);
   box-shadow: 0 4rpx 20rpx rgba(26, 29, 46, 0.05);
 }
 
 .theme-row.active {
-  background: linear-gradient(135deg, #f5f3ff 0%, #eef9f7 100%);
+  background: linear-gradient(135deg, rgba(108, 92, 231, 0.05) 0%, #eef9f7 100%);
   border-color: rgba(108, 92, 231, 0.35);
   box-shadow: 0 8rpx 28rpx rgba(108, 92, 231, 0.12);
 }
@@ -121,12 +121,12 @@
 .theme-name {
   font-size: 30rpx;
   font-weight: 700;
-  color: #1a1d2e;
+  color: var(--capsule-ink);
 }
 
 .theme-desc {
   font-size: 24rpx;
-  color: #9aa0b4;
+  color: var(--capsule-muted);
   margin-top: 6rpx;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -141,12 +141,12 @@
 .theme-progress {
   font-size: 28rpx;
   font-weight: 800;
-  color: #6c5ce7;
+  color: var(--capsule-accent);
 }
 
 .theme-check {
   font-size: 22rpx;
-  color: #6c5ce7;
+  color: var(--capsule-accent);
   font-weight: 600;
   margin-top: 6rpx;
 }
@@ -156,7 +156,7 @@
   flex-direction: column;
   align-items: center;
   padding: 56rpx 0;
-  color: #9aa0b4;
+  color: var(--capsule-muted);
 }
 
 .empty-icon {
@@ -174,7 +174,7 @@
 }
 
 .add-theme-btn {
-  background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+  background: linear-gradient(135deg, var(--capsule-accent) 0%, var(--capsule-accent-2) 100%);
   color: #fff;
   border-radius: 999rpx;
   font-size: 28rpx;

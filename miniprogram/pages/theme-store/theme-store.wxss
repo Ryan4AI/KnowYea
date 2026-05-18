@@ -7,7 +7,7 @@
   text-align: center;
   padding: 80rpx 0;
   font-size: 28rpx;
-  color: #999;
+  color: var(--capsule-muted);
 }
 
 /* 输入区 */
@@ -42,20 +42,20 @@
 }
 
 .gen-btn[disabled] {
-  background: #d1d5db;
-  color: #999;
+  background: var(--capsule-border);
+  color: var(--capsule-muted);
 }
 
 /* 示例标签 */
 .examples { margin-top: 8rpx; }
-.examples-label { font-size: 24rpx; color: #bbb; margin-bottom: 12rpx; display: block; }
+.examples-label { font-size: 24rpx; color: var(--capsule-muted); margin-bottom: 12rpx; display: block; }
 .example-tags { display: flex; flex-wrap: wrap; gap: 12rpx; }
 .example-tag {
   background: var(--capsule-bg);
   border-radius: 30rpx;
   padding: 10rpx 24rpx;
   font-size: 24rpx;
-  color: #666;
+  color: var(--capsule-ink-secondary);
 }
 
 /* 结果弹窗按钮 */
@@ -77,10 +77,15 @@
   height: 80rpx;
   line-height: 80rpx;
   background: var(--capsule-bg);
-  color: #666;
+  color: var(--capsule-ink-secondary);
   font-size: 28rpx;
   border-radius: 16rpx;
   margin-top: 16rpx;
   text-align: center;
   border: none;
 }
+
+/* 内联样式提取类 */
+.section-desc { font-size: 26rpx; color: var(--capsule-muted); margin-bottom: 40rpx; line-height: 1.6; }
+.theme-desc-text { font-size: 26rpx; color: var(--capsule-ink-secondary); margin-bottom: 12rpx; padding: 0 20rpx; line-height: 1.5; }
+.theme-meta { font-size: 24rpx; color: var(--capsule-muted); margin-bottom: 32rpx; }

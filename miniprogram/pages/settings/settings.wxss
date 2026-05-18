@@ -8,10 +8,10 @@
 .switch-item switch {
   margin-left: auto;
 }
-.menu-list { background: white; margin: 30rpx 20rpx 0; border-radius: 16rpx; overflow: hidden; }
-.menu-item { display: flex; align-items: center; padding: 30rpx; border-bottom: 1rpx solid #f0f0f0; }
+.menu-list { background: var(--capsule-surface); margin: 30rpx 20rpx 0; border-radius: 16rpx; overflow: hidden; }
+.menu-item { display: flex; align-items: center; padding: 30rpx; border-bottom: 1rpx solid var(--capsule-border); }
 .menu-item:last-child { border-bottom: none; }
 .menu-icon { font-size: 40rpx; margin-right: 24rpx; }
-.menu-text { flex: 1; font-size: 28rpx; color: #333; }
-.menu-arrow { font-size: 32rpx; color: #ccc; }
-.version { text-align: center; padding: 60rpx; font-size: 22rpx; color: #ccc; }
+.menu-text { flex: 1; font-size: 28rpx; color: var(--capsule-ink); }
+.menu-arrow { font-size: 32rpx; color: var(--capsule-muted); }
+.version { text-align: center; padding: 60rpx; font-size: 22rpx; color: var(--capsule-muted); }

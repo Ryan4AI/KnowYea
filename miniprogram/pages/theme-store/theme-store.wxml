@@ -19,7 +19,7 @@
     <view class="white-card centered" style="max-width: 640rpx; margin: 0 auto;">
       <view style="font-size: 72rpx; margin-bottom: 16rpx;">👤</view>
       <view style="font-size: 32rpx; font-weight: 600; color: var(--capsule-ink); margin-bottom: 12rpx;">先填写基本信息</view>
-      <view style="font-size: 26rpx; color: #999; margin-bottom: 40rpx; line-height: 1.6;">AI 需要了解你的年龄、职业和兴趣，才能为你定制课程</view>
+      <view class="section-desc">AI 需要了解你的年龄、职业和兴趣，才能为你定制课程</view>
       <button class="btn-primary" bindtap="onGoProfile">去设置 →</button>
     </view>
   </view>
@@ -59,8 +59,8 @@
     <view class="gen-card">
       <view style="font-size: 72rpx; margin-bottom: 16rpx;">✅</view>
       <view class="gen-title">{{newTheme.name}}</view>
-      <view style="font-size: 26rpx; color: #666; margin-bottom: 12rpx; padding: 0 20rpx; line-height: 1.5;">{{newTheme.desc}}</view>
-      <view style="font-size: 24rpx; color: #bbb; margin-bottom: 32rpx;" wx:if="{{newTheme.nodesCount}}">共 {{newTheme.nodesCount}} 节课 · 每节 3-5 分钟</view>
+      <view class="theme-desc-text">{{newTheme.desc}}</view>
+      <view class="theme-meta" wx:if="{{newTheme.nodesCount}}">共 {{newTheme.nodesCount}} 节课 · 每节 3-5 分钟</view>
       <button class="gen-learn-btn" bindtap="onGoLearn">开始学习 →</button>
       <button class="gen-again-btn" bindtap="onReset">再生成一个</button>
     </view>

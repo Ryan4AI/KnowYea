@@ -224,7 +224,6 @@ Page({
       return
     }
 
-    this.setData({ isSaving: true })
     const interests = [
       ...profileForm.interestIndexes.map(i => InterestTags[i]),
       ...customInterests,
@@ -235,6 +234,41 @@ Page({
       interests,
     }
 
+    // 编辑模式（已有画像）→ 只保存，跳回
+    if (this.data.userProfile) {
+      this.setData({ isSaving: true })
+      wx.cloud.callFunction({
+        name: 'updateProfile',
+        data: {
+          openid: app.globalData.openid,
+          age: AGE_OPTIONS[profileForm.ageIndex],
+          occupation: OCCUPATION_OPTIONS[profileForm.occupationIndex],
+          tags: interests,
+        },
+        success: res => {
+          this.setData({ isSaving: false })
+          if (res.result?.success) {
+            wx.navigateBack({ delta: 1 })
+          } else {
+            wx.showToast({ title: '保存失败', icon: 'none' })
+          }
+        },
+        fail: () => {
+          this.setData({ isSaving: false })
+          wx.showToast({ title: '网络错误', icon: 'none' })
+        },
+      })
+      return
+    }
+
+    // 首次设置 → 立即显示进度条，并行保存画像 + 生成课程
+    const keyword = (interests[0] || '学习').substring(0, 20)
+    this.setData({ genOverlay: true })
+    this._cancelProgress = startProgressSimulation((stage, progress) => {
+      this.setData({ genStage: stage, genProgress: progress })
+    })
+
+    // 保存画像（后台执行，不阻塞）
     wx.cloud.callFunction({
       name: 'updateProfile',
       data: {
@@ -244,45 +278,31 @@ Page({
         tags: interests,
       },
       success: res => {
-        this.setData({ isSaving: false })
         if (res.result?.success) {
           app.globalData.profileUpdated = Date.now()
-          // 首次设置 → 直接生成课程
-          if (!this.data.userProfile) {
-            const interests = [
-              ...profileForm.interestIndexes.map(i => InterestTags[i]),
-              ...customInterests,
-            ]
-            const keyword = interests[0] || '学习'
-            this.setData({ genOverlay: true })
-            this._cancelProgress = startProgressSimulation((stage, progress) => {
-              this.setData({ genStage: stage, genProgress: progress })
-            })
-            callGenerateTheme(app.globalData.openid, profile, keyword).then(r => {
-              this._cancelProgress?.()
-              if (r.success) {
-                this.setData({ genStage: '✅ 课程已生成', genProgress: 100 })
-                setTimeout(() => wx.redirectTo({ url: '/pages/learn/learn' }), 600)
-              } else {
-                this.setData({ genStage: '❌ ' + (r.error || '生成失败'), genOverlay: false })
-                wx.showToast({ title: r.error || '生成失败', icon: 'none' })
-              }
-            }).catch(() => {
-              this._cancelProgress?.()
-              this.setData({ genOverlay: false })
-              wx.showToast({ title: '网络错误', icon: 'none' })
-            })
-          } else {
-            wx.navigateBack({ delta: 1 })
-          }
         } else {
-          wx.showToast({ title: '保存失败', icon: 'none' })
+          wx.showToast({ title: '画像保存失败', icon: 'none' })
         }
       },
       fail: () => {
-        this.setData({ isSaving: false })
-        wx.showToast({ title: '网络错误', icon: 'none' })
-      },
+        wx.showToast({ title: '画像保存失败', icon: 'none' })
+      }
+    })
+
+    // 生成课程（与保存并行）
+    callGenerateTheme(app.globalData.openid, profile, keyword).then(r => {
+      this._cancelProgress?.()
+      if (r.success) {
+        this.setData({ genStage: '✅ 课程已生成', genProgress: 100 })
+        setTimeout(() => wx.redirectTo({ url: '/pages/learn/learn' }), 600)
+      } else {
+        this.setData({ genStage: '❌ ' + (r.error || '生成失败'), genOverlay: false })
+        wx.showToast({ title: r.error || '生成失败', icon: 'none' })
+      }
+    }).catch(() => {
+      this._cancelProgress?.()
+      this.setData({ genOverlay: false })
+      wx.showToast({ title: '网络错误', icon: 'none' })
     })
   },
 

@@ -88,12 +88,25 @@ ${tagsText}
       { role: 'user', content: `请为"${topic}"设计一个课程` }
     ])
 
-    const aiContent = aiRes.choices?.[0]?.message?.content || ''
+    let aiContent = aiRes.choices?.[0]?.message?.content || ''
     if (!aiContent) return { success: false, error: 'AI 返回为空' }
 
-    // 解析 JSON
-    const jsonMatch = aiContent.match(/\[[\s\S]*\]/)
-    const courseData = jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(aiContent)
+    // 剥离 <think> 推理标签
+    aiContent = aiContent.replace(/<think>[\s\S]*?<\/think>/g, '').trim()
+
+    // 解析 JSON：先找数组，再找对象，最后直接解析
+    let courseData
+    const arrayMatch = aiContent.match(/\[[\s\S]*?\]/)
+    if (arrayMatch) {
+      courseData = JSON.parse(arrayMatch[0])
+    } else {
+      const objMatch = aiContent.match(/\{[\s\S]*?\}/)
+      if (objMatch) {
+        courseData = JSON.parse(objMatch[0])
+      } else {
+        courseData = JSON.parse(aiContent)
+      }
+    }
     const course = Array.isArray(courseData) ? courseData[0] : courseData
 
     // 2. 写入 courses 表

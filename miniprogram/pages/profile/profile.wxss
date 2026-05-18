@@ -165,12 +165,12 @@
 }
 .gen-icon { font-size: 80rpx; margin-bottom: 30rpx; }
 .gen-stage {
-  font-size: 28rpx; color: #666; margin-bottom: 30rpx;
+  font-size: 28rpx; color: var(--capsule-ink-secondary); margin-bottom: 30rpx;
   min-height: 40rpx;
 }
 .gen-bar-bg {
   width: 400rpx; height: 8rpx;
-  background: #eee; border-radius: 4rpx;
+  background: var(--capsule-border); border-radius: 4rpx;
   overflow: hidden;
 }
 .gen-bar-fill {

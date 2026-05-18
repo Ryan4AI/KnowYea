@@ -94,7 +94,7 @@
 }
 
 .popup-close-btn {
-  background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+  background: linear-gradient(135deg, var(--capsule-accent) 0%, var(--capsule-accent-2) 100%);
   color: #fff;
   font-size: 30rpx;
   font-weight: 700;

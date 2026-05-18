@@ -42,14 +42,14 @@
 }
 
 .message-card.user .message-content {
-  background: #4CAF50;
+  background: var(--capsule-accent);
   color: #fff;
   border-bottom-right-radius: 8rpx;
 }
 
 .message-card.ai .message-content {
-  background: #fff;
-  color: #333;
+  background: var(--capsule-surface);
+  color: var(--capsule-ink);
   border-bottom-left-radius: 8rpx;
   box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.08);
 }
@@ -67,7 +67,7 @@
 
 .time {
   font-size: 22rpx;
-  color: #999;
+  color: var(--capsule-muted);
   margin-top: 8rpx;
 }
 

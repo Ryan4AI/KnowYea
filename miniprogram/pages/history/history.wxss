@@ -11,7 +11,7 @@
   align-items: center;
   justify-content: center;
   padding: 200rpx 40rpx;
-  color: #999;
+  color: var(--capsule-muted);
   font-size: 28rpx;
   line-height: 1.6;
   text-align: center;
@@ -30,7 +30,7 @@
 .date-label {
   font-size: 24rpx;
   font-weight: 600;
-  color: #999;
+  color: var(--capsule-muted);
   padding: 0 32rpx;
   margin-bottom: 16rpx;
 }
@@ -48,14 +48,14 @@
   top: 0;
   bottom: 0;
   width: 2rpx;
-  background: #e8e8eb;
+  background: var(--capsule-border);
 }
 
 .history-item {
   display: flex;
   align-items: flex-start;
   padding: 20rpx 32rpx 20rpx 0;
-  background: #fff;
+  background: var(--capsule-surface);
   margin-bottom: 2rpx;
   position: relative;
 }
@@ -95,13 +95,13 @@
 
 .item-meta {
   font-size: 22rpx;
-  color: #999;
+  color: var(--capsule-muted);
   line-height: 1.4;
 }
 
 .item-time {
   font-size: 22rpx;
-  color: #bbb;
+  color: var(--capsule-muted);
   flex-shrink: 0;
   margin-left: 12rpx;
   margin-top: 2rpx;

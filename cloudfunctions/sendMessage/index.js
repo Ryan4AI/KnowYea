@@ -4,7 +4,7 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
 const https = require('https')
 
-const API_KEY = process.env.MINIMAX_API_KEY || 'sk-cp-c5wSwWsnIcUkewTEe9JhETRKZNyJ1OBnphm_4B1HdOV0LMNh9vP80kJFBKZV5jpCtp22_xyBUtF0zRAwgWaxU4YECc_LL8GPzEj6GVOHmMiovcfwylDgCDM'
+const API_KEY = process.env.MINIMAX_API_KEY
 
 function callMiniMax(messages) {
   return new Promise((resolve, reject) => {
@@ -48,7 +48,9 @@ function parseCompletion(aiReply) {
   const result = { isCompleted: false, score: null }
   if (!aiReply) return result
   try {
-    const match = aiReply.match(/\{[\s\S]*?"action"[\s\S]*?\}/)
+    // 先剥离 <think> 标签，避免推理段里的花括号干扰匹配
+    const clean = aiReply.replace(/<think>[\s\S]*?<\/think>/g, '').trim()
+    const match = clean.match(/\{[\s\S]*?"action"[\s\S]*?\}/)
     if (match) {
       const parsed = JSON.parse(match[0])
       if (parsed.action === 'complete') result.isCompleted = true

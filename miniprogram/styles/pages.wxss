@@ -16,11 +16,11 @@
 }
 .page-icon { font-size: 64rpx; margin-bottom: 16rpx; }
 .page-title { font-size: 34rpx; font-weight: 600; color: var(--capsule-ink); margin-bottom: 8rpx; }
-.page-desc { font-size: 26rpx; color: #999; }
+.page-desc { font-size: 26rpx; color: var(--capsule-muted); }
 
 /* 白卡片 */
 .white-card {
-  background: #fff;
+  background: var(--capsule-surface);
   border-radius: 24rpx;
   padding: 48rpx 40rpx;
   margin: 0 32rpx;
@@ -48,8 +48,8 @@
   border: none;
 }
 .btn-primary[disabled] {
-  background: #d1d5db;
-  color: #999;
+  background: var(--capsule-border);
+  color: var(--capsule-muted);
 }
 
 .btn-secondary {
@@ -57,7 +57,7 @@
   height: 80rpx;
   line-height: 80rpx;
   background: var(--capsule-bg);
-  color: #666;
+  color: var(--capsule-ink-secondary);
   font-size: 28rpx;
   border-radius: 16rpx;
   margin-top: 16rpx;
@@ -67,15 +67,15 @@
 
 /* 表单基础（画像页 + 其他表单页用） */
 .form-group { margin-bottom: 28rpx; }
-.form-label { display: block; font-size: 28rpx; color: #555; margin-bottom: 12rpx; }
-.form-hint { font-size: 24rpx; color: #aaa; font-weight: normal; }
+.form-label { display: block; font-size: 28rpx; color: var(--capsule-ink-secondary); margin-bottom: 12rpx; }
+.form-hint { font-size: 24rpx; color: var(--capsule-muted); font-weight: normal; }
 
 .picker-field {
   background: var(--capsule-bg);
   border-radius: 12rpx;
   padding: 20rpx 24rpx;
   font-size: 28rpx;
-  color: #333;
+  color: var(--capsule-ink);
 }
 
 /* 标签基础 */
@@ -85,6 +85,6 @@
   border-radius: 30rpx;
   padding: 12rpx 28rpx;
   font-size: 26rpx;
-  color: #666;
+  color: var(--capsule-ink-secondary);
 }
 .tag-item.selected { background: var(--capsule-accent); color: #fff; }

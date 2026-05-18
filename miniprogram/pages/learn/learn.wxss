@@ -1,9 +1,9 @@
 @import "../../styles/pages.wxss";
 /* ===== 自定义导航栏 ===== */
 .nav-bar {
-  background: #fff;
+  background: var(--capsule-surface);
   flex-shrink: 0;
-  border-bottom: 1rpx solid #eee;
+  border-bottom: 1rpx solid var(--capsule-border);
 }
 .nav-bar-inner {
   display: flex;
@@ -53,7 +53,7 @@
 }
 
 .message-content {
-  background: #fff;
+  background: var(--capsule-surface);
   border-radius: 16rpx;
   padding: 20rpx 24rpx;
   box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.04);
@@ -67,7 +67,7 @@
 .plain-text {
   font-size: 28rpx;
   line-height: 1.7;
-  color: #333;
+  color: var(--capsule-ink);
   word-break: break-word;
 }
 
@@ -86,7 +86,7 @@
 .concept-content {
   font-size: 28rpx;
   line-height: 1.6;
-  color: #333;
+  color: var(--capsule-ink);
 }
 
 /* 题目块 */
@@ -95,18 +95,18 @@
   padding: 16rpx 20rpx;
   background: #faf5ff;
   border-radius: 12rpx;
-  border: 1rpx solid #e8d5ff;
+  border: 1rpx solid rgba(108, 92, 231, 0.15);
 }
 .question-label {
   font-size: 22rpx;
   font-weight: 600;
-  color: #7c3aed;
+  color: var(--capsule-accent);
   margin-bottom: 8rpx;
 }
 .question-text {
   font-size: 28rpx;
   line-height: 1.6;
-  color: #333;
+  color: var(--capsule-ink);
 }
 .options-list {
   margin-top: 12rpx;
@@ -116,11 +116,11 @@
 }
 .option-item {
   padding: 14rpx 20rpx;
-  background: #fff;
-  border: 1rpx solid #e5e7eb;
+  background: var(--capsule-surface);
+  border: 1rpx solid var(--capsule-border);
   border-radius: 10rpx;
   font-size: 26rpx;
-  color: #374151;
+  color: var(--capsule-ink-secondary);
   text-align: center;
 }
 .option-item:active {
@@ -134,8 +134,8 @@
 .open-input {
   width: 100%;
   padding: 14rpx 16rpx;
-  background: #fff;
-  border: 1rpx solid #e5e7eb;
+  background: var(--capsule-surface);
+  border: 1rpx solid var(--capsule-border);
   border-radius: 10rpx;
   font-size: 26rpx;
 }
@@ -144,7 +144,7 @@
 .score-badge {
   display: inline-flex;
   align-items: center;
-  background: linear-gradient(135deg, #f59e0b, #f97316);
+  background: linear-gradient(135deg, var(--capsule-warm), #f97316);
   border-radius: 30rpx;
   padding: 8rpx 20rpx;
   margin: 8rpx 0;
@@ -155,7 +155,7 @@
 /* 消息时间 */
 .msg-time {
   font-size: 22rpx;
-  color: #bbb;
+  color: var(--capsule-muted);
   margin-bottom: 8rpx;
 }
 .message-item.user .msg-time { text-align: right; }
@@ -164,7 +164,7 @@
 .msg-completed {
   margin-top: 8rpx;
   font-size: 22rpx;
-  color: #22c55e;
+  color: var(--capsule-success);
   font-weight: 500;
 }
 
@@ -172,8 +172,8 @@
 /* ===== 输入栏 ===== */
 .input-bar {
   padding: 16rpx 24rpx;
-  background: #fff;
-  border-top: 1rpx solid #eee;
+  background: var(--capsule-surface);
+  border-top: 1rpx solid var(--capsule-border);
   flex-shrink: 0;
 }
 .input-wrapper {
@@ -204,8 +204,8 @@
   padding: 0;
 }
 .send-btn[disabled] {
-  background: #d1d5db;
-  color: #999;
+  background: var(--capsule-border);
+  color: var(--capsule-muted);
 }
 
 /* ===== 空状态 ===== */
@@ -218,7 +218,7 @@
 }
 .welcome-icon { font-size: 100rpx; margin-bottom: 20rpx; }
 .welcome-title { font-size: 40rpx; font-weight: 700; color: var(--capsule-ink); }
-.welcome-desc { font-size: 28rpx; color: #999; margin-top: 8rpx; }
+.welcome-desc { font-size: 28rpx; color: var(--capsule-muted); margin-top: 8rpx; }
 
 /* ===== 通用 ===== */
 .tap-scale-hover { opacity: 0.7; }

@@ -10,7 +10,7 @@
 }
 
 .gen-card {
-  background: #fff;
+  background: var(--capsule-surface);
   border-radius: 24rpx;
   padding: 48rpx 40rpx;
   width: 580rpx;
@@ -27,7 +27,7 @@
 .gen-bar {
   width: 100%;
   height: 8rpx;
-  background: #e8e8f0;
+  background: var(--capsule-border);
   border-radius: 4rpx;
   overflow: hidden;
   margin-bottom: 20rpx;
@@ -40,4 +40,4 @@
   transition: width 0.5s ease;
 }
 
-.gen-hint { font-size: 24rpx; color: #999; }
+.gen-hint { font-size: 24rpx; color: var(--capsule-muted); }

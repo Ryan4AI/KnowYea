@@ -17,14 +17,14 @@
   top: 0;
   bottom: 0;
   width: 6rpx;
-  background: linear-gradient(180deg, #6c5ce7, #00c9a7);
+  background: linear-gradient(180deg, var(--capsule-accent), var(--capsule-success));
   border-radius: 6rpx 0 0 6rpx;
 }
 
 .question-type {
   font-size: 22rpx;
   font-weight: 700;
-  color: #6c5ce7;
+  color: var(--capsule-accent);
   margin-bottom: 12rpx;
   padding-left: 12rpx;
   letter-spacing: 1rpx;
@@ -32,7 +32,7 @@
 
 .question-text {
   font-size: 28rpx;
-  color: #1a1d2e;
+  color: var(--capsule-ink);
   line-height: 1.65;
   margin-bottom: 20rpx;
   padding-left: 12rpx;
@@ -49,7 +49,7 @@
   display: flex;
   align-items: center;
   padding: 22rpx 22rpx;
-  background: #fff;
+  background: var(--capsule-surface);
   border-radius: 18rpx;
   border: 2rpx solid rgba(26, 29, 46, 0.06);
   box-shadow: 0 2rpx 12rpx rgba(26, 29, 46, 0.04);
@@ -57,7 +57,7 @@
 
 .option.selected {
   border-color: rgba(108, 92, 231, 0.45);
-  background: linear-gradient(135deg, #f5f3ff 0%, #fff 100%);
+  background: linear-gradient(135deg, rgba(108, 92, 231, 0.05) 0%, var(--capsule-surface) 100%);
   box-shadow: 0 6rpx 20rpx rgba(108, 92, 231, 0.12);
 }
 
@@ -65,8 +65,8 @@
   width: 48rpx;
   height: 48rpx;
   border-radius: 50%;
-  background: #eef0f6;
-  color: #5c6178;
+  background: var(--capsule-bg);
+  color: var(--capsule-ink-secondary);
   font-size: 22rpx;
   font-weight: 800;
   display: flex;
@@ -77,13 +77,13 @@
 }
 
 .option.selected .option-label {
-  background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+  background: linear-gradient(135deg, var(--capsule-accent), var(--capsule-accent-2));
   color: #fff;
 }
 
 .option-text {
   font-size: 27rpx;
-  color: #2d3254;
+  color: var(--capsule-ink);
   line-height: 1.45;
   flex: 1;
 }
@@ -100,11 +100,11 @@
   border-radius: 18rpx;
   padding: 22rpx 24rpx;
   font-size: 28rpx;
-  background: #fff;
+  background: var(--capsule-surface);
 }
 
 .submit-btn {
-  background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+  background: linear-gradient(135deg, var(--capsule-accent) 0%, var(--capsule-accent-2) 100%);
   color: #fff;
   border-radius: 999rpx;
   font-size: 28rpx;
