@@ -97,10 +97,25 @@ function parseMessageBlocks(content) {
     if (match[1]) {
       blocks.push({ type: match[1], text: match[2].trim(), html: mdToHtml(match[2].trim()) })
     } else if (match[3]) {
-      blocks.push({
-        type: match[3],
-        content: match[4].trim(),
-      })
+      const qContent = match[4].trim()
+      if (match[3] === 'choice') {
+        // 解析选择题选项：每行以 A/B/C/D 开头或 - 开头
+        const lines = qContent.split('\n')
+        const questionText = lines.filter(l => !/^[A-Z]\)?\s/m.test(l) && !/^-\s/m.test(l)).join('\n').trim()
+        const options = lines.filter(l => /^[A-Z]\)?\s/m.test(l) || /^-\s/m.test(l)).map(l => l.replace(/^[A-Z]\)?\s*/, '').replace(/^-\s*/, '').trim())
+        blocks.push({
+          type: 'choice',
+          content: questionText,
+          html: mdToHtml(questionText),
+          options: options.filter(o => o),
+        })
+      } else {
+        blocks.push({
+          type: 'open',
+          content: qContent,
+          html: mdToHtml(qContent),
+        })
+      }
     } else if (match[5]) {
       blocks.push({ type: '评分', score: parseInt(match[5]), text: '' })
     }

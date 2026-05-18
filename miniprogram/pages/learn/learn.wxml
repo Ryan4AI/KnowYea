@@ -39,8 +39,8 @@ module.exports = { contains: contains };
 
               <!-- 消息块 -->
               <block wx:for="{{item.blocks}}" wx:for-item="block" wx:key="type">
-                <!-- 纯文本 -->
-                <text wx:if="{{block.type === 'text'}}" class="msg-text">{{block.text}}</text>
+                <!-- 纯文本（支持 markdown 渲染） -->
+                <rich-text wx:if="{{block.type === 'text'}}" class="msg-text" nodes="{{block.html}}"></rich-text>
 
                 <!-- 概念卡片（概念/例子/总结/评价 → 紧凑的左边框标记，不显示标签文字） -->
                 <view wx:elif="{{block.type === '概念' || block.type === '例子' || block.type === '总结' || block.type === '评价'}}" class="concept-card concept-card-{{block.type == '概念' ? 'concept' : block.type == '例子' ? 'example' : block.type == '总结' ? 'summary' : 'eval'}}">

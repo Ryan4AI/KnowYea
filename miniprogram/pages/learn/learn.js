@@ -52,6 +52,13 @@ Page({
     if (options && options.courseId) {
       this._courseIdFromUrl = options.courseId
     }
+    // 计算状态栏高度（避开刘海屏/灵动岛）
+    try {
+      const sysInfo = wx.getSystemInfoSync()
+      this.setData({ navBarTop: sysInfo.statusBarHeight || 20 })
+    } catch (e) {
+      this.setData({ navBarTop: 20 })
+    }
   },
 
   onShow() {
