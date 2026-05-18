@@ -263,8 +263,8 @@ Page({
     }
 
     // 首次设置 → 立即显示进度条，并行保存画像 + 生成课程
-    // 取前两个兴趣组合成更丰富的课程主题
-    const keyword = (interests.length >= 2 ? interests.slice(0, 2).join('与') : (interests[0] || '学习')).substring(0, 20)
+    // 取所有兴趣标签提交给 AI，让 AI 综合设计课程内容
+    const keyword = interests.join('、').substring(0, 50)
     this.setData({ genOverlay: true })
     this._cancelProgress = startProgressSimulation((stage, progress) => {
       this.setData({ genStage: stage, genProgress: progress })
@@ -328,7 +328,7 @@ Page({
     const { profileForm } = this.data
     const interests = profileForm.interestIndexes.map(i => this.data.interestOptions[i]).concat(this.data.customInterests)
     const profile = { age: AGE_OPTIONS[profileForm.ageIndex], occupation: OCCUPATION_OPTIONS[profileForm.occupationIndex], interests }
-    const keyword = (interests.length >= 2 ? interests.slice(0, 2).join('与') : (interests[0] || '学习')).substring(0, 20)
+    const keyword = interests.join('、').substring(0, 50)
     this.setData({ genOverlay: true })
     this._cancelProgress = startProgressSimulation((stage, progress) => {
       this.setData({ genStage: stage, genProgress: progress })
