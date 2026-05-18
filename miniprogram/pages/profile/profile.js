@@ -333,6 +333,24 @@ Page({
       this.setData({ genStage: stage, genProgress: progress })
     })
     callGenerateTheme(app.globalData.openid, profile, keyword).then(r => {
+      this._cancelProgress?.()
+      if (r.success) {
+        this.setData({
+          genOverlay: false,
+          genResult: r.theme,
+          genStage: '',
+          genProgress: 0,
+        })
+      } else {
+        this.setData({ genStage: '❌ ' + (r.error || '生成失败'), genOverlay: false })
+        wx.showToast({ title: r.error || '生成失败', icon: 'none' })
+      }
+    }).catch(() => {
+      this._cancelProgress?.()
+      this.setData({ genOverlay: false })
+      wx.showToast({ title: '网络错误', icon: 'none' })
+    })
+  },
 
   onGoEditProfile() {
     this.setData({ isEditing: true })
