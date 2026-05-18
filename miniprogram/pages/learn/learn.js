@@ -48,13 +48,20 @@ Page({
     scrollIntoView: '', navBarTop: 0, courseContext: '', showSplash: true,
   },
 
+  onLoad(options) {
+    if (options && options.courseId) {
+      this._courseIdFromUrl = options.courseId
+    }
+  },
+
   onShow() {
     if (!app.globalData.openid) {
       setTimeout(() => this.onShow(), 500)
       return
     }
     this.setData({ openid: app.globalData.openid, showSplash: false })
-    this.loadPageData()
+    this.loadPageData({ courseId: this._courseIdFromUrl || '' })
+    delete this._courseIdFromUrl
   },
 
   loadPageData(context = {}) {
@@ -115,15 +122,23 @@ Page({
         currentLesson = lessons.find(l => !l.completedAt) || lessons[lessons.length - 1]
       }
 
+      const lessonsList = currentCourse.lessons || []
+      const lessonIdx = lessonsList.findIndex(l => l._id === currentLesson._id)
+      const nextLesson = lessonIdx < lessonsList.length - 1
+
       this.setData({
         course: currentCourse,
         lesson: currentLesson,
+        hasNextLesson: nextLesson,
         userProfile: {
           age: user?.age,
           ageIndex: AGE_OPTIONS.indexOf(user?.age),
           occupation: user?.occupation || '',
           interests: user?.interests || [],
         },
+        courseContext: currentCourse.lessonSummary
+          ? `课程学习进度摘要：${currentCourse.lessonSummary}`
+          : '暂无历史学习记录。用户首次使用课程。',
         plantLevel: user?.plantLevel || 1,
         plantPoints: user?.points || 0,
         isLearning: !!currentLesson,

@@ -1,6 +1,6 @@
 # 小知也 - 开发进度看板
 
-> 最后更新：2026-05-17 12:05
+> 最后更新：2026-05-18 16:00
 
 ---
 
@@ -22,30 +22,26 @@
 
 ---
 
-## ☁️ 云函数清单（20个）
+## ☁️ 云函数清单（16个）
 
 | 云函数 | 状态 | 备注 |
 |--------|------|------|
 | login | ✅ | 匿名登录，获取openid |
-| generateTheme | ✅ | AI生成主题，模拟数据 |
-| sendMessage | ✅ | AI对话，模拟回复 |
-| completeNode | ✅ | 完成节点判定 |
-| getHomeData | ✅ | 首页数据聚合 |
-| switchTheme | ✅ | 主题切换 |
-| addTheme | ✅ | 从主题库添加 |
-| getThemes | ✅ | 用户主题列表 |
-| getStoreThemes | ✅ | 主题库 |
-| getUserProfile | ✅ | 用户信息 |
-| updateUserProfile | ✅ | 更新画像 |
-| toggleFavorite | ✅ | 收藏/取消 |
-| getFavorites | ✅ | 收藏列表 |
-| getGarden | ✅ | 花园数据 |
+| getUser | ✅ | 用户信息 |
+| updateProfile | ✅ | 更新用户画像 |
+| sendMessage | ✅ | AI对话 |
+| getMessages | ✅ | 对话历史 |
+| getCourses | ✅ | 用户课程列表 |
+| createCourse | ✅ | 创建课程 |
+| deleteCourse | ✅ | 删除课程 |
+| completeLesson | ✅ | 完成节点判定 |
 | getHistory | ✅ | 学习历史 |
-| getConversations | ✅ | 对话历史 |
-| getAchievements | ✅ | 成就列表 |
-| checkAchievement | ✅ | 成就检查 |
-| msgSecCheck | ✅ | 内容安全（模拟） |
-| initDatabase | ✅ | 初始化5主题+50节点 |
+| getTags | ✅ | 标签/主题库 |
+| getRecommendation | ✅ | 推荐 |
+| clearUsers | ✅ | 清理用户数据 |
+| setupCollections | ✅ | 初始化集合 |
+| setupDatabase | ✅ | 数据库初始化 |
+| initCollections | ✅ | 集合初始化 |
 
 ---
 
@@ -203,6 +199,13 @@ npm install
 6. **用户画像完善** - profile页面与AI推荐联动
 
 ---
+
+### 2026-05-18 16:00
+- 修复 garden 页面：添加本周学习日历数据加载（timelineDays/timelineTotal）
+- 修复 garden 页面：onCourseTap 正确传递 courseId 
+- 修复 learn.js：支持 courseId URL 参数、加载 courseContext 从 lessonSummary
+- 修复 garden.wxss/achievements.wxss：硬编码色值统一为 CSS 变量
+- 清理 profile.js：移除不存在的 profile.ageRange 引用
 
 ### 2026-05-17 00:02
 - 修复 submit_audit API：添加必填 item_list 字段，修正 versiondesc → version_desc

@@ -124,7 +124,7 @@ Page({
   },
 
   backfillForm(profile) {
-    const ageIndex = AGE_OPTIONS.indexOf(profile.ageRange || profile.age)
+    const ageIndex = AGE_OPTIONS.indexOf(profile.age)
     const occIndex = OCCUPATION_OPTIONS.indexOf(profile.occupation)
     const interestIndexes = (profile.interests || [])
       .map(t => InterestTags.indexOf(t))

@@ -61,6 +61,10 @@ Page({
     themes: [],
     lastActiveTheme: null,
     recentHistory: [],
+    timelineDays: [],
+    timelineTotal: 0,
+    favoriteCount: 0,
+    unlockedAchievements: 0,
   },
 
   onLoad() { this.loadAll() },
@@ -76,7 +80,7 @@ Page({
     this.setData({ isLoading: true })
 
     const openid = app.globalData.openid
-    let userResult, coursesResult, historyResult
+    let userResult, coursesResult, historyResult, weekHistoryResult
 
     Promise.all([
       // getUser → user stats + profile
@@ -100,6 +104,13 @@ Page({
           success: r => { historyResult = r.result?.data || [] }
         })
       }),
+      // getHistory → week timeline data
+      new Promise(resolve => {
+        wx.cloud.callFunction({
+          name: 'getHistory', data: { openid, limit: 100 },
+          success: r => { weekHistoryResult = r.result?.data || [] }
+        })
+      }),
     ]).then(() => {
       const user = userResult?.user || {}
       const courses = coursesResult || []
@@ -116,6 +127,10 @@ Page({
         lastActiveCourse = activeCourses.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0))[0]
       }
 
+      // 计算本周日历
+      const timelineDays = this.computeWeekTimeline(weekHistoryResult || [])
+      const timelineTotal = timelineDays.reduce((sum, d) => sum + (d.count || 0), 0)
+
       this.setData({
         plant,
         plantPoints: user.points || 0,
@@ -130,6 +145,10 @@ Page({
         themes: courses,
         lastActiveTheme: lastActiveCourse,
         recentHistory: history,
+        timelineDays,
+        timelineTotal,
+        favoriteCount: user?.favoriteCount || 0,
+        unlockedAchievements: (userResult?.data?.achievements || []).length,
         isLoading: false,
       })
 
@@ -146,7 +165,7 @@ Page({
       wx.showToast({ title: '请稍后再试', icon: 'none' })
       return
     }
-    wx.reLaunch({ url: '/pages/learn/learn' })
+    wx.reLaunch({ url: `/pages/learn/learn?courseId=${courseId}` })
   },
 
   onNavigateTo(e) {
@@ -217,6 +236,39 @@ Page({
         wx.navigateTo({ url: '/pages/theme-store/theme-store' })
       }
     })
+  },
+
+  computeWeekTimeline(historyRecords) {
+    const now = new Date()
+    const dayOfWeek = now.getDay() // 0=Sunday
+
+    // 本周一的 00:00:00
+    const monday = new Date(now)
+    monday.setDate(now.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1))
+    monday.setHours(0, 0, 0, 0)
+
+    const dayNames = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
+
+    // 初始化 7 天 map
+    const dayMap = {}
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday)
+      d.setDate(monday.getDate() + i)
+      const key = d.toISOString().slice(0, 10)
+      dayMap[key] = { date: key, weekday: dayNames[d.getDay()], count: 0 }
+    }
+
+    // 统计每天的历史记录数
+    ;(historyRecords || []).forEach(rec => {
+      if (!rec.createdAt) return
+      const recDate = new Date(rec.createdAt)
+      const key = recDate.toISOString().slice(0, 10)
+      if (dayMap[key]) {
+        dayMap[key].count = (dayMap[key].count || 0) + 1
+      }
+    })
+
+    return Object.values(dayMap)
   },
 
   onEditProfile() {

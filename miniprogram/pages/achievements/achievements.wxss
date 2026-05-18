@@ -1,9 +1,9 @@
 .page-container { min-height: 100vh; background: var(--capsule-bg); padding: 20rpx; }
 .achievement-list { }
-.achievement-item { background: white; border-radius: 16rpx; padding: 30rpx; margin-bottom: 16rpx; display: flex; align-items: center; }
+.achievement-item { background: var(--capsule-surface); border-radius: 16rpx; padding: 30rpx; margin-bottom: 16rpx; display: flex; align-items: center; }
 .achievement-item.locked { opacity: 0.6; }
 .achievement-icon { font-size: 60rpx; margin-right: 24rpx; }
 .achievement-info { flex: 1; }
-.achievement-name { font-size: 28rpx; font-weight: bold; color: #333; }
-.achievement-desc { font-size: 22rpx; color: #999; margin-top: 6rpx; }
+.achievement-name { font-size: 28rpx; font-weight: bold; color: var(--capsule-ink); }
+.achievement-desc { font-size: 22rpx; color: var(--capsule-muted); margin-top: 6rpx; }
 .achievement-status { font-size: 36rpx; }
