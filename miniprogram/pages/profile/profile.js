@@ -321,9 +321,14 @@ Page({
   },
 
   onRegenerateCourse() {
-    const theme = this.data.genResult
-    if (!theme) return
+    const oldTheme = this.data.genResult
+    if (!oldTheme) return
     this.setData({ genResult: null })
+    // 先删除旧课程（后台执行）
+    wx.cloud.callFunction({
+      name: 'deleteCourse',
+      data: { openid: app.globalData.openid, courseId: oldTheme.id },
+    })
     // 重新走生成流程
     const { profileForm } = this.data
     const interests = profileForm.interestIndexes.map(i => this.data.interestOptions[i]).concat(this.data.customInterests)
@@ -364,7 +369,6 @@ Page({
   onNavigateTo(e) {
     const routes = {
       history: '/pages/history/history',
-      favorites: '/pages/favorites/favorites',
       achievements: '/pages/achievements/achievements',
       garden: '/pages/garden/garden',
       settings: '/pages/settings/settings',

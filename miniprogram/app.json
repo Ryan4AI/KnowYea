@@ -20,7 +20,6 @@
     "pages/theme-store/theme-store",
     "pages/profile/profile",
     "pages/history/history",
-    "pages/favorites/favorites",
     "pages/achievements/achievements",
     "pages/settings/settings"
   ],

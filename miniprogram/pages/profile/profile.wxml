@@ -114,9 +114,6 @@ module.exports = { contains: contains };
       <view class="menu-item" bindtap="onNavigateTo" data-page="history">
         <text class="menu-icon">📜</text><text class="menu-text">历史记录</text><text class="menu-arrow">›</text>
       </view>
-      <view class="menu-item" bindtap="onNavigateTo" data-page="favorites">
-        <text class="menu-icon">❤️</text><text class="menu-text">我的收藏</text><text class="menu-arrow">›</text>
-      </view>
       <view class="menu-item" bindtap="onNavigateTo" data-page="achievements">
         <text class="menu-icon">🏆</text><text class="menu-text">成就展示</text><text class="menu-arrow">›</text>
       </view>

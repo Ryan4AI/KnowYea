@@ -19,7 +19,7 @@ async function clearCollection(name) {
 
 exports.main = async () => {
   const counts = {}
-  for (const name of ['users', 'messages', 'history', 'courses', 'lessons']) {
+  for (const name of ['users', 'messages', 'history', 'courses', 'lessons', 'course_tags', 'user_tags', 'user_achievements']) {
     counts[name] = await clearCollection(name)
   }
   return { success: true, deleted: counts }

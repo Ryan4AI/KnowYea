@@ -140,12 +140,6 @@
           <text class="menu-badge" wx:if="{{recentHistory.length > 0}}">{{recentHistory.length}}+</text>
           <text class="menu-arrow">›</text>
         </view>
-        <view class="menu-item" bindtap="onNavigateTo" data-page="favorites">
-          <text class="menu-icon">❤️</text>
-          <text class="menu-text">我的收藏</text>
-          <text class="menu-badge" wx:if="{{favoriteCount > 0}}">{{favoriteCount}}</text>
-          <text class="menu-arrow">›</text>
-        </view>
         <view class="menu-item" bindtap="onNavigateTo" data-page="achievements">
           <text class="menu-icon">🏆</text>
           <text class="menu-text">成就</text>

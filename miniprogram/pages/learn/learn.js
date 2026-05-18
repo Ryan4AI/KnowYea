@@ -158,6 +158,7 @@ Page({
       plantLevel: user?.plantLevel || 1,
       plantPoints: user?.points || 0,
       isLearning: !!currentLesson,
+      isLoading: !!currentLesson,
     })
 
     if (currentLesson) {
@@ -168,7 +169,6 @@ Page({
 
     // 新课时无消息 → 立即加载 AI 开场白
     if (currentLesson && !context.skipAutoMessage) {
-      this.setData({ isLoading: true })
       this.sendMessage(`请开始介绍"${currentLesson.title}"这个课时要学习的内容，用通俗易懂的语言`, true)
     }
   },
