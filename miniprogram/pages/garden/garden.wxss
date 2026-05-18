@@ -132,7 +132,7 @@
 .swipe-delete-btn {
   display: flex; align-items: center; justify-content: center;
   width: 140rpx; height: 100%;
-  background: #d54941; color: #fff;
+  background: #d54941; color: var(--capsule-surface);
   font-size: 28rpx; font-weight: 500;
 }
 .theme-top { display: flex; align-items: flex-start; }
