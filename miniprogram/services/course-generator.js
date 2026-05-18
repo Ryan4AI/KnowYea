@@ -66,6 +66,7 @@ function callGenerateTheme(openid, profile, themeName) {
               name: d.title,
               desc: d.description || '',
               nodesCount: d.totalLessons || 0,
+              lessons: d.lessons || [],
             }
           })
         } else {

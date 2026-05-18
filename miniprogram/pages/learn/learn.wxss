@@ -1,4 +1,10 @@
 @import "../../styles/pages.wxss";
+/* 页面基础 — flex 布局确保输入栏在底部 */
+.page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
 /* ===== 自定义导航栏 ===== */
 .nav-bar {
   background: var(--capsule-surface);

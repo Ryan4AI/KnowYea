@@ -144,5 +144,22 @@ module.exports = { contains: contains };
       </view>
     </view>
   </view>
+
+  <!-- 课程确认 -->
+  <view class="gen-overlay" wx:elif="{{genResult}}">
+    <view class="gen-box gen-confirm-box">
+      <view class="gen-icon">✅</view>
+      <view class="gen-stage" style="font-weight:600;font-size:36rpx;">{{genResult.name}}</view>
+      <view class="gen-confirm-desc">{{genResult.desc}}</view>
+      <view class="gen-confirm-lessons">
+        <view class="gen-confirm-lesson" wx:for="{{genResult.lessons}}" wx:key="order">
+          <text class="gen-confirm-lesson-num">{{'第' + item.order + '节'}}</text>
+          <text class="gen-confirm-lesson-title">{{item.title}}</text>
+        </view>
+      </view>
+      <button class="btn-primary" bindtap="onConfirmCourse">开始学习 →</button>
+      <button class="btn-secondary" bindtap="onRegenerateCourse">重新生成</button>
+    </view>
+  </view>
 </view>
 </view>

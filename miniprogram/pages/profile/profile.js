@@ -69,6 +69,7 @@ Page({
     genOverlay: false,
     genStage: '',
     genProgress: 0,
+    genResult: null,
   },
 
   onLoad(opts) {
@@ -293,8 +294,13 @@ Page({
     callGenerateTheme(app.globalData.openid, profile, keyword).then(r => {
       this._cancelProgress?.()
       if (r.success) {
-        this.setData({ genStage: '✅ 课程已生成', genProgress: 100 })
-        setTimeout(() => wx.redirectTo({ url: '/pages/learn/learn' }), 600)
+        const theme = r.theme
+        this.setData({
+          genOverlay: false,
+          genResult: theme,
+          genStage: '',
+          genProgress: 0,
+        })
       } else {
         this.setData({ genStage: '❌ ' + (r.error || '生成失败'), genOverlay: false })
         wx.showToast({ title: r.error || '生成失败', icon: 'none' })
@@ -305,6 +311,28 @@ Page({
       wx.showToast({ title: '网络错误', icon: 'none' })
     })
   },
+
+  onConfirmCourse() {
+    const theme = this.data.genResult
+    if (!theme) return
+    this.setData({ genResult: null })
+    wx.redirectTo({ url: '/pages/learn/learn?courseId=' + theme.id })
+  },
+
+  onRegenerateCourse() {
+    const theme = this.data.genResult
+    if (!theme) return
+    this.setData({ genResult: null })
+    // 重新走生成流程
+    const { profileForm } = this.data
+    const interests = profileForm.interestIndexes.map(i => this.data.interestOptions[i]).concat(this.data.customInterests)
+    const profile = { age: AGE_OPTIONS[profileForm.ageIndex], occupation: OCCUPATION_OPTIONS[profileForm.occupationIndex], interests }
+    const keyword = (interests[0] || '学习').substring(0, 20)
+    this.setData({ genOverlay: true })
+    this._cancelProgress = startProgressSimulation((stage, progress) => {
+      this.setData({ genStage: stage, genProgress: progress })
+    })
+    callGenerateTheme(app.globalData.openid, profile, keyword).then(r => {
 
   onGoEditProfile() {
     this.setData({ isEditing: true })

@@ -4,7 +4,7 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
 const https = require('https')
 
-const API_KEY = process.env.MINIMAX_API_KEY
+const API_KEY = process.env.MINIMAX_API_KEY || 'sk-cp-c5wSwWsnIcUkewTEe9JhETRKZNyJ1OBnphm_4B1HdOV0LMNh9vP80kJFBKZV5jpCtp22_xyBUtF0zRAwgWaxU4YECc_LL8GPzEj6GVOHmMiovcfwylDgCDM'
 
 function callMiniMax(messages) {
   return new Promise((resolve, reject) => {
@@ -27,13 +27,13 @@ function callMiniMax(messages) {
       res.on('data', chunk => body += chunk)
       res.on('end', () => {
         if (res.statusCode !== 200) {
-          reject(new Error('AI服务暂不可用'))
+          reject(new Error('AI服务暂不可用 (HTTP ' + res.statusCode + '): ' + body.slice(0, 200)))
           return
         }
         try {
           resolve(JSON.parse(body))
         } catch (e) {
-          reject(new Error('AI响应格式异常'))
+          reject(new Error('AI响应格式异常: ' + body.slice(0, 200)))
         }
       })
     })
@@ -94,13 +94,13 @@ ${tagsText}
     // 剥离 <think> 推理标签
     aiContent = aiContent.replace(/<think>[\s\S]*?<\/think>/g, '').trim()
 
-    // 解析 JSON：先找数组，再找对象，最后直接解析
+    // 解析 JSON：先找数组（贪婪匹配到最后一个 ]），再找对象，最后直接解析
     let courseData
-    const arrayMatch = aiContent.match(/\[[\s\S]*?\]/)
+    const arrayMatch = aiContent.match(/\[[\s\S]*\]/)
     if (arrayMatch) {
       courseData = JSON.parse(arrayMatch[0])
     } else {
-      const objMatch = aiContent.match(/\{[\s\S]*?\}/)
+      const objMatch = aiContent.match(/\{[\s\S]*\}/)
       if (objMatch) {
         courseData = JSON.parse(objMatch[0])
       } else {

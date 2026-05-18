@@ -4,7 +4,7 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
 const https = require('https')
 
-const API_KEY = process.env.MINIMAX_API_KEY
+const API_KEY = process.env.MINIMAX_API_KEY || 'sk-cp-c5wSwWsnIcUkewTEe9JhETRKZNyJ1OBnphm_4B1HdOV0LMNh9vP80kJFBKZV5jpCtp22_xyBUtF0zRAwgWaxU4YECc_LL8GPzEj6GVOHmMiovcfwylDgCDM'
 
 function callMiniMax(messages) {
   return new Promise((resolve, reject) => {

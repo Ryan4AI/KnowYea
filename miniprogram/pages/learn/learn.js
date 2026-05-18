@@ -99,67 +99,72 @@ Page({
       const courses = coursesData || []
       const activeCourses = courses.filter(c => c.status === 'learning')
 
+      // 如果指定了 courseId，直接在返回列表中找目标课程
+      if (context.courseId) {
+        const target = courses.find(c => c._id === context.courseId)
+        if (target) {
+          this._initCourse(target, context, user)
+          return
+        }
+      }
+
       // 没在学课程 → 跳课程商店
       if (activeCourses.length === 0) {
         wx.redirectTo({ url: '/pages/theme-store/theme-store' })
         return
       }
 
-      let currentCourse
-      if (context.courseId) {
-        currentCourse = courses.find(c => c._id === context.courseId) || activeCourses[0]
-      } else {
-        activeCourses.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0))
-        currentCourse = activeCourses[0]
-      }
-
-      const lessons = currentCourse.lessons || []
-      let currentLesson
-      if (context.lessonId) {
-        currentLesson = lessons.find(l => l._id === context.lessonId)
-      }
-      if (!currentLesson) {
-        currentLesson = lessons.find(l => !l.completedAt) || lessons[lessons.length - 1]
-      }
-
-      const lessonsList = currentCourse.lessons || []
-      const lessonIdx = lessonsList.findIndex(l => l._id === currentLesson._id)
-      const nextLesson = lessonIdx < lessonsList.length - 1
-
-      this.setData({
-        course: currentCourse,
-        lesson: currentLesson,
-        hasNextLesson: nextLesson,
-        userProfile: {
-          age: user?.age,
-          ageIndex: AGE_OPTIONS.indexOf(user?.age),
-          occupation: user?.occupation || '',
-          interests: user?.interests || [],
-        },
-        courseContext: currentCourse.lessonSummary
-          ? `课程学习进度摘要：${currentCourse.lessonSummary}`
-          : '暂无历史学习记录。用户首次使用课程。',
-        plantLevel: user?.plantLevel || 1,
-        plantPoints: user?.points || 0,
-        isLearning: !!currentLesson,
-      })
-
-      if (currentLesson) {
-        this.loadMessages(currentCourse._id, currentLesson._id)
-      }
-
-      if (typeof context.callback === 'function') context.callback()
-
-      // 新课时无消息 → 自动开场白
-      if (currentLesson && !context.skipAutoMessage) {
-        setTimeout(() => {
-          this.sendMessage(`请开始介绍"${currentLesson.title}"这个课时要学习的内容，用通俗易懂的语言`, true)
-        }, 300)
-      }
-    }).catch(() => {
-      wx.hideLoading()
-      wx.showToast({ title: '加载失败', icon: 'none' })
+      activeCourses.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0))
+      const currentCourse = activeCourses[0]
+      this._initCourse(currentCourse, context, user)
     })
+  },
+
+  _initCourse(currentCourse, context, user) {
+    const userData = user || {}
+    const lessons = currentCourse.lessons || []
+    let currentLesson
+    if (context.lessonId) {
+      currentLesson = lessons.find(l => l._id === context.lessonId)
+    }
+    if (!currentLesson) {
+      currentLesson = lessons.find(l => !l.completedAt) || lessons[lessons.length - 1]
+    }
+
+    const lessonsList = currentCourse.lessons || []
+    const lessonIdx = lessonsList.findIndex(l => l._id === currentLesson._id)
+    const nextLesson = lessonIdx < lessonsList.length - 1
+
+    this.setData({
+      course: currentCourse,
+      lesson: currentLesson,
+      hasNextLesson: nextLesson,
+      userProfile: {
+        age: user?.age,
+        ageIndex: AGE_OPTIONS.indexOf(user?.age),
+        occupation: user?.occupation || '',
+        interests: user?.interests || [],
+      },
+      courseContext: currentCourse.lessonSummary
+        ? `课程学习进度摘要：${currentCourse.lessonSummary}`
+        : '暂无历史学习记录。用户首次使用课程。',
+      plantLevel: user?.plantLevel || 1,
+      plantPoints: user?.points || 0,
+      isLearning: !!currentLesson,
+    })
+
+    if (currentLesson) {
+      this.loadMessages(currentCourse._id, currentLesson._id)
+    }
+
+    if (typeof context.callback === 'function') context.callback()
+
+    // 新课时无消息 → 自动开场白
+    if (currentLesson && !context.skipAutoMessage) {
+      setTimeout(() => {
+        this.sendMessage(`请开始介绍"${currentLesson.title}"这个课时要学习的内容，用通俗易懂的语言`, true)
+      }, 300)
+    }
   },
 
   loadMessages(courseId, lessonId, append = false) {
