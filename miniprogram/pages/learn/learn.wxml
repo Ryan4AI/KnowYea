@@ -22,7 +22,7 @@ module.exports = { contains: contains };
       <text class="nav-left" wx:if="{{course}}" bindtap="onGardenTap">🌱</text>
       <text class="nav-left" wx:else></text>
       <text class="nav-title">{{course ? course.name : '小知也'}}</text>
-      <text class="nav-right" wx:if="{{course}}" bindtap="showCourseSwitcher">☰</text>
+      <text class="nav-right" wx:if="{{course}}" bindtap="onGardenTap">🌱</text>
       <text class="nav-right" wx:else></text>
     </view>
   </view>

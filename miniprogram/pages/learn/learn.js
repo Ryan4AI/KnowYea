@@ -166,11 +166,10 @@ Page({
 
     if (typeof context.callback === 'function') context.callback()
 
-    // 新课时无消息 → 自动开场白
+    // 新课时无消息 → 立即加载 AI 开场白
     if (currentLesson && !context.skipAutoMessage) {
-      setTimeout(() => {
-        this.sendMessage(`请开始介绍"${currentLesson.title}"这个课时要学习的内容，用通俗易懂的语言`, true)
-      }, 300)
+      this.setData({ isLoading: true })
+      this.sendMessage(`请开始介绍"${currentLesson.title}"这个课时要学习的内容，用通俗易懂的语言`, true)
     }
   },
 
@@ -209,7 +208,7 @@ Page({
   sendMessage(contentOverride, isAutoMessage) {
     const content = (typeof contentOverride === 'string' ? contentOverride : this.data.inputValue || '').trim()
     const { lesson, course, messages, isLoading, reviewMode } = this.data
-    if (!content || isLoading || !lesson) return
+    if (!content || (!isAutoMessage && isLoading) || !lesson) return
 
     const updatedMessages = isAutoMessage ? messages : [...messages, {
       id: 'user_' + Date.now(), role: 'user', content,

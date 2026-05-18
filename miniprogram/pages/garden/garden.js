@@ -87,28 +87,32 @@ Page({
       new Promise(resolve => {
         wx.cloud.callFunction({
           name: 'getUser', data: { openid },
-          success: r => { userResult = r.result?.data }
+          success: r => { userResult = r.result?.data; resolve() },
+          fail: () => resolve(),
         })
       }),
       // getCourses → course list
       new Promise(resolve => {
         wx.cloud.callFunction({
           name: 'getCourses', data: { openid },
-          success: r => { coursesResult = r.result?.data || [] }
+          success: r => { coursesResult = r.result?.data || []; resolve() },
+          fail: () => resolve(),
         })
       }),
       // getHistory → recent history preview
       new Promise(resolve => {
         wx.cloud.callFunction({
           name: 'getHistory', data: { openid, limit: 3 },
-          success: r => { historyResult = r.result?.data || [] }
+          success: r => { historyResult = r.result?.data || []; resolve() },
+          fail: () => resolve(),
         })
       }),
       // getHistory → week timeline data
       new Promise(resolve => {
         wx.cloud.callFunction({
           name: 'getHistory', data: { openid, limit: 100 },
-          success: r => { weekHistoryResult = r.result?.data || [] }
+          success: r => { weekHistoryResult = r.result?.data || []; resolve() },
+          fail: () => resolve(),
         })
       }),
     ]).then(() => {
