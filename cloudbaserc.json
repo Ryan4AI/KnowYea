@@ -5,77 +5,28 @@
   "functionRoot": "./cloudfunctions",
   "functions": [
     {
-      "name": "login",
-      "timeout": 60,
-      "memorySize": 256,
-      "runtime": "Nodejs16.13",
-      "handler": "index.main"
-    },
-    {
-      "name": "getHomeData",
-      "timeout": 60,
-      "memorySize": 256,
-      "runtime": "Nodejs16.13",
-      "handler": "index.main"
-    },
-    {
-      "name": "generateTheme",
+      "name": "completeLesson",
       "timeout": 120,
       "memorySize": 512,
       "runtime": "Nodejs16.13",
       "handler": "index.main"
     },
     {
-      "name": "updateUserProfile",
-      "timeout": 60,
-      "memorySize": 256,
-      "runtime": "Nodejs16.13",
-      "handler": "index.main"
-    },
-    {
-      "name": "sendMessage",
+      "name": "createCourse",
       "timeout": 120,
       "memorySize": 512,
       "runtime": "Nodejs16.13",
       "handler": "index.main"
     },
     {
-      "name": "completeNode",
+      "name": "deleteCourse",
       "timeout": 60,
       "memorySize": 256,
       "runtime": "Nodejs16.13",
       "handler": "index.main"
     },
     {
-      "name": "getThemes",
-      "timeout": 60,
-      "memorySize": 256,
-      "runtime": "Nodejs16.13",
-      "handler": "index.main"
-    },
-    {
-      "name": "getStoreThemes",
-      "timeout": 60,
-      "memorySize": 256,
-      "runtime": "Nodejs16.13",
-      "handler": "index.main"
-    },
-    {
-      "name": "addTheme",
-      "timeout": 60,
-      "memorySize": 256,
-      "runtime": "Nodejs16.13",
-      "handler": "index.main"
-    },
-    {
-      "name": "switchTheme",
-      "timeout": 60,
-      "memorySize": 256,
-      "runtime": "Nodejs16.13",
-      "handler": "index.main"
-    },
-    {
-      "name": "getConversations",
+      "name": "getCourses",
       "timeout": 60,
       "memorySize": 256,
       "runtime": "Nodejs16.13",
@@ -89,64 +40,57 @@
       "handler": "index.main"
     },
     {
-      "name": "getFavorites",
+      "name": "getMessages",
+      "timeout": 10,
+      "memorySize": 256,
+      "runtime": "Nodejs16.13",
+      "handler": "index.main"
+    },
+    {
+      "name": "getRecommendation",
       "timeout": 60,
       "memorySize": 256,
       "runtime": "Nodejs16.13",
       "handler": "index.main"
     },
     {
-      "name": "toggleFavorite",
+      "name": "getTags",
+      "timeout": 30,
+      "memorySize": 256,
+      "runtime": "Nodejs16.13",
+      "handler": "index.main"
+    },
+    {
+      "name": "getUser",
       "timeout": 60,
       "memorySize": 256,
       "runtime": "Nodejs16.13",
       "handler": "index.main"
     },
     {
-      "name": "getGarden",
+      "name": "login",
       "timeout": 60,
       "memorySize": 256,
       "runtime": "Nodejs16.13",
       "handler": "index.main"
     },
     {
-      "name": "getAchievements",
-      "timeout": 60,
-      "memorySize": 256,
-      "runtime": "Nodejs16.13",
-      "handler": "index.main"
-    },
-    {
-      "name": "getUserProfile",
-      "timeout": 60,
-      "memorySize": 256,
-      "runtime": "Nodejs16.13",
-      "handler": "index.main"
-    },
-    {
-      "name": "checkAchievement",
-      "timeout": 60,
-      "memorySize": 256,
-      "runtime": "Nodejs16.13",
-      "handler": "index.main"
-    },
-    {
-      "name": "msgSecCheck",
-      "timeout": 60,
-      "memorySize": 256,
-      "runtime": "Nodejs16.13",
-      "handler": "index.main"
-    },
-    {
-      "name": "initDatabase",
+      "name": "sendMessage",
       "timeout": 120,
       "memorySize": 512,
       "runtime": "Nodejs16.13",
       "handler": "index.main"
     },
     {
-      "name": "clearUserData",
-      "timeout": 30,
+      "name": "setupCollections",
+      "timeout": 60,
+      "memorySize": 256,
+      "runtime": "Nodejs16.13",
+      "handler": "index.main"
+    },
+    {
+      "name": "updateProfile",
+      "timeout": 60,
       "memorySize": 256,
       "runtime": "Nodejs16.13",
       "handler": "index.main"

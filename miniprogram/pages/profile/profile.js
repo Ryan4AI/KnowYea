@@ -1,5 +1,6 @@
 // pages/profile/profile.js — 个人中心：画像收集 / 编辑 / 统计展示
 const app = getApp()
+const { loadInterestTags, callGenerateTheme, startProgressSimulation } = require('../../services/course-generator')
 
 const AGE_OPTIONS = ['18岁以下', '18-25岁', '26-35岁', '36-45岁', '46岁以上']
 
@@ -65,11 +66,17 @@ Page({
     customInterests: [],
     _customInputValue: '',
     isSaving: false,
+    genOverlay: false,
+    genStage: '',
+    genProgress: 0,
   },
 
   onLoad(opts) {
     if (opts && opts.edit === '1') {
       this.setData({ isEditing: true })
+    }
+    if (opts && opts.forceForm === '1') {
+      this.setData({ showForm: true })
     }
   },
 
@@ -82,12 +89,13 @@ Page({
     if (!app.globalData.openid) return
 
     wx.cloud.callFunction({
-      name: 'getUserProfile',
+      name: 'getUser',
       data: { openid: app.globalData.openid },
       success: res => {
         if (res.result && res.result.success) {
-          const profile = res.result.user?.profile
-          if (!profile || this.data.isEditing) {
+          const userData = res.result.data?.user
+          const profile = userData?.profile || { age: userData?.age, occupation: userData?.occupation, interests: userData?.interests || [] }
+          if (!profile || !profile.occupation || this.data.isEditing) {
             // 没画像 或 编辑模式 → 显示表单
             if (profile && this.data.isEditing) {
               this.backfillForm(profile)
@@ -96,14 +104,14 @@ Page({
             return
           }
           // 有画像 → 显示统计
-          const stats = res.result.stats || { completedNodes: 0, completedThemes: 0, totalPoints: 0, streak: 0 }
-          const interests = profile.interests || []
+          const stats = res.result.data?.stats || userData || { completedNodes: 0, completedThemes: 0, totalPoints: 0, streak: 0 }
+          const interests = profile.interests || userData?.interests || []
           const slogan = `${profile.occupation || ''}${interests.length > 0 ? ' · ' + interests.join('、') : ''}`
           this.setData({
-            user: res.result.user,
+            user: userData,
             userProfile: profile,
             stats,
-            achievements: res.result.achievements || [],
+            achievements: res.result.data?.achievements || [],
             profileSlogan: slogan,
             showForm: false,
           })
@@ -181,13 +189,6 @@ Page({
     this.setData({ _customInputValue: e.detail.value })
   },
 
-  onRemoveCustom(e) {
-    const index = e.currentTarget.dataset.index
-    const customs = [...this.data.customInterests]
-    customs.splice(index, 1)
-    this.setData({ customInterests: customs })
-  },
-
   onCustomInterestConfirm(e) {
     const val = (e.detail.value || '').trim()
     if (!val) return
@@ -235,16 +236,42 @@ Page({
     }
 
     wx.cloud.callFunction({
-      name: 'updateUserProfile',
-      data: { openid: app.globalData.openid, profile },
+      name: 'updateProfile',
+      data: {
+        openid: app.globalData.openid,
+        age: AGE_OPTIONS[profileForm.ageIndex],
+        occupation: OCCUPATION_OPTIONS[profileForm.occupationIndex],
+        tags: interests,
+      },
       success: res => {
         this.setData({ isSaving: false })
         if (res.result?.success) {
           app.globalData.profileUpdated = Date.now()
-          // 首次设置 → 去课程商店生成课程
+          // 首次设置 → 直接生成课程
           if (!this.data.userProfile) {
-            app.setLearnContext({ mode: 'generate' })
-            wx.redirectTo({ url: '/pages/learn/learn' })
+            const interests = [
+              ...profileForm.interestIndexes.map(i => InterestTags[i]),
+              ...customInterests,
+            ]
+            const keyword = interests[0] || '学习'
+            this.setData({ genOverlay: true })
+            this._cancelProgress = startProgressSimulation((stage, progress) => {
+              this.setData({ genStage: stage, genProgress: progress })
+            })
+            callGenerateTheme(app.globalData.openid, profile, keyword).then(r => {
+              this._cancelProgress?.()
+              if (r.success) {
+                this.setData({ genStage: '✅ 课程已生成', genProgress: 100 })
+                setTimeout(() => wx.redirectTo({ url: '/pages/learn/learn' }), 600)
+              } else {
+                this.setData({ genStage: '❌ ' + (r.error || '生成失败'), genOverlay: false })
+                wx.showToast({ title: r.error || '生成失败', icon: 'none' })
+              }
+            }).catch(() => {
+              this._cancelProgress?.()
+              this.setData({ genOverlay: false })
+              wx.showToast({ title: '网络错误', icon: 'none' })
+            })
           } else {
             wx.navigateBack({ delta: 1 })
           }

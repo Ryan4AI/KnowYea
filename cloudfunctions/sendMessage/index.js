@@ -1,8 +1,10 @@
-// 云函数：sendMessage - AI 对话 + 消息保存 + 请求日志
+// 云函数：sendMessage - 课时级 AI 对话
 const cloud = require('wx-server-sdk')
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
 const https = require('https')
+
+const API_KEY = process.env.MINIMAX_API_KEY || 'sk-cp-c5wSwWsnIcUkewTEe9JhETRKZNyJ1OBnphm_4B1HdOV0LMNh9vP80kJFBKZV5jpCtp22_xyBUtF0zRAwgWaxU4YECc_LL8GPzEj6GVOHmMiovcfwylDgCDM'
 
 function callMiniMax(messages) {
   return new Promise((resolve, reject) => {
@@ -17,162 +19,160 @@ function callMiniMax(messages) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer sk-cp-c5wSwWsnIcUkewTEe9JhETRKZNyJ1OBnphm_4B1HdOV0LMNh9vP80kJFBKZV5jpCtp22_xyBUtF0zRAwgWaxU4YECc_LL8GPzEj6GVOHmMiovcfwylDgCDM'
+        'Authorization': 'Bearer ' + API_KEY
       },
       timeout: 30000,
     }, res => {
-      const statusCode = res.statusCode
       let body = ''
       res.on('data', chunk => body += chunk)
       res.on('end', () => {
-        console.log('[sendMessage MiniMax] status:', statusCode, 'body:', body.slice(0, 500))
+        if (res.statusCode !== 200) {
+          reject(new Error('AI服务暂不可用'))
+          return
+        }
         try {
-          const parsed = JSON.parse(body)
-          if (statusCode !== 200) {
-            reject(new Error('AI服务暂不可用'))
-            return
-          }
-          resolve(parsed)
-        } catch(e) {
+          resolve(JSON.parse(body))
+        } catch (e) {
           reject(new Error('AI响应格式异常'))
         }
       })
     })
     req.on('error', reject)
-    req.on('timeout', () => { req.destroy(); reject(new Error('AI响应超时，请重试')) })
+    req.on('timeout', () => { req.destroy(); reject(new Error('AI响应超时')) })
     req.write(data)
     req.end()
   })
 }
 
-// 日志记录
-async function logAIRequest(params) {
+function parseCompletion(aiReply) {
+  const result = { isCompleted: false, score: null }
+  if (!aiReply) return result
   try {
-    await db.collection('user_ai_logs').add({ data: {
-      type: 'sendMessage',
-      openid: params.openid || '',
-      themeId: params.themeId || '',
-      nodeId: params.nodeId || '',
-      promptPreview: JSON.stringify(params.messages || []).slice(0, 2000),
-      response: (params.response || '').slice(0, 3000),
-      score: params.score || null,
-      durationMs: params.durationMs || 0,
-      status: params.status || 'success',
-      error: params.error || '',
-      isCompleted: params.isCompleted || false,
-      createdAt: Date.now(),
-    }})
-  } catch(e) {
-    console.error('[logAIRequest] 写入失败', e.message)
-  }
+    const match = aiReply.match(/\{[\s\S]*?"action"[\s\S]*?\}/)
+    if (match) {
+      const parsed = JSON.parse(match[0])
+      if (parsed.action === 'complete') result.isCompleted = true
+      if (typeof parsed.score === 'number') result.score = parsed.score
+    }
+  } catch (e) { /* ignore parse errors */ }
+  return result
 }
 
 exports.main = async (event, context) => {
-  const { openid, themeId, nodeId, content, reviewMode, miniMaxMessages, themeName, nodeTitle, nodeObjective, historyMessages, userText } = event
-
-  // 模式1：客户端传了 miniMaxMessages（预格式化，直接 AI 调用）
-  if (miniMaxMessages && miniMaxMessages.length > 0) {
-    if (!openid) return { success: false, error: '缺少 openid' }
-    const startTime = Date.now()
+  // 新调用方式：前端已组装好 miniMaxMessages 数组，直接调用 AI
+  if (event.miniMaxMessages) {
     try {
-      const aiRes = await callMiniMax(miniMaxMessages)
+      const aiRes = await callMiniMax(event.miniMaxMessages)
       const aiReply = aiRes.choices?.[0]?.message?.content || ''
-      if (!aiReply) throw new Error('AI 返回为空')
-
-      // 剥离推理标签（不要存到数据库）
-      const noThink = aiReply.replace(/<think>[\s\S]*?<\/think>/g, '').trim()
-
-      // 解析尾部 JSON 动作块：{"action":"complete","score":8} 或 {"score":8}
-      let cleanReply = noThink
-      let isCompleted = false
-      let score = null
-      const endBrace = noThink.lastIndexOf('}')
-      if (endBrace >= 0 && noThink.slice(endBrace + 1).trim() === '') {
-        const startBrace = noThink.lastIndexOf('{', endBrace)
-        if (startBrace >= 0) {
-          try {
-            const meta = JSON.parse(noThink.slice(startBrace, endBrace + 1))
-            if (meta.action === 'complete') isCompleted = true
-            if (typeof meta.score === 'number') score = meta.score
-            cleanReply = noThink.slice(0, startBrace).trim()
-            // 提取摘要（跨课程上下文用）
-            let summary = ''
-            if (meta.summary && typeof meta.summary === 'string') {
-              summary = meta.summary.trim()
-            }
-            // 保存课时摘要（仅在课时完成时）
-            if (summary && isCompleted && themeId && nodeId) {
-              db.collection('user_lesson_summaries').add({
-                data: { openid, themeId, nodeId, summary, score, createdAt: Date.now() }
-              }).catch(e => console.error('[saveSummary] 失败', e.message))
-            }
-          } catch (e) {
-            // 不是合法 JSON，保留原文本
-            cleanReply = noThink
-          }
-        }
-      }
-
-      // 旧格式兼容：[评分] 和 [完成] 标签
-      if (!isCompleted && !score) {
-        if (noThink.includes('[完成]')) {
-          isCompleted = true
-          cleanReply = noThink.replace(/\[完成\]/g, '').trim()
-        }
-        const legacyScore = noThink.match(/\[评分\]\s*(\d+)/)
-        if (legacyScore) score = parseInt(legacyScore[1])
-      }
-
-      // 保存消息到数据库（自动消息不存用户输入）
-      if (themeId && nodeId) {
-        const convCol = db.collection('user_conversations')
-        const now = Date.now()
-        if (!event.isAutoMessage) {
-          await convCol.add({ data: { id: 'user_' + now, openid, themeId, nodeId, role: 'user', content: userText || '', createdAt: now } })
-        }
-        await convCol.add({ data: { id: 'ai_' + now + 1, openid, themeId, nodeId, role: 'ai', content: cleanReply, createdAt: now + 1, isCompleted } })
-
-        if (score !== null) {
-          await db.collection('user_progress').add({
-            data: { openid, themeId, nodeId, score, recordedAt: Date.now() }
-          })
-        }
-      }
-
-      // 异步记录日志（不影响主流程返回）
-      logAIRequest({
-        openid, themeId, nodeId,
-        messages: miniMaxMessages,
-        response: cleanReply,
-        score, durationMs: Date.now() - startTime,
-        status: 'success', isCompleted,
-      })
-
-      return { success: true, aiReply: cleanReply, isCompleted }
+      if (!aiReply) return { success: false, error: 'AI 返回为空' }
+      const { isCompleted, score } = parseCompletion(aiReply)
+      const result = { success: true, aiReply, isCompleted, score }
+    return result
     } catch (e) {
-      // 错误也记日志
-      logAIRequest({
-        openid, themeId, nodeId,
-        messages: miniMaxMessages,
-        response: '',
-        score: null, durationMs: Date.now() - startTime,
-        status: 'error', error: e.message,
-        isCompleted: false,
-      })
       return { success: false, error: e.message }
     }
   }
 
-  // 模式2：纯 DB 存储（旧模式，由客户端传 userMsg + aiReply）
-  const { userMsg, aiReply } = event
-  if (!openid || !themeId || !nodeId) {
+  const { openid, courseId, lessonId, content } = event
+  if (!openid || !courseId || !lessonId || !content) {
     return { success: false, error: '缺少必要参数' }
   }
+
   try {
     const now = Date.now()
-    await db.collection('user_conversations').add({ data: { id: 'user_' + now, openid, themeId, nodeId, role: 'user', content: userMsg || '', createdAt: now } })
-    await db.collection('user_conversations').add({ data: { id: 'ai_' + now + 1, openid, themeId, nodeId, role: 'ai', content: aiReply || '', createdAt: now + 1 } })
-    return { success: true }
+
+    // 1. 读最近 20 条消息
+    const msgRes = await db.collection('messages')
+      .where({ courseId, lessonId })
+      .orderBy('sentAt', 'desc')
+      .limit(20)
+      .get()
+    const historyMsgs = msgRes.data.reverse()
+
+    // 2. 读课程信息
+    const courseRes = await db.collection('courses').doc(courseId).get()
+    if (!courseRes.data) return { success: false, error: '课程不存在' }
+    const course = courseRes.data
+
+    // 3. 读课时信息
+    const lessonRes = await db.collection('lessons').doc(lessonId).get()
+    if (!lessonRes.data) return { success: false, error: '课时不存在' }
+    const lesson = lessonRes.data
+
+    // 4. 读用户画像
+    const userRes = await db.collection('users').where({ openid }).get()
+    const user = userRes.data.length > 0 ? userRes.data[0] : null
+    const ageText = user && user.age ? `年龄：${user.age}岁` : '年龄：未知'
+    const occText = user && user.occupation ? `职业：${user.occupation}` : '职业：未知'
+
+    // 组装 system prompt
+    const lessonSummary = course.lessonSummary ? `课程学习进度摘要：${course.lessonSummary}` : ''
+    const systemPrompt = `你是"小知也"AI 学习助手，正在进行一对一学习辅导。
+
+用户信息：
+${ageText}
+${occText}
+
+当前课程：${course.name}
+课程介绍：${course.description}
+
+当前课时：${lesson.title}
+学习目标：${lesson.objective}
+课时内容：${lesson.content}
+
+${lessonSummary}
+
+请以友好的导师风格回应，引导用户思考和理解。
+不要主动结束对话，除非用户明确表示已完成。
+每次回复要自然、有教学性、能引发进一步讨论。`
+
+    // 组装完整 messages
+    const messages = [
+      { role: 'system', content: systemPrompt },
+      ...historyMsgs.map(m => ({ role: m.role, content: m.content })),
+      { role: 'user', content },
+    ]
+
+    // 5. 调 MiniMax
+    const aiRes = await callMiniMax(messages)
+    const aiReply = aiRes.choices?.[0]?.message?.content || ''
+    if (!aiReply) return { success: false, error: 'AI 返回为空' }
+
+    // 6. 写入消息
+    const userMsgId = 'msg_user_' + now
+    await db.collection('messages').add({
+      data: {
+        _id: userMsgId,
+        openid,
+        courseId,
+        lessonId,
+        role: 'user',
+        content,
+        sentAt: now,
+        createdAt: now,
+        updatedAt: now,
+      }
+    })
+
+    const aiMsgId = 'msg_ai_' + (now + 1)
+    await db.collection('messages').add({
+      data: {
+        _id: aiMsgId,
+        openid,
+        courseId,
+        lessonId,
+        role: 'ai',
+        content: aiReply,
+        sentAt: now + 1,
+        createdAt: now + 1,
+        updatedAt: now + 1,
+      }
+    })
+
+    // 7. 返回 AI 回复（含完成标记和分数）
+    const { isCompleted, score } = parseCompletion(aiReply)
+    const result = { success: true, aiReply, isCompleted, score }
+    return result
   } catch (e) {
     return { success: false, error: e.message }
   }

@@ -55,7 +55,7 @@
 }
 
 .stat-card {
-  background: #1a1a2e;
+  background: var(--capsule-ink);
   border-radius: 16rpx;
   padding: 4rpx;
 }
@@ -79,7 +79,7 @@
 
 .menu-list {
   margin: 24rpx 24rpx 0;
-  background: #1a1a2e;
+  background: var(--capsule-ink);
   border-radius: 16rpx;
   overflow: hidden;
 }
@@ -116,7 +116,7 @@
 /* ====== 表单模式 - 自定义标签 ====== */
 .custom-tag {
   padding: 12rpx 28rpx;
-  background: #6366f1;
+  background: var(--capsule-accent);
   border-radius: 30rpx;
   font-size: 26rpx;
   color: #fff;
@@ -130,7 +130,7 @@
 
 .custom-interest-input {
   flex: 1;
-  background: #f5f5f7;
+  background: var(--capsule-bg);
   border-radius: 12rpx;
   padding: 16rpx 24rpx;
   font-size: 26rpx;
@@ -143,11 +143,39 @@
   width: 100rpx;
   height: 60rpx;
   line-height: 60rpx;
-  background: #6366f1;
+  background: var(--capsule-accent);
   color: #fff;
   font-size: 24rpx;
   border-radius: 12rpx;
   text-align: center;
   padding: 0;
   border: none;
+}
+
+/* 课程生成进度覆盖层 */
+.gen-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(255,255,255,0.95);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 999;
+}
+.gen-box {
+  text-align: center;
+  padding: 60rpx 80rpx;
+}
+.gen-icon { font-size: 80rpx; margin-bottom: 30rpx; }
+.gen-stage {
+  font-size: 28rpx; color: #666; margin-bottom: 30rpx;
+  min-height: 40rpx;
+}
+.gen-bar-bg {
+  width: 400rpx; height: 8rpx;
+  background: #eee; border-radius: 4rpx;
+  overflow: hidden;
+}
+.gen-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  border-radius: 4rpx;
+  transition: width 0.3s ease;
 }

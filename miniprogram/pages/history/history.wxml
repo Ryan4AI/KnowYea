@@ -3,17 +3,26 @@
     <text class="loading-icon">⏳</text>
     <text>加载中...</text>
   </view>
+
   <view class="empty-state" wx:elif="{{historyList.length === 0}}">
     <text class="empty-icon">📜</text>
     <text class="empty-text">还没有学习记录\n开始学习后记录会显示在这里</text>
   </view>
+
+  <!-- 按日期分组的时间线 -->
   <view class="history-list" wx:else>
-    <view class="history-item" wx:for="{{historyList}}" wx:key="_id" bindtap="onItemTap" data-theme-id="{{item.themeId}}" data-node-id="{{item.nodeId}}">
-      <view class="item-left">
-        <view class="item-title">{{item.nodeTitle}}</view>
-        <view class="item-meta">{{item.themeName}} · 课时 {{item.nodeOrder}}</view>
+    <view class="date-group" wx:for="{{groupedHistory}}" wx:key="dateLabel">
+      <view class="date-label">{{item.dateLabel}}</view>
+      <view class="date-items">
+        <view class="history-item" wx:for="{{item.items}}" wx:key="_id" wx:for-item="record" bindtap="onItemTap" data-theme-id="{{record.themeId}}" data-node-id="{{record.nodeId}}">
+          <view class="item-dot"></view>
+          <view class="item-content">
+            <view class="item-title">{{record.nodeTitle}}</view>
+            <view class="item-meta">{{record.themeName}} · 第 {{record.nodeOrder}} 课</view>
+          </view>
+          <view class="item-time">{{record.timeStr}}</view>
+        </view>
       </view>
-      <view class="item-arrow">›</view>
     </view>
   </view>
 </view>

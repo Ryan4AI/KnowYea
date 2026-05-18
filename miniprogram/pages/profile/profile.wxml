@@ -16,8 +16,8 @@ module.exports = { contains: contains };
   <block wx:if="{{showForm}}">
     <view class="page-header">
       <view class="page-icon">{{isEditing && userProfile ? '✏️' : '👤'}}</view>
-      <view class="page-title">{{isEditing && userProfile ? '编辑个人画像' : '先了解一下你'}}</view>
-      <view class="page-desc">{{isEditing && userProfile ? '修改你的画像信息' : '让 AI 为你量身定制专属课程'}}</view>
+      <view class="page-title">{{isEditing && userProfile ? '信息更新' : '先了解一下你'}}</view>
+      <view class="page-desc">{{isEditing && userProfile ? '修改你的基本信息' : '让 AI 为你量身定制专属课程'}}</view>
     </view>
 
     <view class="white-card">
@@ -131,7 +131,18 @@ module.exports = { contains: contains };
       </view>
     </view>
 
-    <view class="slogan"><text>知识胶囊 · 每天几分钟，慢慢变强</text></view>
+    <view class="slogan"><text>每天几分钟，慢慢变强</text></view>
   </block>
+
+  <!-- 课程生成进度 -->
+  <view class="gen-overlay" wx:if="{{genOverlay}}">
+    <view class="gen-box">
+      <view class="gen-icon">📖</view>
+      <view class="gen-stage">{{genStage}}</view>
+      <view class="gen-bar-bg">
+        <view class="gen-bar-fill" style="width:{{genProgress}}%"></view>
+      </view>
+    </view>
+  </view>
 </view>
 </view>

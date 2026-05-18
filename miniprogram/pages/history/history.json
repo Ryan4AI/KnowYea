@@ -1,1 +1,6 @@
-{ "usingComponents": {}, "navigationBarTitleText": "历史记录" }
+{
+  "usingComponents": {},
+  "navigationBarTitleText": "历史记录",
+  "navigationBarBackgroundColor": "#1a1a2e",
+  "navigationBarTextStyle": "white"
+}

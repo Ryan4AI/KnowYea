@@ -10,61 +10,69 @@ module.exports = { contains: contains };
 </wxs>
 
 <view class="page">
+
+  <!-- 等待登录：全屏加载 -->
+  <view class="loading-screen" wx:if="{{showSplash}}">
+    <view class="loading-icon">🌱</view>
+    <text class="loading-text">小知也</text>
+  </view>
   <!-- 自定义导航栏 -->
   <view class="nav-bar" style="padding-top: {{navBarTop}}px">
     <view class="nav-bar-inner">
-      <text class="nav-left" wx:if="{{theme}}" bindtap="onGardenTap">🌱</text>
+      <text class="nav-left" wx:if="{{course}}" bindtap="onGardenTap">🌱</text>
       <text class="nav-left" wx:else></text>
-      <text class="nav-title">{{theme ? theme.name : '小知也'}}</text>
-      <text class="nav-right"></text>
-    </view>
-  </view>
-
-  <!-- 课程生成器（有画像、没课程时显示） -->
-  <view class="gen-page" wx:if="{{showGenerator}}">
-    <view class="page-container">
-      <view class="page-header">
-        <view class="page-icon">🧠</view>
-        <view class="page-title">AI 课程生成器</view>
-        <view class="page-desc">输入你想学的内容，AI 为你量身定制一套完整课程</view>
-      </view>
-      <view class="white-card">
-        <view class="gen-input-row">
-          <input class="gen-input" placeholder="例如：投资理财、心理学入门..." bindinput="onGenInput" bindconfirm="onGenConfirm" value="{{genKeyword}}" />
-          <button class="gen-btn" bindtap="onGenConfirm" disabled="{{genLoading}}">{{genLoading ? '⏳ ...' : '🚀 生成'}}</button>
-        </view>
-        <view class="gen-examples" wx:if="{{interestTags.length > 0}}">
-          <text class="gen-examples-label">你的兴趣方向：</text>
-          <view class="gen-tags">
-            <text class="gen-tag" wx:for="{{interestTags}}" wx:key="index" bindtap="onGenExample" data-keyword="{{item}}">{{item}}</text>
-          </view>
-        </view>
-      </view>
+      <text class="nav-title">{{course ? course.name : '小知也'}}</text>
+      <text class="nav-right" wx:if="{{course}}" bindtap="showCourseSwitcher">☰</text>
+      <text class="nav-right" wx:else></text>
     </view>
   </view>
 
   <!-- 学习区域 -->
-  <scroll-view class="messages-container" scroll-y="{{true}}" scroll-with-animation="{{true}}" upper-threshold="50" scroll-into-view="msg-bottom" wx:if="{{theme}}">
+  <scroll-view class="messages-container" scroll-y="{{true}}" scroll-with-animation="{{true}}" upper-threshold="50" scroll-into-view="msg-bottom" wx:if="{{course}}">
     <view class="messages-list" id="msg-list">
       <block wx:for="{{messages}}" wx:key="id">
         <view class="message-item {{item.role}}" id="msg-{{index}}">
-          <view class="message-avatar">{{item.role === 'ai' ? '🧑‍🏫' : '👤'}}</view>
           <view class="message-main">
-            <view class="message-content">
+            <view class="message-content {{item.role}}">
               <!-- 消息时间 -->
               <view class="msg-time">{{item.timeStr}}</view>
 
-              <!-- 富文本内容 -->
-              <block wx:for="{{item.blocks}}" wx:key="type">
-                <!-- 文本段落 -->
-                <text wx:if="{{item.type === 'text'}}" class="msg-text">{{item.content}}</text>
-                <!-- 表格 -->
-                <view wx:elif="{{item.type === 'table'}}" class="msg-table-wrap">
-                  <rich-text nodes="{{item.content}}" class="msg-table"></rich-text>
+              <!-- 消息块 -->
+              <block wx:for="{{item.blocks}}" wx:for-item="block" wx:key="type">
+                <!-- 纯文本 -->
+                <text wx:if="{{block.type === 'text'}}" class="msg-text">{{block.text}}</text>
+
+                <!-- 概念卡片（概念/例子/总结/评价 → 紧凑的左边框标记，不显示标签文字） -->
+                <view wx:elif="{{block.type === '概念' || block.type === '例子' || block.type === '总结' || block.type === '评价'}}" class="concept-card concept-card-{{block.type == '概念' ? 'concept' : block.type == '例子' ? 'example' : block.type == '总结' ? 'summary' : 'eval'}}">
+                  <rich-text class="concept-content" nodes="{{block.html}}"></rich-text>
                 </view>
-                <!-- 选项 -->
-                <view wx:elif="{{item.type === 'option'}}" class="option-group">
-                  <text class="option-item" data-option="{{item.content}}" bindtap="onOptionTap">{{item.content}}</text>
+
+                <!-- 选择题 -->
+                <view wx:elif="{{block.type === 'choice'}}" class="question-block">
+                  <view class="question-label">❓ 选择题</view>
+                  <rich-text nodes="{{block.html}}" class="question-text"></rich-text>
+                  <view class="options-list">
+                    <text class="option-item" wx:for="{{block.options}}" wx:key="index" data-value="{{item}}" data-msgid="{{block._msgId}}" bindtap="onOptionTap">{{item}}</text>
+                  </view>
+                </view>
+
+                <!-- 问答题 -->
+                <view wx:elif="{{block.type === 'open'}}" class="question-block">
+                  <view class="question-label">✏️ 问答题</view>
+                  <rich-text nodes="{{block.html}}" class="question-text"></rich-text>
+                  <view class="open-input-wrap">
+                    <input class="open-input" placeholder="输入你的回答..." data-msgid="{{block._msgId}}" bindconfirm="onOpenSubmit" />
+                  </view>
+                </view>
+
+                <!-- 评分 -->
+                <view wx:elif="{{block.type === '评分'}}" class="score-badge">
+                  <text>⭐ {{block.score}}/10</text>
+                </view>
+
+                <!-- 表格 -->
+                <view wx:elif="{{block.type === 'table'}}" class="msg-table-wrap">
+                  <rich-text nodes="{{block.html}}" class="msg-table"></rich-text>
                 </view>
               </block>
 
@@ -77,20 +85,20 @@ module.exports = { contains: contains };
         </view>
       </block>
 
-      <!-- 等待动画 -->
-      <view class="loading-dots" wx:if="{{loadingMessage}}">
+      <!-- 加载动画 -->
+      <view class="loading-dots" wx:if="{{isLoading}}">
         <text class="loading-dot">.</text><text class="loading-dot">.</text><text class="loading-dot">.</text>
       </view>
 
       <!-- "下一节"按钮 -->
-      <view class="next-lesson" wx:if="{{isCompleted && hasNextNode && !isPendingTransition}}">
+      <view class="next-lesson" wx:if="{{isCompleted && hasNextLesson && !isPendingTransition}}">
         <button class="next-btn" bindtap="manualAdvance">
           <text>继续下一节 →</text>
         </button>
       </view>
 
-      <!-- 完成所有课程 -->
-      <view class="next-lesson" wx:if="{{isCompleted && !hasNextNode && !isPendingTransition}}">
+      <!-- 完成全部课程 -->
+      <view class="next-lesson" wx:if="{{isCompleted && !hasNextLesson && !isPendingTransition}}">
         <button class="next-btn" bindtap="onFinishCourse">
           <text>🎉 完成课程，更多学习</text>
         </button>
@@ -101,7 +109,7 @@ module.exports = { contains: contains };
   </scroll-view>
 
   <!-- 输入栏 -->
-  <view class="input-bar" wx:if="{{theme}}">
+  <view class="input-bar" wx:if="{{course}}">
     <view class="input-wrapper">
       <textarea
         class="text-input"
@@ -117,31 +125,12 @@ module.exports = { contains: contains };
     </view>
   </view>
 
-  <!-- 加载中的全屏 mask -->
-  <view class="loading-mask" wx:if="{{isLoading && !theme}}">
-    <text style="color:#999;font-size:28rpx;">加载中...</text>
+  <!-- 空状态 -->
+  <view class="welcome" wx:if="{{!course && !isLoading}}">
+    <view class="welcome-icon">📚</view>
+    <view class="welcome-title">小知也</view>
+    <view class="welcome-desc">碎片时间，系统学习</view>
   </view>
 
-  <!-- 生成进度弹窗 -->
-  <view class="gen-mask" wx:if="{{genLoading}}">
-    <view class="gen-card">
-      <view class="gen-icon">🧠</view>
-      <view class="gen-title">AI 正在为你生成课程</view>
-      <view class="gen-stage">{{genStage}}</view>
-      <view class="gen-bar"><view class="gen-fill" style="width: {{genProgress}}%"></view></view>
-      <view class="gen-hint">根据内容复杂度可能需要 10-30 秒</view>
-    </view>
-  </view>
-
-  <!-- 生成完成弹窗 -->
-  <view class="gen-mask" wx:if="{{pendingCourse && !genLoading}}">
-    <view class="gen-card">
-      <view style="font-size: 72rpx; margin-bottom: 16rpx;">✅</view>
-      <view class="gen-title">{{pendingCourse.name}}</view>
-      <view style="font-size: 26rpx; color: #666; margin-bottom: 12rpx; padding: 0 20rpx; line-height: 1.5;">{{pendingCourse.desc}}</view>
-      <view style="font-size: 24rpx; color: #bbb; margin-bottom: 32rpx;" wx:if="{{pendingCourse.nodesCount}}">共 {{pendingCourse.nodesCount}} 节课 · 每节 3-5 分钟</view>
-      <button class="gen-learn-btn" bindtap="onGenStart">开始学习 →</button>
-      <button class="gen-again-btn" bindtap="onGenReset">再生成一个</button>
-    </view>
-  </view>
+  <!-- 加载中 toast 处理，无需额外 UI -->
 </view>

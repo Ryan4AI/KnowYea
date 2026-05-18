@@ -1,260 +1,199 @@
-// pages/learn/learn.js — 纯学习页（不处理画像收集 / 课程生成）
+// pages/learn/learn.js — 纯学习页
 const app = getApp()
 
-// 仅用于 system prompt 中映射年龄文字
 const AGE_OPTIONS = ['18岁以下', '18-25岁', '26-35岁', '36-45岁', '46岁以上']
 
 const { formatTime, parseMessageBlocks } = require('../../utils/helpers')
 
+function mdToHtml(text) {
+  if (!text) return ''
+  return '<p style="margin:6px 0;line-height:1.6;font-size:14px;">' + text.replace(/\n/g, '<br/>') + '</p>'
+}
+
 function processMessages(messages) {
-  return (messages || []).map(msg => ({
-    ...msg,
-    blocks: parseMessageBlocks(msg.content),
-    timeStr: formatTime(msg.createdAt || Date.now()),
-    completed: msg.completed || msg.isCompleted || false,
-  }))
+  return (messages || []).map(msg => {
+    const blocks = parseMessageBlocks(msg.content)
+    blocks.forEach(b => {
+      b._msgId = msg._id || msg.id
+      if (b.type === 'choice' && b.content) {
+        const lines = b.content.split('\n').map(l => l.trim()).filter(l => l)
+        b.question = lines[0]
+        b.options = lines.slice(1)
+        b.html = mdToHtml(b.question)
+      }
+      if (b.type === 'open' && b.content) {
+        b.question = b.content
+        b.html = mdToHtml(b.question)
+      }
+    })
+    return { ...msg, blocks, timeStr: formatTime(msg.createdAt || Date.now()), completed: msg.completed || msg.isCompleted || false }
+  })
 }
 
 function lightVibrate() {
-  try {
-    if (wx.vibrateShort) {
-      wx.vibrateShort({ type: 'light' })
-    }
-  } catch (e) { /* ignore */ }
+  try { wx.vibrateShort({ type: 'light' }) } catch (e) {}
 }
 
 Page({
   data: {
-    openid: '',
-    theme: null,
-    node: null,
-    messages: [],
-    isLoading: false,
-    loadingMore: false,
-    inputValue: '',
-    canSend: false,
-    plantLevel: 1,
-    isCompleted: false,
-    isLearning: false,
-    isPendingTransition: false,
-    showCompleteBtn: false,
-    reviewMode: false,
-    isFavorited: false,
-    showThemeSwitcher: false,
-    learningThemes: [],
-    hasMoreMessages: false,
-    messageOffset: 0,
-    showAchievementPopup: false,
-    currentAchievement: null,
-    userProfile: {},
-    showThemeInfo: false,
-    hasNextNode: false,
-    scrollIntoView: '',
-    navBarTop: 0,
-    courseContext: '',
-    // 课程生成器状态
-    showGenerator: false,
-    genKeyword: '',
-    genLoading: false,
-    genStage: '',
-    genProgress: 0,
-    pendingCourse: null,
-    interestTags: [],
+    openid: '', course: null, lesson: null,
+    messages: [], isLoading: false, loadingMore: false,
+    inputValue: '', canSend: false,
+    plantLevel: 1, isCompleted: false, isLearning: false,
+    isPendingTransition: false, showCompleteBtn: false, reviewMode: false,
+    showThemeSwitcher: false, learningCourses: [],
+    hasMoreMessages: false, messageOffset: 0,
+    showAchievementPopup: false, currentAchievement: null,
+    userProfile: {}, showThemeInfo: false, hasNextLesson: false,
+    scrollIntoView: '', navBarTop: 0, courseContext: '', showSplash: true,
   },
 
   onShow() {
-    this.bootstrap()
-  },
-
-  async bootstrap() {
-    try {
-      const sys = wx.getSystemInfoSync()
-      this.setData({ navBarTop: sys.statusBarHeight })
-    } catch(e) {
-      this.setData({ navBarTop: 44 })
-    }
-
-    await app.waitForLogin()
-    this.setData({ openid: app.globalData.openid || '' })
-
-    const context = app.consumeLearnContext()
-    if (context) {
-      this.loadHomeData(context)
+    if (!app.globalData.openid) {
+      setTimeout(() => this.onShow(), 500)
       return
     }
-
-    this.loadHomeData()
+    this.setData({ openid: app.globalData.openid, showSplash: false })
+    this.loadPageData()
   },
 
-  loadHomeData(context = {}) {
+  loadPageData(context = {}) {
     if (!app.globalData.openid) return
-
     wx.showLoading({ title: '加载中...' })
+    const openid = app.globalData.openid
 
-    wx.cloud.callFunction({
-      name: 'getHomeData',
-      data: {
-        openid: app.globalData.openid,
-        themeId: context.themeId,
-        nodeId: context.nodeId,
-        mode: context.mode,
-        messageLimit: 30,
-        messageOffset: context.messageOffset || 0,
-      },
-      success: res => {
-        wx.hideLoading()
-        if (!res.result || !res.result.success) return
-
-        const {
-          currentTheme,
-          currentNode,
-          messages,
-          nodeCompleted,
-          garden,
-          needsOnboarding,
-          isReviewMode,
-          isFavorited,
-          hasMoreMessages,
-          messageOffset,
-          user,
-        } = res.result
-
-        // 没画像 → 跳转画像收集
-        if (needsOnboarding) {
-          wx.redirectTo({ url: '/pages/profile/profile' })
-          return
-        }
-
-        // 强制进入生成模式（来自花园"生成新课程"）
-        if (context.mode === 'generate') {
-          wx.cloud.callFunction({
-            name: 'getUserProfile',
-            data: { openid: app.globalData.openid }
-          }).then(r => {
-            if (r.result?.success && r.result?.user?.profile) {
-              this.setData({ interestTags: (r.result.user.profile.interests || []).filter(t => t.length > 0) })
-            }
-          }).catch(() => {})
-          this.setData({ showGenerator: true, theme: null, node: null, messages: [] })
-          wx.hideLoading()
-          return
-        }
-
-        // 有画像但没课程 → 在本页展示课程生成器
-        if (!currentTheme && !context.themeId) {
-          // 加载用户的兴趣标签用于生成器
-          wx.cloud.callFunction({
-            name: 'getUserProfile',
-            data: { openid: app.globalData.openid }
-          }).then(res => {
-            if (res.result?.success && res.result?.user?.profile) {
-              const interests = (res.result.user.profile.interests || []).filter(t => t.length > 0)
-              this.setData({ interestTags: interests })
-            }
-          }).catch(() => {})
-          this.setData({ showGenerator: true })
-          wx.hideLoading()
-          return
-        }
-
-        const userProfile = user?.profile || {}
-        this.setData({ userProfile })
-
-        const processedMessages = processMessages(messages)
-
-        this.setData({
-          theme: currentTheme,
-          node: currentNode,
-          messages: processedMessages,
-          plantLevel: garden?.plantLevel || 1,
-          plantPoints: garden?.points || 0,
-          reviewMode: !!isReviewMode,
-          isFavorited: !!isFavorited,
-          hasMoreMessages: !!hasMoreMessages,
-          messageOffset: messageOffset || 0,
-          isCompleted: !!nodeCompleted,
-          isLearning: !!currentNode && !isReviewMode && !nodeCompleted,
-          isPendingTransition: false,
-          showCompleteBtn: false,
-          hasNextNode: currentTheme?.totalNodes && currentNode?.order
-            ? currentNode.order < currentTheme.totalNodes
-            : false,
+    let userData, coursesData
+    Promise.all([
+      new Promise(resolve => {
+        wx.cloud.callFunction({
+          name: 'getUser', data: { openid },
+          success: r => { userData = r.result?.data; resolve() },
+          fail: () => resolve(),
         })
+      }),
+      new Promise(resolve => {
+        wx.cloud.callFunction({
+          name: 'getCourses', data: { openid },
+          success: r => { coursesData = r.result?.data || []; resolve() },
+          fail: () => resolve(),
+        })
+      }),
+    ]).then(() => {
+      wx.hideLoading()
 
-        if (isReviewMode) {
-          wx.showToast({ title: '复习模式', icon: 'none' })
-        }
+      const user = userData?.user
+      const profile = user?.profile || {}
+      // 没画像 → 跳画像收集
+      if (!profile.occupation && (!user?.interests || user.interests.length === 0)) {
+        wx.redirectTo({ url: '/pages/profile/profile?forceForm=1' })
+        return
+      }
 
-        this.refreshCourseContext()
+      const courses = coursesData || []
+      const activeCourses = courses.filter(c => c.status === 'learning')
 
-        if (typeof context.callback === 'function') {
-          context.callback()
-        }
+      // 没在学课程 → 跳课程商店
+      if (activeCourses.length === 0) {
+        wx.redirectTo({ url: '/pages/theme-store/theme-store' })
+        return
+      }
 
-        if (currentNode && processedMessages.length === 0 && !needsOnboarding && !isReviewMode) {
-          wx.showLoading({ title: '加载中...' })
-          setTimeout(() => {
-            wx.hideLoading()
-            this.sendMessage(`请开始介绍"${currentNode.title}"这个课时要学习的内容，用通俗易懂的语言`, true)
-          }, 500)
-        }
-      },
-      fail: err => {
-        wx.hideLoading()
-        console.error('加载失败', err)
-        wx.showToast({ title: '加载失败', icon: 'none' })
-      },
+      let currentCourse
+      if (context.courseId) {
+        currentCourse = courses.find(c => c._id === context.courseId) || activeCourses[0]
+      } else {
+        activeCourses.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0))
+        currentCourse = activeCourses[0]
+      }
+
+      const lessons = currentCourse.lessons || []
+      let currentLesson
+      if (context.lessonId) {
+        currentLesson = lessons.find(l => l._id === context.lessonId)
+      }
+      if (!currentLesson) {
+        currentLesson = lessons.find(l => !l.completedAt) || lessons[lessons.length - 1]
+      }
+
+      this.setData({
+        course: currentCourse,
+        lesson: currentLesson,
+        userProfile: {
+          age: user?.age,
+          ageIndex: AGE_OPTIONS.indexOf(user?.age),
+          occupation: user?.occupation || '',
+          interests: user?.interests || [],
+        },
+        plantLevel: user?.plantLevel || 1,
+        plantPoints: user?.points || 0,
+        isLearning: !!currentLesson,
+      })
+
+      if (currentLesson) {
+        this.loadMessages(currentCourse._id, currentLesson._id)
+      }
+
+      if (typeof context.callback === 'function') context.callback()
+
+      // 新课时无消息 → 自动开场白
+      if (currentLesson && !context.skipAutoMessage) {
+        setTimeout(() => {
+          this.sendMessage(`请开始介绍"${currentLesson.title}"这个课时要学习的内容，用通俗易懂的语言`, true)
+        }, 300)
+      }
+    }).catch(() => {
+      wx.hideLoading()
+      wx.showToast({ title: '加载失败', icon: 'none' })
     })
   },
 
-  loadLearningThemes() {
+  loadMessages(courseId, lessonId, append = false) {
+    const offset = append ? (this.data.messageOffset + 30) : 0
+    this.setData({ loadingMore: append })
     wx.cloud.callFunction({
-      name: 'getThemes',
-      data: { openid: app.globalData.openid },
+      name: 'getMessages',
+      data: { openid: app.globalData.openid, courseId, lessonId, limit: 30, offset },
       success: res => {
-        if (res.result && res.result.success) {
-          this.setData({
-            learningThemes: (res.result.themes || []).filter(t => t.status === 'learning'),
-          })
+        this.setData({ loadingMore: false })
+        if (!res.result?.success) return
+        const msgs = processMessages(res.result.data || [])
+        if (append) {
+          this.setData({ messages: [...msgs, ...this.data.messages], hasMoreMessages: res.result.hasMore, messageOffset: offset })
+        } else {
+          this.setData({ messages: msgs, hasMoreMessages: res.result.hasMore, messageOffset: 0 })
+          this.scrollToBottom()
         }
       },
+      fail: () => this.setData({ loadingMore: false }),
     })
   },
 
-  refreshCourseContext() {
-    const { theme } = this.data
-    if (!app.globalData.openid) return
+  loadLearningCourses() {
     wx.cloud.callFunction({
-      name: 'getCourseContext',
-      data: { openid: app.globalData.openid, currentThemeId: theme?._id || '' },
+      name: 'getCourses', data: { openid: app.globalData.openid },
       success: res => {
-        if (res.result?.success && res.result.context) {
-          this.setData({ courseContext: res.result.context })
+        if (res.result?.success) {
+          this.setData({ learningCourses: (res.result.data || []).filter(c => c.status === 'learning') })
         }
       },
-      fail: () => {},
     })
   },
 
   sendMessage(contentOverride, isAutoMessage) {
     const content = (typeof contentOverride === 'string' ? contentOverride : this.data.inputValue || '').trim()
-    const { node, theme, messages, isLoading, reviewMode } = this.data
-    if (!content || isLoading || !node) return
+    const { lesson, course, messages, isLoading, reviewMode } = this.data
+    if (!content || isLoading || !lesson) return
 
     const updatedMessages = isAutoMessage ? messages : [...messages, {
-      id: 'user_' + Date.now(),
-      role: 'user',
-      content,
-      createdAt: Date.now(),
-      blocks: parseMessageBlocks(content),
+      id: 'user_' + Date.now(), role: 'user', content,
+      createdAt: Date.now(), blocks: parseMessageBlocks(content),
       timeStr: formatTime(Date.now()),
     }]
 
     this.setData({
       messages: updatedMessages,
       inputValue: isAutoMessage ? this.data.inputValue : '',
-      isLoading: true,
-      canSend: false,
+      isLoading: true, canSend: false,
     })
     if (!isAutoMessage) this.scrollToBottom()
 
@@ -262,60 +201,32 @@ Page({
       '你是一位专业、耐心、善于引导的AI导师。',
       '',
       '# 回复格式',
-      `当前课程：${theme?.name || ''}`,
-      `当前课时：${node?.title || ''}`,
-      `学习目标：${node?.learningObjective || ''}`,
+      `当前课程：${course?.name || ''}`,
+      `当前课时：${lesson?.title || ''}`,
+      `学习目标：${lesson?.objective || ''}`,
       '',
       '# 用户信息',
       `- 职业：${this.data.userProfile?.occupation || '未知'}`,
       `- 兴趣：${(this.data.userProfile?.interests || []).join('、') || '未知'}`,
-      `- 年龄：${AGE_OPTIONS[(this.data.userProfile?.age || 3) - 1] || '26-35岁'}`,
+      `- 年龄：${this.data.userProfile?.age || '26-35岁'}`,
       '',
-      '# 学习档案（跨课程上下文）',
+      '# 学习档案',
       this.data.courseContext || '暂无历史学习记录。用户首次使用课程。',
       '',
       '# 格式说明',
-      '你可以使用以下标签组织回复（段首标签自动延续到下一个标签，不需要写关闭）：',
-      '- [概念]核心概念解释 → 用于定义和解释核心概念',
-      '- [例子]具体例子说明 → 用于生活或工作中举例说明',
-      '- [总结]内容总结 → 用于归纳要点或回顾',
-      '- [评价]分析评价 → 用于点评用户的回答',
+      '- [概念]核心概念解释\n- [例子]具体例子说明\n- [总结]内容总结\n- [评价]分析评价',
       '',
       '# 出题与评分',
-      '- 选择题格式（管道分隔）：[题目 type="choice"]问题描述|选项A|选项B|选项C|选项D[/题目]',
-      '- 选择题格式（换行前缀）：[题目 type="choice"]问题描述\nA. 选项A\nB. 选项B\nC. 选项C\nD. 选项D[/题目]',
-      '- 两种格式均可，但**选项必须放在 [题目] 和 [/题目] 之间，不能放在外面**',
-      '- 问答题格式：[题目 type="open"]问题描述[/题目]',
-      '',
-      '# 完成标记（回复末尾加 JSON 块）',
-      '- 需要计分时：{"score":N}（N为0-10分）',
-      '- 确认用户掌握本课时后：{"action":"complete","score":N}',
-      '- 用户说"学会了/明白了/继续"时也输出 complete JSON',
-      '- 完成时额外输出 summary 字段，一句话总结用户对本课时的掌握情况：{"action":"complete","score":N,"summary":"用户对X概念理解清晰，Y概念需要更多练习"}',
-      '- summary 是跨课程上下文的核心数据，AI下次对话会参考，请认真撰写',
+      '- 选择题：[题目 type="choice"]问题|A. 选项A|B. 选项B|C. 选项C|D. 选项D[/题目]',
+      '- 问答题：[题目 type="open"]问题描述[/题目]',
+      '- 完成标记：{"action":"complete","score":N,"summary":"..."}',
       '',
       '# 评分标准',
-      '- 完全正确、深入理解 → 9-10分',
-      '- 基本正确、理解到位 → 7-8分',
-      '- 部分正确、部分偏差 → 5-6分',
-      '- 理解不足、方向偏差 → 3-4分',
-      '- 完全不对 → 1-2分',
-      '',
-      '# 出题方式',
-      '- 每小节至少出1道题检验用户理解',
-      '- 题目难度递增：先概念确认，再理解应用，最后综合分析',
-      '- 选择题的选项数量保持4个',
-      '- 问答题用于引导用户思考和表达',
+      '9-10分:完全正确 7-8分:基本正确 5-6分:部分正确 3-4分:理解不足 1-2分:完全不对',
       '',
       '# 教学流程',
-      '1. 先用[概念]讲解本课时核心知识点',
-      '2. 用[例子]列举相关例子辅助理解',
-      '3. 出题检验（选择题或问答题）',
-      '4. 根据用户的回答给出反馈和评分',
-      '5. 必要时再用讲解加深巩固',
-      '6. 确认用户理解后，在回复末尾加 JSON 完成标记',
-      '',
-      '注意：不要在回复中写"第X课"或"第X节"等序号，因为小程序会自动显示课时标题。',
+      '概念讲解→例子辅助→出题检验→反馈评分→确认掌握',
+      '注意：不要在回复中写"第X课"等序号。',
     ].join('\n')
 
     const miniMaxMessages = [
@@ -328,62 +239,44 @@ Page({
       name: 'sendMessage',
       data: {
         openid: app.globalData.openid,
-        themeId: theme?._id || '',
-        nodeId: node?._id || '',
-        miniMaxMessages,
-        userText: content,
-        isAutoMessage: !!isAutoMessage,
+        courseId: course?._id || '', lessonId: lesson?._id || '',
+        miniMaxMessages, userText: content, isAutoMessage: !!isAutoMessage,
       },
       success: res => {
-        if (res.result && res.result.success && res.result.aiReply) {
+        if (res.result?.success && res.result.aiReply) {
           let aiReply = res.result.aiReply.replace(/<think>[\s\S]*?<\/think>/g, '').trim()
           const isCompleted = !!res.result.isCompleted
           const score = res.result.score || null
           const aiMsg = {
-            id: 'ai_' + Date.now(),
-            role: 'ai',
-            content: aiReply,
-            blocks: parseMessageBlocks(aiReply),
-            createdAt: Date.now(),
-            timeStr: formatTime(Date.now()),
-            score,
-            completed: isCompleted,
+            id: 'ai_' + Date.now(), role: 'ai', content: aiReply,
+            blocks: parseMessageBlocks(aiReply), createdAt: Date.now(),
+            timeStr: formatTime(Date.now()), score, completed: isCompleted,
           }
           this.setData({
-            messages: [...this.data.messages, aiMsg],
-            isCompleted,
-            canSend: this.data.inputValue.trim().length > 0,
-            isLoading: false,
+            messages: [...this.data.messages, aiMsg], isCompleted,
+            canSend: this.data.inputValue.trim().length > 0, isLoading: false,
           })
           this.scrollToBottom()
         } else {
           this.setData({ isLoading: false, canSend: true })
-          wx.showToast({ title: 'AI 服务暂时不可用，请重试', icon: 'none' })
+          wx.showToast({ title: 'AI 服务暂时不可用', icon: 'none' })
         }
       },
       fail: () => {
         this.setData({ isLoading: false, canSend: true })
-        wx.showToast({ title: 'AI 服务暂时不可用，请重试', icon: 'none' })
+        wx.showToast({ title: 'AI 服务暂时不可用', icon: 'none' })
       },
     })
   },
 
   onInputChange(e) {
-    this.setData({
-      inputValue: e.detail.value,
-      canSend: e.detail.value.trim().length > 0 && !this.data.isLoading,
-    })
+    this.setData({ inputValue: e.detail.value, canSend: e.detail.value.trim().length > 0 && !this.data.isLoading })
   },
-
-  onInputFocus() {},
-
-  onInputBlur(e) {
-    this.setData({ inputValue: e.detail.value })
-  },
+  onInputBlur(e) { this.setData({ inputValue: e.detail.value }) },
 
   doSend() {
     const content = (this.data.inputValue || '').trim()
-    if (!content || this.data.isLoading || !this.data.node) return
+    if (!content || this.data.isLoading || !this.data.lesson) return
     this.setData({ canSend: false })
     this.sendMessage(content)
   },
@@ -397,109 +290,78 @@ Page({
 
   onQuestionSubmit(e) {
     const { answer } = e.detail
-    if (answer && answer.trim()) {
-      this.sendMessage(answer.trim())
-    }
+    if (answer && answer.trim()) this.sendMessage(answer.trim())
   },
 
   manualAdvance() {
-    const { theme, node } = this.data
-    if (!theme || !node) return
-    if (node.order >= theme.totalNodes) {
+    const { course, lesson } = this.data
+    if (!course || !lesson) return
+    const lessons = course.lessons || []
+    const currentIdx = lessons.findIndex(l => l._id === lesson._id)
+    if (currentIdx >= lessons.length - 1) {
       wx.showToast({ title: '🎉 已学完全部课时！', icon: 'none' })
       return
     }
-    const nextNodeId = `${theme._id}_node_${node.order + 1}`
+    const nextLesson = lessons[currentIdx + 1]
     this.setData({ isCompleted: false })
     wx.showLoading({ title: '进入下一节' })
-
     wx.cloud.callFunction({
-      name: 'completeNode',
-      data: {
-        openid: app.globalData.openid,
-        themeId: theme._id,
-        nodeId: node._id,
-      },
+      name: 'completeLesson',
+      data: { openid: app.globalData.openid, courseId: course._id, lessonId: lesson._id },
       complete: () => {
-        this.switchToNode(nextNodeId, () => {
+        this.switchToLesson(nextLesson._id, () => {
           wx.hideLoading()
-          const newNode = this.data.node
-          if (newNode) {
-            this.sendMessage(`请开始介绍"${newNode.title}"这个课时要学习的内容，用通俗易懂的语言`, true)
-          }
+          this.sendMessage(`请开始介绍"${nextLesson.title}"这个课时要学习的内容，用通俗易懂的语言`, true)
         })
       },
     })
   },
 
-  switchToNode(nodeId, callback) {
-    const loadingMsg = {
-      id: 'loading_' + Date.now(),
-      role: 'ai',
-      content: '⏳ AI 正在生成下一节内容...',
-      blocks: [{ type: 'text', text: '⏳ AI 正在生成下一节内容…' }],
-      createdAt: Date.now(),
-      timeStr: formatTime(Date.now()),
-    }
+  switchToLesson(lessonId, callback) {
     this.setData({
-      messages: [...this.data.messages, loadingMsg],
+      messages: [...this.data.messages, {
+        id: 'loading_' + Date.now(), role: 'ai',
+        content: '⏳ AI 正在生成下一节内容...',
+        blocks: [{ type: 'text', text: '⏳ AI 正在生成下一节内容…' }],
+        createdAt: Date.now(), timeStr: formatTime(Date.now()),
+      }],
       isLoading: true,
     })
     this.scrollToBottom()
-    this.loadHomeData({ nodeId, callback })
+    this.loadPageData({ lessonId, callback })
   },
 
-  completeNode() {
-    const { theme, node, reviewMode } = this.data
-    if (!theme || !node) return
-    if (reviewMode) {
-      wx.showToast({ title: '复习模式不更新进度', icon: 'none' })
-      return
-    }
+  completeLesson() {
+    const { course, lesson, reviewMode } = this.data
+    if (!course || !lesson) return
+    if (reviewMode) { wx.showToast({ title: '复习模式不更新进度', icon: 'none' }); return }
 
     wx.showLoading({ title: '处理中...' })
     wx.cloud.callFunction({
-      name: 'completeNode',
-      data: {
-        openid: app.globalData.openid,
-        themeId: theme._id,
-        nodeId: node._id,
-        reviewMode,
-      },
+      name: 'completeLesson',
+      data: { openid: app.globalData.openid, courseId: course._id, lessonId: lesson._id },
       success: res => {
         wx.hideLoading()
-        if (res.result && res.result.success) {
-          const { isThemeCompleted, pointsEarned, newPlantLevel, unlockedAchievement } = res.result
+        const result = res.result
+        if (result?.success) {
+          const data = result.data || {}
+          const { pointsEarned = 10, isCourseComplete } = data
+          const achievements = data.achievements || []
           lightVibrate()
-          const ACH_META = {
-            first_node: { name: '初学乍道', description: '完成第一个课时', icon: '🌱' },
-            node_10: { name: '十全十美', description: '完成 10 个课时', icon: '🏆' },
-            first_theme: { name: '有始有终', description: '完成第一个主题', icon: '🌿' },
-          }
-          const showAchievement = () => {
-            if (unlockedAchievement) {
-              const meta = ACH_META[unlockedAchievement.id] || {}
-              this.setData({
-                showAchievementPopup: true,
-                currentAchievement: {
-                  ...unlockedAchievement,
-                  name: unlockedAchievement.name || meta.name,
-                  description: unlockedAchievement.description || meta.description,
-                  icon: unlockedAchievement.icon || meta.icon,
-                },
-              })
-            }
-          }
           wx.showModal({
             title: '🎉 课时完成！',
-            content: `获得 ${pointsEarned} 积分${newPlantLevel ? '，植物升级了！' : ''}`,
+            content: `获得 ${pointsEarned} 积分${achievements.length ? '，解锁了新成就！' : ''}`,
             showCancel: false,
             success: () => {
-              showAchievement()
-              if (isThemeCompleted) {
-                wx.showToast({ title: '🎊 主题完成！', icon: 'none' })
+              if (achievements.length > 0) {
+                const ach = achievements[0]
+                this.setData({
+                  showAchievementPopup: true,
+                  currentAchievement: { id: ach.type, name: ach.title || '初学乍道', description: '完成第一个课时', icon: '🌱' },
+                })
               }
-              this.loadHomeData()
+              if (isCourseComplete) wx.showToast({ title: '🎊 课程完成！', icon: 'none' })
+              this.loadPageData()
             },
           })
         }
@@ -512,214 +374,89 @@ Page({
     })
   },
 
-  onToggleFavorite() {
-    const { node, isFavorited } = this.data
-    if (!node) return
-    wx.cloud.callFunction({
-      name: 'toggleFavorite',
-      data: { openid: app.globalData.openid, nodeId: node._id },
-      success: res => {
-        if (res.result && res.result.success) {
-          lightVibrate()
-          this.setData({ isFavorited: res.result.favorited })
-          wx.showToast({ title: res.result.favorited ? '已收藏' : '已取消收藏', icon: 'success' })
-        }
-      },
-    })
-  },
-
-  onSwitchTheme() {
+  onSwitchCourse() {
     lightVibrate()
-    this.loadLearningThemes()
+    this.loadLearningCourses()
     this.setData({ showThemeSwitcher: true })
   },
-
-  onCloseThemeSwitcher() {
-    this.setData({ showThemeSwitcher: false })
-  },
-
-  onThemeChange(e) {
-    const { themeId } = e.detail
+  onCloseThemeSwitcher() { this.setData({ showThemeSwitcher: false }) },
+  onCourseChange(e) {
+    const { courseId } = e.detail
     wx.showLoading({ title: '切换中...' })
-    wx.cloud.callFunction({
-      name: 'switchTheme',
-      data: { openid: app.globalData.openid, themeId },
-      success: res => {
-        wx.hideLoading()
-        if (res.result && res.result.success) {
-          lightVibrate()
-          this.setData({ showThemeSwitcher: false, reviewMode: false })
-          this.loadHomeData()
-        } else {
-          wx.showToast({ title: res.result?.error || '切换失败', icon: 'none' })
-        }
-      },
-      fail: () => {
-        wx.hideLoading()
-        wx.showToast({ title: '网络错误', icon: 'none' })
-      },
-    })
-  },
-
-  onGoThemeStore() {
-    app.setLearnContext({ mode: 'generate' })
-    wx.reLaunch({ url: '/pages/learn/learn' })
+    this.setData({ showThemeSwitcher: false })
+    wx.hideLoading()
+    this.loadPageData({ courseId })
   },
 
   onLoadMoreMessages() {
     if (!this.data.hasMoreMessages || this.data.loadingMore) return
-    const { theme, node, messageOffset } = this.data
-    if (!theme || !node) return
-    this.setData({ loadingMore: true })
-    const newOffset = messageOffset + 30
-    wx.cloud.callFunction({
-      name: 'getHomeData',
-      data: {
-        openid: app.globalData.openid,
-        themeId: theme._id,
-        nodeId: node._id,
-        messageLimit: 30,
-        messageOffset: newOffset,
-      },
-      success: res => {
-        this.setData({ loadingMore: false })
-        if (res.result && res.result.success) {
-          this.setData({
-            messages: [...processMessages(res.result.messages), ...this.data.messages],
-            hasMoreMessages: res.result.hasMoreMessages,
-            messageOffset: newOffset,
-          })
-        }
-      },
-      fail: () => this.setData({ loadingMore: false }),
-    })
+    const { course, lesson } = this.data
+    if (!course || !lesson) return
+    this.loadMessages(course._id, lesson._id, true)
   },
-
-  onCloseAchievement() {
-    this.setData({ showAchievementPopup: false, currentAchievement: null })
-  },
+  onCloseAchievement() { this.setData({ showAchievementPopup: false, currentAchievement: null }) },
 
   scrollToBottom() {
     this.setData({ scrollIntoView: '' })
     setTimeout(() => this.setData({ scrollIntoView: 'msg-bottom' }), 80)
   },
-
-  onGoThemeStoreFromEmpty() {
-    app.setLearnContext({ mode: 'generate' })
-    wx.reLaunch({ url: '/pages/learn/learn' })
-  },
-
-  onGardenTap() {
-    wx.navigateTo({ url: '/pages/garden/garden' })
-  },
+  onGoThemeStoreFromEmpty() { wx.navigateTo({ url: '/pages/theme-store/theme-store' }) },
+  onGardenTap() { wx.navigateTo({ url: '/pages/garden/garden' }) },
 
   showCourseSwitcher() {
-    const { theme, learningThemes } = this.data
-    if (!theme) return
-    if (learningThemes.length === 0) {
+    const { course, learningCourses } = this.data
+    if (!course) return
+    if (learningCourses.length === 0) {
       wx.showLoading({ title: '' })
       wx.cloud.callFunction({
-        name: 'getThemes',
-        data: { openid: app.globalData.openid },
+        name: 'getCourses', data: { openid: app.globalData.openid },
         success: (res) => {
           wx.hideLoading()
-          const themes = (res.result?.themes || []).filter(t => t.status === 'learning')
-          this.setData({ learningThemes: themes })
-          this._pickTheme(themes)
+          const courses = (res.result?.data || []).filter(c => c.status === 'learning')
+          this.setData({ learningCourses: courses })
+          this._pickCourse(courses)
         },
         fail: () => wx.hideLoading(),
       })
     } else {
-      this._pickTheme(learningThemes)
+      this._pickCourse(learningCourses)
     }
   },
 
-  _pickTheme(themes) {
-    const currentId = this.data.theme?._id
-    const names = themes.map(t =>
-      `${t._id === currentId ? '✓ ' : ''}${t.name || '未命名课程'}`
-    )
+  _pickCourse(courses) {
+    const currentId = this.data.course?._id
+    const names = courses.map(t => `${t._id === currentId ? '✓ ' : ''}${t.name || '未命名课程'}`)
     wx.showActionSheet({
       itemList: names,
       success: (r) => {
-        const picked = themes[r.tapIndex]
+        const picked = courses[r.tapIndex]
         if (!picked || picked._id === currentId) return
-        this.setData({ theme: null, node: null, messages: [], isCompleted: false, isPendingTransition: false })
-        this.loadHomeData({ themeId: picked._id })
+        this.setData({ course: null, lesson: null, messages: [], isCompleted: false, isPendingTransition: false })
+        this.loadPageData({ courseId: picked._id, skipAutoMessage: true })
       },
     })
   },
 
-  // ---- 课程生成器 ----
-  genStages: [
-    { text: '正在分析你的兴趣方向...', progress: 20 },
-    { text: '正在构思课程结构...', progress: 50 },
-    { text: '正在生成课程内容...', progress: 75 },
-    { text: '课程即将准备就绪...', progress: 90 },
-  ],
-
-  onGenInput(e) {
-    this.setData({ genKeyword: e.detail.value || '' })
+  onOptionTap(e) {
+    const value = e.currentTarget.dataset.value
+    if (!value) return
+    this.setData({ inputValue: value, canSend: true })
+    this.doSend()
+  },
+  onOpenSubmit(e) {
+    const value = e.detail.value
+    if (!value || !value.trim()) return
+    this.setData({ inputValue: value, canSend: true })
+    this.doSend()
   },
 
-  _startGenProgress() {
-    const stages = this.genStages
-    let i = 0
-    const tick = () => {
-      if (i >= stages.length || !this.data.genLoading) return
-      this.setData({ genStage: stages[i].text, genProgress: stages[i].progress })
-      i++
-      if (i < stages.length) setTimeout(tick, 2500)
-    }
-    this.setData({ genStage: '正在准备...', genProgress: 5 })
-    setTimeout(tick, 800)
-  },
-
-  onGenConfirm() {
-    const keyword = (this.data.genKeyword || '').trim()
-    if (!keyword) {
-      wx.showToast({ title: '请输入想学的主题', icon: 'none' })
-      return
-    }
-    this.setData({ genLoading: true })
-    this._startGenProgress()
-    wx.cloud.callFunction({
-      name: 'generateTheme',
-      data: { openid: app.globalData.openid, profile: this.data.userProfile, themeName: keyword },
-      success: res => {
-        if (res.result && res.result.success) {
-          const theme = res.result.theme
-          this.setData({
-            genLoading: false, genProgress: 100, genStage: '✅ 课程已生成',
-            pendingCourse: { id: theme._id, name: theme.name, desc: theme.description || '', nodesCount: theme.totalNodes || 0 },
-          })
-          wx.showToast({ title: '✅ 课程生成成功', icon: 'success' })
-        } else {
-          this.setData({ genLoading: false })
-          wx.showToast({ title: res.result?.error || '创建失败', icon: 'none' })
-        }
-      },
-      fail: err => {
-        this.setData({ genLoading: false })
-        console.error('AI 生成失败', err)
-        wx.showToast({ title: '网络错误，请重试', icon: 'none' })
-      }
+  onFinishCourse() {
+    this.setData({ isCompleted: false })
+    wx.showModal({
+      title: '🎉 课程完成',
+      content: '你已完成该课程的全部课时。可以去知识花园查看总结，或生成新课程继续学习。',
+      confirmText: '去花园',
+      success: res => { if (res.confirm) wx.navigateTo({ url: '/pages/garden/garden' }) }
     })
-  },
-
-  onGenExample(e) {
-    this.setData({ genKeyword: e.currentTarget.dataset.keyword })
-    this.onGenConfirm()
-  },
-
-  onGenStart() {
-    const course = this.data.pendingCourse
-    if (!course) return
-    this.setData({ showGenerator: false, pendingCourse: null, genKeyword: '' })
-    this.loadHomeData({ themeId: course.id, mode: 'new' })
-  },
-
-  onGenReset() {
-    this.setData({ genKeyword: '', pendingCourse: null, genStage: '', genProgress: 0 })
   },
 })

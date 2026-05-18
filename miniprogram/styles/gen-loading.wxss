@@ -21,8 +21,8 @@
 }
 
 .gen-icon { font-size: 72rpx; margin-bottom: 20rpx; }
-.gen-title { font-size: 32rpx; font-weight: 600; color: #1a1a2e; margin-bottom: 12rpx; }
-.gen-stage { font-size: 28rpx; color: #6366f1; margin-bottom: 24rpx; }
+.gen-title { font-size: 32rpx; font-weight: 600; color: var(--capsule-ink); margin-bottom: 12rpx; }
+.gen-stage { font-size: 28rpx; color: var(--capsule-accent); margin-bottom: 24rpx; }
 
 .gen-bar {
   width: 100%;
@@ -35,7 +35,7 @@
 
 .gen-fill {
   height: 100%;
-  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+  background: linear-gradient(90deg, var(--capsule-accent), #8b5cf6);
   border-radius: 4rpx;
   transition: width 0.5s ease;
 }

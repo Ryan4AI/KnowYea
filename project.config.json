@@ -1,27 +1,33 @@
 {
-  "setting": {
-    "es6": true,
-    "postcss": true,
-    "minified": true,
-    "uglifyFileName": false,
-    "enhance": true,
-    "packNpmRelationList": [],
-    "babelSetting": {
-      "ignore": [],
-      "disablePlugins": [],
-      "outputPath": ""
+    "setting": {
+        "es6": true,
+        "postcss": true,
+        "minified": true,
+        "uglifyFileName": false,
+        "enhance": true,
+        "babelSetting": {
+            "ignore": [],
+            "disablePlugins": [],
+            "outputPath": ""
+        },
+        "useCompilerPlugins": false,
+        "minifyWXML": true,
+        "packNpmManually": true,
+        "packNpmRelationList": [
+            {
+                "packageJsonPath": "miniprogram/package.json",
+                "miniprogramNpmDistDir": "./"
+            }
+        ]
     },
-    "useCompilerPlugins": false,
-    "minifyWXML": true
-  },
-  "compileType": "miniprogram",
-  "simulatorPluginLibVersion": {},
-  "packOptions": {
-    "ignore": [],
-    "include": []
-  },
-  "appid": "wx7298f8ed5dedc8d8",
-  "editorSetting": {},
-  "cloudfunctionRoot": "cloudfunctions/",
-  "cloudfunctionTemplateRoot": "cloudfunctionTemplate/"
+    "compileType": "miniprogram",
+    "simulatorPluginLibVersion": {},
+    "packOptions": {
+        "ignore": [],
+        "include": []
+    },
+    "appid": "wx7298f8ed5dedc8d8",
+    "editorSetting": {},
+    "cloudfunctionRoot": "cloudfunctions/",
+    "cloudfunctionTemplateRoot": "cloudfunctionTemplate/"
 }

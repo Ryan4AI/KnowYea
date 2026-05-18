@@ -1,1 +1,8 @@
-{ "usingComponents": {}, "navigationBarTitleText": "知识花园" }
+{
+  "usingComponents": {
+    "t-swipe-cell": "tdesign-miniprogram/swipe-cell/swipe-cell"
+  },
+  "navigationBarTitleText": "知识花园",
+  "navigationBarBackgroundColor": "#1a1a2e",
+  "navigationBarTextStyle": "white"
+}

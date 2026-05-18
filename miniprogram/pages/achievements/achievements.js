@@ -24,11 +24,12 @@ Page({
     if (!app.globalData.openid) return
 
     wx.cloud.callFunction({
-      name: 'getUserProfile',
+      name: 'getUser',
       data: { openid: app.globalData.openid },
       success: res => {
-        if (res.result && res.result.success) {
-          const unlocked = res.result.achievements || []
+        if (res.result?.success) {
+          const resultData = res.result.data || {}
+          const unlocked = resultData.achievements || []
           const unlockedIds = unlocked.map(a => a.id)
 
           const achievements = this.data.allAchievements.map(a => ({

@@ -9,11 +9,12 @@
     "minified": true,
     "newFeature": true,
     "bigPackageSize": true,
-    "packNpmManually": false
+    "packNpmManually": true
   },
   "cloud": true,
   "usingComponents": {},
   "pages": [
+    "pages/splash/splash",
     "pages/learn/learn",
     "pages/garden/garden",
     "pages/theme-store/theme-store",
@@ -25,8 +26,8 @@
   ],
   "window": {
     "navigationBarTitleText": "小知也",
-    "navigationBarBackgroundColor": "#1a1a2e",
-    "navigationBarTextStyle": "white",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTextStyle": "black",
     "backgroundColor": "#f4f6fc"
   }
 }

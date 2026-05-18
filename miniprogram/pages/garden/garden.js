@@ -1,4 +1,4 @@
-// pages/garden/garden.js — 知识花园（入口+课程列表+个人中心合一）
+// pages/garden/garden.js — 知识花园
 const app = getApp()
 
 const PLANT_LEVELS = [
@@ -54,186 +54,105 @@ function calcStreak(days) {
 Page({
   data: {
     isLoading: true,
-    // 花园
     plant: { level: 1, emoji: '🌱', name: '种子' },
     plantPoints: 0,
     streakText: '',
-    // 用户
-    stats: {
-      completedNodes: 0,
-      completedThemes: 0,
-      totalPoints: 0,
-      streak: 0,
-    },
-    achievements: [],
-    unlockedAchievements: 0,
-    // 课程
+    stats: { completedNodes: 0, completedThemes: 0, totalPoints: 0, streak: 0 },
     themes: [],
     lastActiveTheme: null,
-    // 预览数据
     recentHistory: [],
-    favorites: [],
-    favoriteCount: 0,
-    // 时间线
-    timelineDays: [],
-    timelineTotal: 0,
   },
 
-  onLoad() {
-    this.loadAll()
-  },
-
-  onShow() {
-    this.loadAll()
-  },
+  onLoad() { this.loadAll() },
+  onShow() { this.loadAll() },
 
   loadAll() {
     if (!app.globalData.openid) {
       const checkId = setInterval(() => {
-        if (app.globalData.openid) {
-          clearInterval(checkId)
-          this.loadAll()
-        }
+        if (app.globalData.openid) { clearInterval(checkId); this.loadAll() }
       }, 300)
       return
     }
-
     this.setData({ isLoading: true })
 
-    // 先显示缓存（避免白屏）
-    const cached = wx.getStorageSync('garden_cache')
-    if (cached) {
-      this.setData({ ...cached, isLoading: true })
-    }
+    const openid = app.globalData.openid
+    let userResult, coursesResult, historyResult
 
-    // 并行加载
-    wx.cloud.callFunction({ name: 'getGarden', data: { openid: app.globalData.openid } })
-    .then(res => {
-      if (res.result?.success && res.result.gardens?.length > 0) {
-        const g = res.result.gardens[0]
-        this.setData({ plantPoints: g.points || 0 })
-      }
-    })
-    .catch(() => {})
-
-    wx.cloud.callFunction({ name: 'getThemes', data: { openid: app.globalData.openid } })
-    .then(res => {
-      if (res.result?.success) {
-        let themes = res.result.themes || []
-        this.setData({ themes })
-      }
-    })
-    .catch(() => {})
-
-    wx.cloud.callFunction({ name: 'getUserProfile', data: { openid: app.globalData.openid } })
-    .then(res => {
-      if (res.result?.success) {
-        const stats = res.result.stats
-        const plant = calcPlant(stats.completedNodes || 0)
-        let lastActiveTheme = null
-        const themes = this.data.themes || []
-        if (themes.length > 0) {
-          lastActiveTheme = themes.reduce((a, b) => {
-            const aTime = a.lastStudiedAt || a.startedAt || 0
-            const bTime = b.lastStudiedAt || b.startedAt || 0
-            return aTime > bTime ? a : b
-          })
-        }
-        const unlockedAchievements = (res.result.achievements || []).filter(a => a.unlocked).length
-        const streakText = calcStreak(stats.streak || 0)
-        this.setData({
-          stats,
-          achievements: res.result.achievements || [],
-          unlockedAchievements,
-          plant,
-          streakText,
-          lastActiveTheme,
+    Promise.all([
+      // getUser → user stats + profile
+      new Promise(resolve => {
+        wx.cloud.callFunction({
+          name: 'getUser', data: { openid },
+          success: r => { userResult = r.result?.data }
         })
-        // 主数据到齐后，缓存（排除 isLoading）
-        const { isLoading, ...cache } = this.data
-        wx.setStorageSync('garden_cache', cache)
-      }
-    })
-    .catch(() => {})
-
-    // 加载最近历史记录（预览用）
-    wx.cloud.callFunction({ name: 'getHistory', data: { openid: app.globalData.openid, limit: 3 } })
-    .then(res => {
-      if (res.result?.success && res.result.history?.length > 0) {
-        this.setData({ recentHistory: res.result.history })
-      }
-    })
-    .catch(() => {})
-
-    // 加载收藏预览
-    wx.cloud.callFunction({ name: 'getFavorites', data: { openid: app.globalData.openid, limit: 3 } })
-    .then(res => {
-      if (res.result?.success) {
-        this.setData({
-          favorites: res.result.favorites || [],
-          favoriteCount: res.result.count || 0,
+      }),
+      // getCourses → course list
+      new Promise(resolve => {
+        wx.cloud.callFunction({
+          name: 'getCourses', data: { openid },
+          success: r => { coursesResult = r.result?.data || [] }
         })
-      }
-    })
-    .catch(() => {})
-
-    // 加载学习时间线
-    wx.cloud.callFunction({ name: 'getStudyTimeline', data: { openid: app.globalData.openid } })
-    .then(res => {
-      if (res.result?.success) {
-        this.setData({
-          timelineDays: res.result.days || [],
-          timelineTotal: res.result.total || 0,
+      }),
+      // getHistory → recent history preview
+      new Promise(resolve => {
+        wx.cloud.callFunction({
+          name: 'getHistory', data: { openid, limit: 3 },
+          success: r => { historyResult = r.result?.data || [] }
         })
+      }),
+    ]).then(() => {
+      const user = userResult?.user || {}
+      const courses = coursesResult || []
+      const history = historyResult || []
+
+      const completedNodes = user.completedLessons || 0
+      const plant = calcPlant(completedNodes)
+      const streakText = calcStreak(user.streak || 0)
+
+      // Latest active course
+      let lastActiveCourse = null
+      const activeCourses = courses.filter(c => c.status === 'learning')
+      if (activeCourses.length > 0) {
+        lastActiveCourse = activeCourses.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0))[0]
       }
-    })
-    .catch(() => {})
-    .finally(() => {
-      this.setData({ isLoading: false })
+
+      this.setData({
+        plant,
+        plantPoints: user.points || 0,
+        streakText,
+        stats: {
+          completedNodes,
+          completedThemes: user.completedCourses || 0,
+          totalPoints: user.points || 0,
+          streak: user.streak || 0,
+          plantLevel: user.plantLevel || 1,
+        },
+        themes: courses,
+        lastActiveTheme: lastActiveCourse,
+        recentHistory: history,
+        isLoading: false,
+      })
+
+      // 缓存
+      const { isLoading, ...cache } = this.data
+      wx.setStorageSync('garden_cache', cache)
     })
   },
 
-  // 从花园进入某个课程学习
-  onContinue(e) {
-    const themeId = e.currentTarget.dataset.themeId
+  onCourseTap(e) {
+    const courseId = e.currentTarget.dataset.themeId
+    if (!courseId) return
     if (!app.globalData.openid) {
       wx.showToast({ title: '请稍后再试', icon: 'none' })
       return
     }
-
-    wx.showLoading({ title: '切换中...' })
-
-    wx.cloud.callFunction({
-      name: 'switchTheme',
-      data: { openid: app.globalData.openid, themeId },
-      success: res => {
-        wx.hideLoading()
-        if (res.result?.success) {
-          wx.reLaunch({ url: '/pages/learn/learn' })
-        } else {
-          wx.showToast({ title: res.result?.error || '切换失败', icon: 'none' })
-        }
-      },
-      fail: () => {
-        wx.hideLoading()
-        wx.showToast({ title: '网络错误', icon: 'none' })
-      },
-    })
-  },
-
-  // 复习模式
-  onReview(e) {
-    const themeId = e.currentTarget.dataset.themeId
-    app.setLearnContext({ themeId, mode: 'review' })
     wx.reLaunch({ url: '/pages/learn/learn' })
   },
 
-  // 子页面跳转
   onNavigateTo(e) {
     const page = e.currentTarget.dataset.page
     const routes = {
       history: '/pages/history/history',
-      favorites: '/pages/favorites/favorites',
       achievements: '/pages/achievements/achievements',
       settings: '/pages/settings/settings',
     }
@@ -242,35 +161,64 @@ Page({
     }
   },
 
-  // 添加课程
   onAddTheme() {
     wx.navigateTo({ url: '/pages/theme-store/theme-store' })
   },
 
-  // 生成新课（没画像则先去画像收集）
+  confirmDeleteTheme(e) {
+    const courseId = e.currentTarget.dataset.themeId
+    const courseName = e.currentTarget.dataset.themeName || '该课程'
+    wx.showModal({
+      title: '删除课程',
+      content: `确定要删除「${courseName}」吗？`,
+      confirmText: '删除',
+      confirmColor: '#e74c3c',
+      success: (res) => {
+        if (res.confirm) {
+          wx.showLoading({ title: '删除中...' })
+          wx.cloud.callFunction({
+            name: 'deleteCourse',
+            data: { openid: app.globalData.openid, courseId },
+            success: (res) => {
+              wx.hideLoading()
+              if (res.result?.success) {
+                const courses = this.data.themes.filter(c => c._id !== courseId)
+                this.setData({ themes: courses })
+                wx.showToast({ title: '已删除', icon: 'success' })
+              } else {
+                wx.showToast({ title: res.result?.error || '删除失败', icon: 'none' })
+              }
+            },
+            fail: (err) => {
+              wx.hideLoading()
+              wx.showToast({ title: '请求失败', icon: 'none' })
+            }
+          })
+        }
+      }
+    })
+  },
+
   onNewTheme() {
     wx.showLoading({ title: '检查中...' })
     wx.cloud.callFunction({
-      name: 'getUserProfile',
+      name: 'getUser',
       data: { openid: app.globalData.openid },
       success: res => {
         wx.hideLoading()
-        if (res.result && res.result.success && res.result.user) {
-          app.setLearnContext({ mode: 'generate' })
-          wx.reLaunch({ url: '/pages/learn/learn' })
+        if (res.result?.success && res.result.data?.user) {
+          wx.navigateTo({ url: '/pages/theme-store/theme-store' })
         } else {
           wx.navigateTo({ url: '/pages/profile/profile' })
         }
       },
       fail: () => {
         wx.hideLoading()
-        app.setLearnContext({ mode: 'generate' })
-        wx.reLaunch({ url: '/pages/learn/learn' })
+        wx.navigateTo({ url: '/pages/theme-store/theme-store' })
       }
     })
   },
 
-  // 编辑画像
   onEditProfile() {
     wx.navigateTo({ url: '/pages/profile/profile?edit=1' })
   },

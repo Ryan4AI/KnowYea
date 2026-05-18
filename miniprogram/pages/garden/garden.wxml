@@ -10,12 +10,11 @@
     <view class="garden-header">
       <view class="header-plant-wrap">
         <view class="header-plant">{{plant.emoji}}</view>
-        <view class="header-level">「{{plant.title}}」</view>
-        <view class="header-name">Lv.{{plant.level}} {{plant.name}}</view>
+        <view class="header-level">{{plant.title}}</view>
       </view>
-      <view class="header-welcome">
-        <text class="header-greeting">🌿 你的知识花园</text>
-        <text class="header-stats">已学习 {{stats.completedNodes}} 个课时 · {{stats.completedThemes}} 门课程</text>
+      <view class="header-stats-line">
+        <text class="header-stats">已学 {{stats.completedNodes}} 课时 · {{stats.completedThemes}} 课程</text>
+        <text class="header-level-tag">Lv.{{plant.level}} {{plant.name}}</text>
       </view>
       <!-- 下一等级进度 -->
       <view class="next-level-wrap" wx:if="{{plant.nextThreshold}}">
@@ -24,7 +23,6 @@
         </view>
         <text class="next-level-text">还需 {{plant.nextThreshold - stats.completedNodes}} 课时 → {{plant.nextName}}</text>
       </view>
-      <view class="header-points">{{plantPoints}} 积分</view>
     </view>
 
     <!-- ===== 连续学习 ===== -->
@@ -83,44 +81,43 @@
     <!-- ===== 我的课程 ===== -->
     <view class="section">
       <view class="section-header">
-        <text class="section-title">📖 我的课程</text>
+        <text class="section-title">📚 我的课程</text>
+        <text class="section-add-btn" bindtap="onNewTheme">➕ 新课程</text>
       </view>
 
       <view class="empty-state" wx:if="{{themes.length === 0}}">
         <text class="empty-intro">🌿 你还没有课程</text>
         <text class="empty-sub">告诉我你想学什么，AI 会为你量身定制课程</text>
-        <view class="new-theme-card" bindtap="onNewTheme">✨ 让 AI 生成第一门课</view>
+        <view class="add-course-btn" bindtap="onNewTheme">✨ 开始第一门课</view>
       </view>
 
       <view class="theme-list" wx:else>
-        <!-- 生成新课卡片 -->
-        <view class="new-theme-card" bindtap="onNewTheme">✨ 生成新课程</view>
         <view class="theme-item" wx:for="{{themes}}" wx:key="_id">
-          <view class="theme-top">
-            <view class="theme-emoji">📖</view>
-            <view class="theme-info">
-              <view class="theme-name">{{item.name}}</view>
-              <view class="theme-desc">{{item.description}}</view>
+          <t-swipe-cell>
+            <view class="swipe-card" bindtap="onCourseTap" data-theme-id="{{item._id}}" data-status="{{item.status}}">
+              <view class="theme-top">
+                <view class="theme-emoji">📖</view>
+                <view class="theme-info">
+                  <view class="theme-name"><text>{{item.name}}</text><text class="theme-status-tag {{item.status}}">{{item.status === 'completed' ? '已完成' : '学习中'}}</text></view>
+                  <view class="theme-desc">{{item.description}}</view>
+                </view>
+              </view>
+
+              <view class="theme-progress">
+                <view class="progress-bar">
+                  <view class="progress-fill" style="width:{{item.progressPercent || 0}}%"></view>
+                </view>
+                <text class="progress-text">{{item.completedCount || 0}}/{{item.totalNodes}}</text>
+              </view>
+
+              <view class="theme-last-node" wx:if="{{item.currentNodeOrder > 1}}">
+                <text>上次学到：第 {{item.currentNodeOrder - 1}} 课时</text>
+              </view>
             </view>
-          </view>
-
-          <view class="theme-progress">
-            <view class="progress-bar">
-              <view class="progress-fill" style="width:{{item.progressPercent || 0}}%"></view>
+            <view slot="right" class="swipe-delete-btn" bindtap="confirmDeleteTheme" data-theme-id="{{item._id}}" data-theme-name="{{item.name}}">
+              <text>删除</text>
             </view>
-            <text class="progress-text">{{item.completedCount || 0}}/{{item.totalNodes}}</text>
-          </view>
-
-          <view class="theme-last-node" wx:if="{{item.currentNodeOrder > 1}}">
-            <text>上次学到：第 {{item.currentNodeOrder - 1}} 课时</text>
-          </view>
-
-          <view class="theme-actions">
-            <button class="btn primary" bindtap="onContinue" data-theme-id="{{item._id}}">
-              {{item.status === 'completed' ? '重新学习' : '继续学习'}}
-            </button>
-            <button class="btn secondary" bindtap="onReview" data-theme-id="{{item._id}}">复习</button>
-          </view>
+          </t-swipe-cell>
         </view>
       </view>
     </view>
@@ -134,7 +131,7 @@
       <view class="menu-list">
         <view class="menu-item" bindtap="onEditProfile">
           <text class="menu-icon">👤</text>
-          <text class="menu-text">个人画像</text>
+          <text class="menu-text">信息更新</text>
           <text class="menu-arrow">›</text>
         </view>
         <view class="menu-item" bindtap="onNavigateTo" data-page="history">
@@ -164,6 +161,6 @@
     </view>
 
     <!-- 底部留白 -->
-    <view class="footer">知识胶囊 · 每天几分钟，慢慢变强</view>
+    <view class="footer">每天几分钟，慢慢变强</view>
   </scroll-view>
 </view>

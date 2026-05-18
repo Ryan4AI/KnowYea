@@ -1,1 +1,6 @@
-{ "usingComponents": {}, "navigationBarTitleText": "成就展示" }
+{
+  "usingComponents": {},
+  "navigationBarTitleText": "成就展示",
+  "navigationBarBackgroundColor": "#1a1a2e",
+  "navigationBarTextStyle": "white"
+}

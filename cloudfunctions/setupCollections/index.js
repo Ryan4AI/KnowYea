@@ -1,36 +1,39 @@
-// 云函数：setupCollections - 创建必要的数据库集合
 const cloud = require('wx-server-sdk')
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 
-const db = cloud.database()
+const PRESET_TAGS = ['编程','设计','数据','AI','商业','金融','心理','沟通','写作','外语','职场','思维','技术','管理','营销','产品','创业']
 
 const COLLECTIONS = [
-  'users',
-  'user_achievements', 
-  'user_favorites',
-  'user_progress',
-  'user_themes',
-  'user_gardens',
-  'user_conversations',
-  'themes',
-  'nodes',
+  'tags', 'course_tags', 'user_tags', 'courses', 'lessons', 'messages', 'user_achievements', 'history'
 ]
 
-exports.main = async (event, context) => {
+exports.main = async () => {
+  const db = cloud.database()
+  const now = Date.now()
   const results = []
-  
+
+  // 用 createCollection 创建新集合
   for (const name of COLLECTIONS) {
     try {
       await db.createCollection(name)
       results.push({ collection: name, status: 'created' })
     } catch (e) {
-      if (e.errCode === -502005 || e.message.includes('already exists')) {
+      if (e.errCode === -501001 || (e.message && (e.message.includes('already exist') || e.message.includes('ALREADY_EXIST')))) {
         results.push({ collection: name, status: 'already_exists' })
       } else {
-        results.push({ collection: name, status: 'error', error: e.message })
+        results.push({ collection: name, status: 'error', msg: e.message })
       }
     }
   }
-  
-  return { success: true, results }
+
+  // 写入预设标签
+  let tagsAdded = 0
+  for (const name of PRESET_TAGS) {
+    try {
+      await db.collection('tags').add({ data: { name, createdAt: now, updatedAt: now } })
+      tagsAdded++
+    } catch (e) {}
+  }
+
+  return { success: true, results, tagsAdded }
 }

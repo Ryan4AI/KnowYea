@@ -1,12 +1,6 @@
 // pages/theme-store/theme-store.js — AI 课程生成器
 const app = getApp()
-
-const GEN_STAGES = [
-  { text: '正在分析你的兴趣方向...', progress: 20 },
-  { text: '正在构思课程结构...', progress: 50 },
-  { text: '正在生成课程内容...', progress: 75 },
-  { text: '课程即将准备就绪...', progress: 90 },
-]
+const { loadInterestTags, callGenerateTheme, startProgressSimulation } = require('../../services/course-generator')
 
 Page({
   data: {
@@ -20,6 +14,12 @@ Page({
     genProgress: 0,
   },
 
+  onLoad(opts) {
+    if (opts && opts.fromOnboard === '1') {
+      this._autoGenerate = true
+    }
+  },
+
   onShow() {
     this.loadUserProfile()
   },
@@ -27,16 +27,25 @@ Page({
   loadUserProfile() {
     if (!app.globalData.openid) return
     wx.cloud.callFunction({
-      name: 'getUserProfile',
+      name: 'getUser',
       data: { openid: app.globalData.openid }
     }).then(res => {
-      if (res.result?.success && res.result?.user?.profile) {
-        const profile = res.result.user.profile
-        const interests = (profile.interests || []).filter(t => t.length > 0)
+      const resultData = res.result?.data || {}
+      const userData = resultData.user || {}
+      const profile = userData.profile || userData
+      if (res.result?.success && resultData.user) {
         this.setData({
           userProfile: profile,
           profileLoaded: true,
-          interestTags: interests,
+        })
+        loadInterestTags(app.globalData.openid).then(tags => {
+          this.setData({ interestTags: tags })
+          if (this._autoGenerate && tags.length > 0) {
+            this._autoGenerate = false
+            const keyword = tags[0]
+            this.setData({ aiKeyword: keyword })
+            setTimeout(() => this.onAIRecommend(), 400)
+          }
         })
       } else {
         this.setData({ profileLoaded: true })
@@ -50,25 +59,6 @@ Page({
     this.setData({ aiKeyword: e.detail.value || '' })
   },
 
-  // 进度条动画
-  _startProgress() {
-    let i = 0
-    const tick = () => {
-      if (i >= GEN_STAGES.length || !this.data.isGenerating) return
-      this.setData({
-        genStage: GEN_STAGES[i].text,
-        genProgress: GEN_STAGES[i].progress,
-      })
-      i++
-      if (i < GEN_STAGES.length) {
-        setTimeout(tick, 2500)
-      }
-    }
-    this.setData({ genStage: '正在准备...', genProgress: 5 })
-    setTimeout(tick, 800)
-  },
-
-  // AI 生成课程
   onAIRecommend() {
     const keyword = this.data.aiKeyword.trim()
     if (!keyword) {
@@ -82,59 +72,48 @@ Page({
         title: '需要个人画像',
         content: 'AI 需要了解你的年龄、职业和兴趣才能生成定制课程，现在去设置？',
         confirmText: '去设置',
-        success: res => {
-          if (res.confirm) this.onGoProfile()
-        }
+        success: res => { if (res.confirm) this.onGoProfile() }
       })
       return
     }
 
     this.setData({ isGenerating: true })
-    this._startProgress()
 
-    wx.cloud.callFunction({
-      name: 'generateTheme',
-      data: {
-        openid: app.globalData.openid,
-        profile: userProfile,
-        themeName: keyword,
-      },
-      success: res => {
-        if (res.result && res.result.success) {
-          const theme = res.result.theme
-          this.setData({
-            isGenerating: false,
-            genProgress: 100,
-            genStage: '✅ 课程已生成',
-            newTheme: {
-              id: theme._id,
-              name: theme.name,
-              desc: theme.description || '',
-              nodesCount: theme.totalNodes || 0,
-            },
-          })
-          wx.showToast({ title: '✅ 课程生成成功', icon: 'success' })
-        } else {
-          this.setData({ isGenerating: false })
-          wx.showToast({ title: res.result?.error || '创建失败', icon: 'none' })
+    this._cancelProgress = startProgressSimulation((stage, progress) => {
+      this.setData({ genStage: stage, genProgress: progress })
+    })
+
+    callGenerateTheme(app.globalData.openid, userProfile, keyword).then(result => {
+      this._cancelProgress?.()
+      if (result.success) {
+        this.setData({
+          isGenerating: false,
+          genProgress: 100,
+          genStage: '✅ 课程已生成',
+          newTheme: result.theme,
+        })
+        wx.showToast({ title: '✅ 课程生成成功', icon: 'success' })
+        // 自动生成 → 去学习
+        if (this._autoGenerate) {
+          setTimeout(() => wx.redirectTo({ url: '/pages/learn/learn' }), 800)
         }
-      },
-      fail: err => {
+      } else {
         this.setData({ isGenerating: false })
-        console.error('AI 生成失败', err)
-        wx.showToast({ title: '网络错误，请重试', icon: 'none' })
+        wx.showToast({ title: result.error, icon: 'none' })
       }
+    }).catch(err => {
+      this._cancelProgress?.()
+      this.setData({ isGenerating: false })
+      console.error('AI 生成失败', err)
+      wx.showToast({ title: '网络错误，请重试', icon: 'none' })
     })
   },
 
-  // 点击兴趣标签
   onExample(e) {
-    const keyword = e.currentTarget.dataset.keyword
-    this.setData({ aiKeyword: keyword })
+    this.setData({ aiKeyword: e.currentTarget.dataset.keyword })
     this.onAIRecommend()
   },
 
-  // 前往学习
   onGoLearn() {
     const { newTheme } = this.data
     if (!newTheme) return
@@ -142,19 +121,12 @@ Page({
     wx.reLaunch({ url: '/pages/learn/learn' })
   },
 
-  // 前往个人画像
   onGoProfile() {
     wx.navigateTo({ url: '/pages/profile/profile?edit=1' })
   },
 
-  onLoad(opts) {
-    if (opts && opts.fromOnboard === '1') {
-      wx.showToast({ title: '画像已保存，开始生成你的第一门课程吧！', icon: 'none' })
-    }
-  },
-
-  // 再生成一个（重置状态）
   onReset() {
+    this._cancelProgress?.()
     this.setData({
       aiKeyword: '',
       newTheme: null,

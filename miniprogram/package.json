@@ -1,0 +1,8 @@
+{
+  "name": "knowyea-miniprogram",
+  "version": "1.0.0",
+  "description": "久月小课 - 微信小程序",
+  "dependencies": {
+    "tdesign-miniprogram": "^1.10.0"
+  }
+}
