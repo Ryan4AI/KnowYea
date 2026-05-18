@@ -21,7 +21,7 @@ function callMiniMax(messages) {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + API_KEY
       },
-      timeout: 30000,
+      timeout: 60000,
     }, res => {
       let body = ''
       res.on('data', chunk => body += chunk)
