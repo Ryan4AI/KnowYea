@@ -11,16 +11,12 @@ const OCCUPATION_OPTIONS = [
   '法律/合规', '自由职业者', '创业者', '其他',
 ]
 
-const InterestTags = [
-  '职场技能', '项目管理', '沟通表达', '领导力',
-  '思维模型', '逻辑思考', '决策判断',
-  'AI入门', '编程开发', '科技前沿',
-  '投资理财', '商业分析', '创业知识',
-  '心理学', '哲学思辨', '历史文化',
-  '学习方法', '时间管理', '情绪管理',
-]
+let InterestTags = [] // 从云函数动态加载
+let _tagsLoadingStarted = false
 
 function getRecommendedTags(occupation) {
+  if (InterestTags.length === 0) return []
+  const allTags = InterestTags
   const map = {
     '学生':           ['学习方法', '时间管理', '思维模型', '心理学'],
     '教师/教育':      ['心理学', '沟通表达', '学习方法', '逻辑思考'],
@@ -40,7 +36,9 @@ function getRecommendedTags(occupation) {
     '创业者':         ['创业知识', '商业分析', '领导力', '思维模型'],
     '其他':           ['学习方法', '思维模型', '时间管理', '沟通表达'],
   }
-  return map[occupation] || ['学习方法', '思维模型', '时间管理', '沟通表达']
+  const names = map[occupation] || ['学习方法', '思维模型', '时间管理', '沟通表达']
+  // 只在 InterestTags 存在的标签才返回索引
+  return names.map(n => allTags.indexOf(n)).filter(i => i >= 0)
 }
 
 Page({
@@ -62,7 +60,7 @@ Page({
     },
     ageOptions: AGE_OPTIONS,
     occupationOptions: OCCUPATION_OPTIONS,
-    interestOptions: InterestTags,
+    interestOptions: [],
     customInterests: [],
     _customInputValue: '',
     isSaving: false,
@@ -78,6 +76,19 @@ Page({
     }
     if (opts && opts.forceForm === '1') {
       this.setData({ showForm: true })
+    }
+    // 从云函数加载标签列表
+    if (!_tagsLoadingStarted) {
+      _tagsLoadingStarted = true
+      wx.cloud.callFunction({
+        name: 'getTags', data: {},
+        success: r => {
+          const tags = (r.result?.data || []).map(t => t.name || t).filter(t => t)
+          if (tags.length > 0) InterestTags = tags
+          this.setData({ interestOptions: InterestTags })
+        },
+        fail: () => {},
+      })
     }
   },
 
