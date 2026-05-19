@@ -14,31 +14,48 @@ const OCCUPATION_OPTIONS = [
 let InterestTags = [] // 从云函数动态加载
 let _tagsLoadingStarted = false
 
-function getRecommendedTags(occupation) {
+function getRecommendedTags(age, occupation) {
   if (InterestTags.length === 0) return []
-  const allTags = InterestTags
-  const map = {
-    '学生':           ['学习方法', '时间管理', '思维模型', '心理学'],
-    '教师/教育':      ['心理学', '沟通表达', '学习方法', '逻辑思考'],
-    '产品经理':       ['思维模型', '项目管理', '商业分析', '决策判断'],
-    '设计师':         ['思维模型', '心理学', '沟通表达', '科技前沿'],
-    '前端工程师':     ['编程开发', 'AI入门', '科技前沿', '学习方法'],
-    '后端工程师':     ['AI入门', '编程开发', '科技前沿', '逻辑思考'],
-    'AI与算法工程师': ['AI入门', '编程开发', '科技前沿', '决策判断'],
-    '其他技术岗位':   ['科技前沿', '编程开发', 'AI入门', '逻辑思考'],
-    '市场/运营':      ['沟通表达', '心理学', '商业分析', '思维模型'],
-    '销售/商务':      ['沟通表达', '心理学', '决策判断', '情绪管理'],
-    '管理/高管':      ['领导力', '决策判断', '商业分析', '思维模型'],
-    '金融/投资':      ['投资理财', '商业分析', '逻辑思考', '决策判断'],
-    '医疗/健康':      ['心理学', '情绪管理', '沟通表达', '学习方法'],
-    '法律/合规':      ['逻辑思考', '沟通表达', '决策判断', '哲学思辨'],
-    '自由职业者':     ['时间管理', '学习方法', '沟通表达', '投资理财'],
-    '创业者':         ['创业知识', '商业分析', '领导力', '思维模型'],
-    '其他':           ['学习方法', '思维模型', '时间管理', '沟通表达'],
+
+  // 年龄基础推荐（2个）
+  const AGE_BASE = {
+    '18岁以下': ['编程', 'AI', '外语'],
+    '18-25岁': ['编程', 'AI', '外语'],
+    '26-35岁': ['AI', '编程', '职场进阶'],
+    '36-45岁': ['项目管理', '商业分析', '领导力'],
+    '46岁以上': ['人文历史', '投资理财', '心理成长'],
   }
-  const names = map[occupation] || ['学习方法', '思维模型', '时间管理', '沟通表达']
-  // 只在 InterestTags 存在的标签才返回索引
-  return names.map(n => allTags.indexOf(n)).filter(i => i >= 0)
+
+  // 职业定向推荐（4个，更具体）
+  const OCCUPATION_MAP = {
+    '学生':           ['编程', 'AI', '外语', '写作'],
+    '教师/教育':      ['心理成长', '沟通表达', '人文历史', '写作'],
+    '产品经理':       ['产品', '项目管理', '商业分析', '沟通表达'],
+    '设计师':         ['设计', '思维模型', '科技前沿', '沟通表达'],
+    '前端工程师':     ['编程', 'AI', '科技前沿', '设计'],
+    '后端工程师':     ['编程', 'AI', '数据', '科技前沿'],
+    'AI与算法工程师': ['AI', '编程', '数据', '科技前沿'],
+    '其他技术岗位':   ['AI', '编程', '科技前沿', '思维模型'],
+    '市场/运营':      ['沟通表达', '营销', '商业分析', '心理成长'],
+    '销售/商务':      ['沟通表达', '营销', '商业分析', '投资理财'],
+    '管理/高管':      ['领导力', '商业分析', '项目管理', '沟通表达'],
+    '金融/投资':      ['投资理财', '商业分析', '数据', '思维模型'],
+    '医疗/健康':      ['健身健康', '心理成长', '沟通表达', '数据'],
+    '法律/合规':      ['思维模型', '人文历史', '沟通表达', '写作'],
+    '自由职业者':     ['创业', '投资理财', '设计', '写作'],
+    '创业者':         ['创业', '商业分析', '领导力', '营销'],
+    '其他':           ['思维模型', '沟通表达', '职场进阶', '科技前沿'],
+  }
+
+  // 合并：职业标签优先（排在前面），年龄标签补位去重
+  const occTags = OCCUPATION_MAP[occupation] || OCCUPATION_MAP['其他']
+  const ageTags = AGE_BASE[age] || []
+  const merged = [...occTags]
+  for (const t of ageTags) {
+    if (!merged.includes(t)) merged.push(t)
+  }
+  // 取前5个实际存在的标签，返回索引
+  return merged.slice(0, 5).map(n => InterestTags.indexOf(n)).filter(i => i >= 0)
 }
 
 Page({
@@ -138,11 +155,13 @@ Page({
   backfillForm(profile) {
     const ageIndex = AGE_OPTIONS.indexOf(profile.age)
     const occIndex = OCCUPATION_OPTIONS.indexOf(profile.occupation)
-    const interestIndexes = (profile.interests || [])
-      .map(t => InterestTags.indexOf(t))
-      .filter(i => i >= 0)
+    const hasExistingInterests = (profile.interests || []).length > 0
+    const interestIndexes = hasExistingInterests
+      ? (profile.interests || []).map(t => InterestTags.indexOf(t)).filter(i => i >= 0)
+      : (OCCUPATION_OPTIONS[occIndex]
+        ? getRecommendedTags(profile.age, OCCUPATION_OPTIONS[occIndex])
+        : [])
     const customInterests = (profile.interests || []).filter(t => InterestTags.indexOf(t) < 0)
-    const tags = OCCUPATION_OPTIONS[occIndex] ? getRecommendedTags(OCCUPATION_OPTIONS[occIndex]) : []
     this.setData({
       'profileForm.ageIndex': ageIndex >= 0 ? ageIndex : 2,
       'profileForm.occupationIndex': occIndex >= 0 ? occIndex : -1,
@@ -153,17 +172,25 @@ Page({
 
   // ---- 表单交互 ----
   onAgeChange(e) {
-    this.setData({ 'profileForm.ageIndex': Number(e.detail.value) })
+    const ageIndex = Number(e.detail.value)
+    const age = AGE_OPTIONS[ageIndex]
+    const occIndex = this.data.profileForm.occupationIndex
+    const occupation = OCCUPATION_OPTIONS[occIndex]
+    const tags = occupation ? getRecommendedTags(age, occupation) : []
+    this.setData({
+      'profileForm.ageIndex': ageIndex,
+      'profileForm.interestIndexes': tags,
+    })
   },
 
   onOccupationChange(e) {
     const occIndex = Number(e.detail.value)
     const occupation = OCCUPATION_OPTIONS[occIndex]
-    const tags = getRecommendedTags(occupation)
-    const recIndexes = tags.map(t => InterestTags.indexOf(t)).filter(i => i >= 0)
+    const age = AGE_OPTIONS[this.data.profileForm.ageIndex]
+    const tags = getRecommendedTags(age, occupation)
     this.setData({
       'profileForm.occupationIndex': occIndex,
-      'profileForm.interestIndexes': recIndexes,
+      'profileForm.interestIndexes': tags,
     })
   },
 

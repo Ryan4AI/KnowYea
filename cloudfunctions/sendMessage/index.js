@@ -11,7 +11,7 @@ function callMiniMax(messages) {
     const data = JSON.stringify({
       model: 'MiniMax-M2.7',
       messages,
-      max_tokens: 2048,
+      max_tokens: 3072,
     })
     const req = https.request({
       hostname: 'api.minimaxi.com',

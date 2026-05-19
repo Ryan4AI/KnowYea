@@ -101,8 +101,8 @@ function parseMessageBlocks(content) {
       if (match[3] === 'choice') {
         // 解析选择题选项：每行以 A/B/C/D 开头或 - 开头
         const lines = qContent.split('\n')
-        const questionText = lines.filter(l => !/^[A-Z]\)?\s/m.test(l) && !/^-\s/m.test(l)).join('\n').trim()
-        const options = lines.filter(l => /^[A-Z]\)?\s/m.test(l) || /^-\s/m.test(l)).map(l => l.replace(/^[A-Z]\)?\s*/, '').replace(/^-\s*/, '').trim())
+        const questionText = lines.filter(l => !/^[A-Z][\.\)]?\s/m.test(l) && !/^-\s/m.test(l)).join('\n').trim()
+        const options = lines.filter(l => /^[A-Z][\.\)]?\s/m.test(l) || /^-\s/m.test(l)).map(l => l.replace(/^[A-Z][\.\)]?\s*/, '').replace(/^-\s*/, '').trim())
         blocks.push({
           type: 'choice',
           content: questionText,
