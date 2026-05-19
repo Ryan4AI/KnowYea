@@ -27,9 +27,10 @@ function loadInterestTags(openid) {
     }).then(res => {
       const ud = res.result?.data || {}
       const userData = ud.user || {}
-      const profile = userData.profile || userData
       if (res.result?.success && ud.user) {
-        const tags = (userData.interests || []).filter(t => t.length > 0)
+        // 优先取 user_tags 集合（数据库重构后的真实来源）
+        // 回退到 user.interests（旧格式兼容）
+        const tags = (ud.tags && ud.tags.length > 0 ? ud.tags : (userData.interests || [])).filter(t => t.length > 0)
         resolve(tags)
       } else {
         resolve([])

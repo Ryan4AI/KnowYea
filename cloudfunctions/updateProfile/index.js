@@ -18,6 +18,8 @@ exports.main = async (event, context) => {
 
     // 同步兴趣标签：先删旧的
     if (tags !== undefined && Array.isArray(tags)) {
+      updateData.interests = tags  // 同步到 users 文档的 interests 字段
+
       const oldTags = await db.collection('user_tags').where({ openid }).get()
       const oldIds = oldTags.data.map(t => t._id)
       for (const id of oldIds) {
