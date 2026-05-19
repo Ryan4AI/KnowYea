@@ -202,6 +202,7 @@ Page({
           this.setData({ learningCourses: (res.result.data || []).filter(c => c.status === 'learning') })
         }
       },
+      fail: () => console.warn('loadLearningCourses 云函数调用失败'),
     })
   },
 
