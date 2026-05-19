@@ -9,14 +9,20 @@
       "timeout": 120,
       "memorySize": 512,
       "runtime": "Nodejs16.13",
-      "handler": "index.main"
+      "handler": "index.main",
+      "envVariables": {
+        "MINIMAX_API_KEY": "sk-cp-c5wSwWsnIcUkewTEe9JhETRKZNyJ1OBnphm_4B1HdOV0LMNh9vP80kJFBKZV5jpCtp22_xyBUtF0zRAwgWaxU4YECc_LL8GPzEj6GVOHmMiovcfwylDgCDM"
+      }
     },
     {
       "name": "createCourse",
       "timeout": 120,
       "memorySize": 512,
       "runtime": "Nodejs16.13",
-      "handler": "index.main"
+      "handler": "index.main",
+      "envVariables": {
+        "MINIMAX_API_KEY": "sk-cp-c5wSwWsnIcUkewTEe9JhETRKZNyJ1OBnphm_4B1HdOV0LMNh9vP80kJFBKZV5jpCtp22_xyBUtF0zRAwgWaxU4YECc_LL8GPzEj6GVOHmMiovcfwylDgCDM"
+      }
     },
     {
       "name": "deleteCourse",
@@ -79,7 +85,10 @@
       "timeout": 120,
       "memorySize": 512,
       "runtime": "Nodejs16.13",
-      "handler": "index.main"
+      "handler": "index.main",
+      "envVariables": {
+        "MINIMAX_API_KEY": "sk-cp-c5wSwWsnIcUkewTEe9JhETRKZNyJ1OBnphm_4B1HdOV0LMNh9vP80kJFBKZV5jpCtp22_xyBUtF0zRAwgWaxU4YECc_LL8GPzEj6GVOHmMiovcfwylDgCDM"
+      }
     },
     {
       "name": "setupCollections",
