@@ -44,7 +44,7 @@
   <!-- 生成进度弹窗 -->
   <view class="gen-mask" wx:if="{{isGenerating}}">
     <view class="gen-card">
-      <view class="gen-icon">🧠</view>
+      <view class="gen-icon">⚡</view>
       <view class="gen-title">AI 正在为你生成课程</view>
       <view class="gen-stage">{{genStage}}</view>
       <view class="gen-bar">
