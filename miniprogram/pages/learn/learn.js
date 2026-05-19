@@ -335,9 +335,16 @@ Page({
     wx.cloud.callFunction({
       name: 'completeLesson',
       data: { openid: app.globalData.openid, courseId: course._id, lessonId: lesson._id },
-      complete: () => {
+      success: () => {
         this.switchToLesson(nextLesson._id, () => {
           wx.hideLoading()
+          this.sendMessage(`请开始介绍"${nextLesson.title}"这个课时要学习的内容，用通俗易懂的语言`, true)
+        })
+      },
+      fail: () => {
+        wx.hideLoading()
+        wx.showToast({ title: '进度同步失败，可继续学习', icon: 'none' })
+        this.switchToLesson(nextLesson._id, () => {
           this.sendMessage(`请开始介绍"${nextLesson.title}"这个课时要学习的内容，用通俗易懂的语言`, true)
         })
       },
