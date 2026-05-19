@@ -42,18 +42,27 @@ module.exports = { contains: contains };
       </view>
 
       <!-- 兴趣标签 -->
-      <view class="form-group">
-        <text class="form-label">兴趣 <text class="form-hint">（可多选）</text></text>
+      <view class="form-group" wx:if="{{showTags}}">
+        <text class="form-label">兴趣方向 <text class="form-hint">（点击 ✕ 取消不感兴趣的）</text></text>
         <view class="tag-list">
           <view
-            wx:for="{{interestOptions}}" wx:key="index"
-            class="tag-item {{tools.contains(profileForm.interestIndexes, index) ? 'selected' : ''}}"
-            data-index="{{index}}"
-            bindtap="onInterestToggle"
+            wx:for="{{profileForm.interestIndexes}}" wx:key="*this"
+            class="rec-tag"
+            data-index="{{item}}"
+            bindtap="onRemoveTag"
           >
-            {{item}}
+            {{interestOptions[item]}}<text class="rec-tag-close"> ✕</text>
           </view>
         </view>
+        <view wx:if="{{profileForm.interestIndexes.length === 0}}" style="color:#999;font-size:13px;padding:4px 0;">
+          已取消所有推荐，保存后将使用默认方向
+        </view>
+      </view>
+      <view class="form-group" wx:else>
+        <text class="form-label">兴趣方向</text>
+        <text class="form-hint" style="display:block;margin-top:8px;color:#999;font-size:13px;">
+          请先选择年龄和职业，AI 将自动为你推荐兴趣方向
+        </text>
       </view>
 
       <!-- 自定义标签列表 -->

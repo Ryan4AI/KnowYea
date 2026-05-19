@@ -17,34 +17,34 @@ let _tagsLoadingStarted = false
 function getRecommendedTags(age, occupation) {
   if (InterestTags.length === 0) return []
 
-  // 年龄基础推荐（2个）
+  // 年龄基础推荐（5个）
   const AGE_BASE = {
-    '18岁以下': ['编程', 'AI', '外语'],
-    '18-25岁': ['编程', 'AI', '外语'],
-    '26-35岁': ['AI', '编程', '职场进阶'],
-    '36-45岁': ['项目管理', '商业分析', '领导力'],
-    '46岁以上': ['人文历史', '投资理财', '心理成长'],
+    '18岁以下': ['编程', 'AI', '外语', '写作', '思维模型'],
+    '18-25岁': ['编程', 'AI', '外语', '写作', '思维模型'],
+    '26-35岁': ['AI', '编程', '职场进阶', '沟通表达', '思维模型'],
+    '36-45岁': ['项目管理', '商业分析', '领导力', '投资理财', '沟通表达'],
+    '46岁以上': ['人文历史', '投资理财', '心理成长', '领导力', '健身健康'],
   }
 
-  // 职业定向推荐（4个，更具体）
+  // 职业定向推荐（7个）
   const OCCUPATION_MAP = {
-    '学生':           ['编程', 'AI', '外语', '写作'],
-    '教师/教育':      ['心理成长', '沟通表达', '人文历史', '写作'],
-    '产品经理':       ['产品', '项目管理', '商业分析', '沟通表达'],
-    '设计师':         ['设计', '思维模型', '科技前沿', '沟通表达'],
-    '前端工程师':     ['编程', 'AI', '科技前沿', '设计'],
-    '后端工程师':     ['编程', 'AI', '数据', '科技前沿'],
-    'AI与算法工程师': ['AI', '编程', '数据', '科技前沿'],
-    '其他技术岗位':   ['AI', '编程', '科技前沿', '思维模型'],
-    '市场/运营':      ['沟通表达', '营销', '商业分析', '心理成长'],
-    '销售/商务':      ['沟通表达', '营销', '商业分析', '投资理财'],
-    '管理/高管':      ['领导力', '商业分析', '项目管理', '沟通表达'],
-    '金融/投资':      ['投资理财', '商业分析', '数据', '思维模型'],
-    '医疗/健康':      ['健身健康', '心理成长', '沟通表达', '数据'],
-    '法律/合规':      ['思维模型', '人文历史', '沟通表达', '写作'],
-    '自由职业者':     ['创业', '投资理财', '设计', '写作'],
-    '创业者':         ['创业', '商业分析', '领导力', '营销'],
-    '其他':           ['思维模型', '沟通表达', '职场进阶', '科技前沿'],
+    '学生':           ['编程', 'AI', '外语', '写作', '思维模型', '设计', '心理成长'],
+    '教师/教育':      ['心理成长', '沟通表达', '人文历史', '写作', '思维模型', '领导力', '投资理财'],
+    '产品经理':       ['产品', '项目管理', '商业分析', '沟通表达', '思维模型', '科技前沿', '领导力'],
+    '设计师':         ['设计', '思维模型', '科技前沿', '沟通表达', '心理成长', '编程', '写作'],
+    '前端工程师':     ['编程', 'AI', '科技前沿', '设计', '产品', '思维模型', '沟通表达'],
+    '后端工程师':     ['编程', 'AI', '数据', '科技前沿', '思维模型', '项目管理', '职场进阶'],
+    'AI与算法工程师': ['AI', '编程', '数据', '科技前沿', '思维模型', '项目管理', '职场进阶'],
+    '其他技术岗位':   ['AI', '编程', '科技前沿', '思维模型', '职场进阶', '项目管理', '沟通表达'],
+    '市场/运营':      ['沟通表达', '营销', '商业分析', '心理成长', '写作', '思维模型', '产品'],
+    '销售/商务':      ['沟通表达', '营销', '商业分析', '投资理财', '心理成长', '思维模型', '写作'],
+    '管理/高管':      ['领导力', '商业分析', '项目管理', '沟通表达', '思维模型', '投资理财', '心理成长'],
+    '金融/投资':      ['投资理财', '商业分析', '数据', '思维模型', '科技前沿', 'AI', '沟通表达'],
+    '医疗/健康':      ['健身健康', '心理成长', '沟通表达', '数据', '科技前沿', '思维模型', '写作'],
+    '法律/合规':      ['思维模型', '人文历史', '沟通表达', '写作', '心理成长', '商业分析', '外语'],
+    '自由职业者':     ['创业', '投资理财', '设计', '写作', '思维模型', '沟通表达', 'AI'],
+    '创业者':         ['创业', '商业分析', '领导力', '项目管理', '营销', '沟通表达', '投资理财'],
+    '其他':           ['思维模型', '沟通表达', '职场进阶', '科技前沿', '写作', 'AI', '项目管理'],
   }
 
   // 合并：职业标签优先（排在前面），年龄标签补位去重
@@ -54,8 +54,8 @@ function getRecommendedTags(age, occupation) {
   for (const t of ageTags) {
     if (!merged.includes(t)) merged.push(t)
   }
-  // 取前5个实际存在的标签，返回索引
-  return merged.slice(0, 5).map(n => InterestTags.indexOf(n)).filter(i => i >= 0)
+  // 取前12个实际存在的标签，返回索引
+  return merged.slice(0, 12).map(n => InterestTags.indexOf(n)).filter(i => i >= 0)
 }
 
 Page({
@@ -70,6 +70,7 @@ Page({
     // 编辑态
     showForm: false,
     isEditing: false,
+    showTags: false,
     profileForm: {
       ageIndex: 2,
       occupationIndex: -1,
@@ -158,15 +159,14 @@ Page({
     const hasExistingInterests = (profile.interests || []).length > 0
     const interestIndexes = hasExistingInterests
       ? (profile.interests || []).map(t => InterestTags.indexOf(t)).filter(i => i >= 0)
-      : (OCCUPATION_OPTIONS[occIndex]
-        ? getRecommendedTags(profile.age, OCCUPATION_OPTIONS[occIndex])
-        : [])
+      : []
     const customInterests = (profile.interests || []).filter(t => InterestTags.indexOf(t) < 0)
     this.setData({
       'profileForm.ageIndex': ageIndex >= 0 ? ageIndex : 2,
       'profileForm.occupationIndex': occIndex >= 0 ? occIndex : -1,
       'profileForm.interestIndexes': interestIndexes,
       customInterests,
+      showTags: true, // 编辑已有画像时直接显示标签
     })
   },
 
@@ -176,30 +176,38 @@ Page({
     const age = AGE_OPTIONS[ageIndex]
     const occIndex = this.data.profileForm.occupationIndex
     const occupation = OCCUPATION_OPTIONS[occIndex]
-    const tags = occupation ? getRecommendedTags(age, occupation) : []
-    this.setData({
-      'profileForm.ageIndex': ageIndex,
-      'profileForm.interestIndexes': tags,
-    })
+    if (age && occupation) {
+      // 年龄和职业都选好了 → 展示并推荐标签
+      const tags = getRecommendedTags(age, occupation)
+      this.setData({
+        'profileForm.ageIndex': ageIndex,
+        'profileForm.interestIndexes': tags,
+        showTags: true,
+      })
+    } else {
+      this.setData({ 'profileForm.ageIndex': ageIndex })
+    }
   },
 
   onOccupationChange(e) {
     const occIndex = Number(e.detail.value)
     const occupation = OCCUPATION_OPTIONS[occIndex]
     const age = AGE_OPTIONS[this.data.profileForm.ageIndex]
-    const tags = getRecommendedTags(age, occupation)
-    this.setData({
-      'profileForm.occupationIndex': occIndex,
-      'profileForm.interestIndexes': tags,
-    })
+    if (age && occupation) {
+      const tags = getRecommendedTags(age, occupation)
+      this.setData({
+        'profileForm.occupationIndex': occIndex,
+        'profileForm.interestIndexes': tags,
+        showTags: true,
+      })
+    } else {
+      this.setData({ 'profileForm.occupationIndex': occIndex })
+    }
   },
 
-  onInterestToggle(e) {
+  onRemoveTag(e) {
     const index = Number(e.currentTarget.dataset.index)
-    const indexes = [...this.data.profileForm.interestIndexes]
-    const pos = indexes.indexOf(index)
-    if (pos >= 0) indexes.splice(pos, 1)
-    else indexes.push(index)
+    const indexes = this.data.profileForm.interestIndexes.filter(i => i !== index)
     this.setData({ 'profileForm.interestIndexes': indexes })
   },
 

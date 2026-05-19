@@ -7,10 +7,12 @@
  */
 
 const GEN_STAGES = [
-  { text: '正在分析你的兴趣方向...', progress: 20 },
-  { text: '正在构思课程结构...', progress: 50 },
-  { text: '正在生成课程内容...', progress: 75 },
-  { text: '课程即将准备就绪...', progress: 90 },
+  { text: '正在分析你的兴趣方向...', progress: 10 },
+  { text: '正在构思课程结构...', progress: 25 },
+  { text: '正在生成课程内容...', progress: 50 },
+  { text: '课程内容正在优化...', progress: 70 },
+  { text: '检查课程完整性...', progress: 85 },
+  { text: '课程即将准备就绪...', progress: 92 },
 ]
 
 /**
@@ -95,7 +97,7 @@ function startProgressSimulation(onProgress) {
     onProgress(GEN_STAGES[i].text, GEN_STAGES[i].progress)
     i++
     if (i < GEN_STAGES.length) {
-      const t = setTimeout(next, 2500)
+      const t = setTimeout(next, 3500)
       timers.push(t)
     }
   }
