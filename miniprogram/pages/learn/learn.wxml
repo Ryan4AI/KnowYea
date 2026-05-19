@@ -121,7 +121,7 @@ module.exports = { contains: contains };
     <view class="input-wrapper">
       <textarea
         class="text-input"
-        value="{{inputValue}}"
+        model:value="{{inputValue}}"
         placeholder="输入你的想法..."
         bindinput="onInputChange"
         auto-height="{{true}}"
