@@ -84,9 +84,18 @@ module.exports = { contains: contains };
         </view>
       </block>
 
-      <!-- 加载动画 -->
-      <view class="loading-dots" wx:if="{{isLoading}}">
-        <text class="loading-dot">.</text><text class="loading-dot">.</text><text class="loading-dot">.</text>
+      <!-- AI 打字指示器 -->
+      <view class="message-item ai" wx:if="{{isLoading}}">
+        <view class="message-main">
+          <view class="message-content ai typing-bubble">
+            <view class="msg-time">正在思考...</view>
+            <view class="typing-indicator">
+              <view class="typing-dot"></view>
+              <view class="typing-dot"></view>
+              <view class="typing-dot"></view>
+            </view>
+          </view>
+        </view>
       </view>
 
       <!-- "下一节"按钮 -->
