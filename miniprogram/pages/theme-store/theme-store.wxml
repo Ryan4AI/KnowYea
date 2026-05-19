@@ -4,8 +4,7 @@
 
   <!-- 头部 -->
   <view class="page-header">
-    <view class="page-icon">🧠</view>
-    <view class="page-title">AI 课程生成器</view>
+    <view class="page-icon">✨</view>
     <view class="page-desc">输入你想学的内容，AI 为你量身定制一套完整课程</view>
   </view>
 
