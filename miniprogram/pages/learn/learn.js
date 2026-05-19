@@ -164,13 +164,10 @@ Page({
     if (currentLesson) {
       this.loadMessages(currentCourse._id, currentLesson._id)
     }
-
     if (typeof context.callback === 'function') context.callback()
 
-    // 新课时无消息 → 立即加载 AI 开场白
-    if (currentLesson && !context.skipAutoMessage) {
-      this.sendMessage(`请开始介绍"${currentLesson.title}"这个课时要学习的内容，用通俗易懂的语言`, true)
-    }
+    // 不再在这里发 auto-message，改为 loadMessages 完成后判断
+    // 新课时无消息 → 加载完成后自动触发 AI 开场白
   },
 
   loadMessages(courseId, lessonId, append = false) {
@@ -188,6 +185,11 @@ Page({
         } else {
           this.setData({ messages: msgs, hasMoreMessages: res.result.hasMore, messageOffset: 0 })
           this.scrollToBottom()
+          // 新课时无消息 → 自动发送 AI 开场白（只在首次加载时）
+          if (msgs.length === 0 && this.data.lesson) {
+            const lesson = this.data.lesson
+            this.sendMessage(`请开始介绍"${lesson.title}"这个课时要学习的内容，用通俗易懂的语言`, true)
+          }
         }
       },
       fail: () => this.setData({ loadingMore: false }),

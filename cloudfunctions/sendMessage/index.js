@@ -69,7 +69,39 @@ exports.main = async (event, context) => {
       if (!aiReply) return { success: false, error: 'AI 返回为空' }
       const { isCompleted, score } = parseCompletion(aiReply)
       const result = { success: true, aiReply, isCompleted, score }
-    return result
+
+      // 保存消息到数据库（跳过 auto-message，只有用户真实交互才保存）
+      if (!event.isAutoMessage && event.openid && event.courseId && event.lessonId) {
+        const now = Date.now()
+        if (event.userText) {
+          await db.collection('messages').add({
+            data: {
+              openid: event.openid,
+              courseId: event.courseId,
+              lessonId: event.lessonId,
+              role: 'user',
+              content: event.userText,
+              sentAt: now,
+              createdAt: now,
+              updatedAt: now,
+            }
+          })
+        }
+        await db.collection('messages').add({
+          data: {
+            openid: event.openid,
+            courseId: event.courseId,
+            lessonId: event.lessonId,
+            role: 'ai',
+            content: aiReply,
+            sentAt: now + 1,
+            createdAt: now + 1,
+            updatedAt: now + 1,
+          }
+        })
+      }
+
+      return result
     } catch (e) {
       return { success: false, error: e.message }
     }
