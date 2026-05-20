@@ -3,7 +3,7 @@ const path = require('path');
 
 const projectRoot = path.join(__dirname, '../miniprogram');
 
-console.log('=== 小知也 静态代码检查 ===\n');
+console.log('=== 千里学堂 静态代码检查 ===\n');
 
 let passed = 0, failed = 0;
 

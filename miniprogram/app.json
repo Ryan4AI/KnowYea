@@ -25,7 +25,7 @@
     "pages/feedback-admin/feedback-admin"
   ],
   "window": {
-    "navigationBarTitleText": "小知也",
+    "navigationBarTitleText": "千里学堂",
     "navigationBarBackgroundColor": "#fff",
     "navigationBarTextStyle": "black",
     "backgroundColor": "#f4f6fc"

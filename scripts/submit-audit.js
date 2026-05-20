@@ -54,7 +54,7 @@ async function submitAudit(accessToken) {
 }
 
 async function main() {
-  console.log('=== 小知也 提交审核 ===\n');
+  console.log('=== 千里学堂 提交审核 ===\n');
   
   try {
     console.log('1. 获取 access_token...');

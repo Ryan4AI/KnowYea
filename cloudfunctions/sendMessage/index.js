@@ -133,7 +133,7 @@ exports.main = async (event, context) => {
 
     // 组装 system prompt
     const lessonSummary = course.lessonSummary ? `课程学习进度摘要：${course.lessonSummary}` : ''
-    const systemPrompt = `你是"小知也"AI 学习助手，正在进行一对一学习辅导。
+    const systemPrompt = `你是"千里学堂"AI 学习助手，正在进行一对一学习辅导。
 
 用户信息：
 ${ageText}

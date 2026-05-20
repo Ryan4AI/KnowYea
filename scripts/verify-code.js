@@ -4,7 +4,7 @@ const path = require('path');
 async function verify() {
   const projectPath = path.join(__dirname, '../miniprogram');
   
-  console.log('=== 小知也 代码质量检查 ===\n');
+  console.log('=== 千里学堂 代码质量检查 ===\n');
   
   try {
     // 代码质量检查

@@ -3,14 +3,14 @@
   <!-- 等待登录：全屏加载 -->
   <view class="loading-screen" wx:if="{{showSplash}}">
     <view class="loading-icon">🌱</view>
-    <text class="loading-text">小知也</text>
+    <text class="loading-text">千里学堂</text>
   </view>
   <!-- 自定义导航栏 -->
   <view class="nav-bar" style="padding-top: {{navBarTop}}px">
     <view class="nav-bar-inner">
       <text class="nav-left" wx:if="{{course}}" bindtap="onGardenTap">🌱</text>
       <text class="nav-left" wx:else></text>
-      <text class="nav-title">{{course ? course.name : '小知也'}}</text>
+      <text class="nav-title">{{course ? course.name : '千里学堂'}}</text>
       <text class="nav-right" wx:if="{{!course}}"></text>
     </view>
   </view>
@@ -128,7 +128,7 @@
   <!-- 空状态 -->
   <view class="welcome" wx:if="{{!course && !isLoading}}">
     <view class="welcome-icon">📚</view>
-    <view class="welcome-title">小知也</view>
+    <view class="welcome-title">千里学堂</view>
     <view class="welcome-desc">碎片时间，系统学习</view>
   </view>
 

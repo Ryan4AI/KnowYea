@@ -11,7 +11,7 @@ async function main() {
   const version = process.argv[2] || '1.0.0'
   const desc = process.argv[3] || '服务器直接上传'
 
-  console.log('=== 小知也 直接上传 ===')
+  console.log('=== 千里学堂 直接上传 ===')
   console.log('Key:', keyFile)
   console.log('AppID:', appid)
   console.log('Version:', version)

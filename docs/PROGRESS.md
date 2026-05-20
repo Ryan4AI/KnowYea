@@ -1,4 +1,4 @@
-# 小知也 - 开发进度看板
+# 千里学堂 - 开发进度看板
 
 > 最后更新：2026-05-18 16:00
 
@@ -224,6 +224,6 @@ npm install
 
 - EnvId: cloudbase-d7gxwljzddd575d93
 - AppID: wx7298f8ed5dedc8d8
-- 小程序名称: 小知也 / KnowYea
+- 小程序名称: 千里学堂 / KnowYea
 - GitHub: https://github.com/Ryan4AI/KnowYea
 - 项目目录: /home/admin/workspace/knowyea/

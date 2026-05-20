@@ -11,7 +11,7 @@ const project = new CIProject({
 });
 
 async function uploadCode() {
-  console.log('=== 小知也 上传小程序 ===');
+  console.log('=== 千里学堂 上传小程序 ===');
   
   try {
     const result = await upload({

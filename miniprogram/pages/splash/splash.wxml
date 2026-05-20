@@ -1,6 +1,6 @@
 <view class="splash-container">
   <view class="splash-icon">📖</view>
-  <view class="splash-title">小知也</view>
+  <view class="splash-title">千里学堂</view>
   <view class="splash-subtitle">碎片时间，系统学习</view>
   <view class="loading-row">
     <view class="loading-spinner"></view>

@@ -26,11 +26,11 @@ async function submitAudit(accessToken, version) {
         tag: '学习',
         first_class: '教育',
         second_class: '在线教育',
-        title: '小知也',
+        title: '千里学堂',
       },
     ],
     version_desc: `v${version}`,
-    feedback_info: '小知也是一款AI驱动的碎片化学习工具，通过对话式教学帮助用户体系化学习',
+    feedback_info: '千里学堂是一款AI驱动的碎片化学习工具，通过对话式教学帮助用户体系化学习',
     feedback_stuff: 'feedback@knowyea.com',
   }
   const res = await fetch(url, {
@@ -46,7 +46,7 @@ async function main() {
   const version = process.argv[2] || '1.0.1'
   const desc = process.argv[3] || '服务器自动上传'
 
-  console.log('=== 小知也 自动化流程 ===')
+  console.log('=== 千里学堂 自动化流程 ===')
   console.log('Version:', version)
 
   try {
