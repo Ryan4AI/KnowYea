@@ -110,6 +110,20 @@
       "memorySize": 256,
       "runtime": "Nodejs16.13",
       "handler": "index.main"
+    },
+    {
+      "name": "getFeedbackList",
+      "timeout": 15,
+      "memorySize": 256,
+      "runtime": "Nodejs16.13",
+      "handler": "index.main"
+    },
+    {
+      "name": "updateFeedbackStatus",
+      "timeout": 15,
+      "memorySize": 256,
+      "runtime": "Nodejs16.13",
+      "handler": "index.main"
     }
   ]
 }

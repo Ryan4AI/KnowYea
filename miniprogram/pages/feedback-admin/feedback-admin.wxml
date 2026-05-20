@@ -1,0 +1,81 @@
+<!-- pages/feedback-admin/feedback-admin.wxml — 反馈管理后台 -->
+<view class="page">
+<view class="page-container">
+  <view class="page-header">
+    <view class="page-icon">📋</view>
+    <view class="page-title">反馈管理</view>
+    <view class="page-desc">查看和处理用户的意见反馈</view>
+  </view>
+
+  <!-- 状态筛选 -->
+  <view class="filter-bar">
+    <view class="filter-tab {{filter === 'all' ? 'active' : ''}}" data-status="all" bindtap="onFilter">全部</view>
+    <view class="filter-tab {{filter === 'new' ? 'active' : ''}}" data-status="new" bindtap="onFilter">待处理</view>
+    <view class="filter-tab {{filter === 'viewed' ? 'active' : ''}}" data-status="viewed" bindtap="onFilter">已阅</view>
+    <view class="filter-tab {{filter === 'resolved' ? 'active' : ''}}" data-status="resolved" bindtap="onFilter">已解决</view>
+  </view>
+
+  <!-- 加载中 -->
+  <view class="loading-tip" wx:if="{{loading}}">加载中...</view>
+
+  <!-- 列表为空 -->
+  <view class="empty-tip" wx:elif="{{list.length === 0}}">
+    <view class="empty-icon">📭</view>
+    <view>暂无反馈</view>
+  </view>
+
+  <!-- 反馈列表 -->
+  <scroll-view scroll-y class="feedback-list" wx:else>
+    <view
+      class="feedback-card"
+      wx:for="{{list}}"
+      wx:key="_id"
+      bindtap="onToggleDetail"
+      data-idx="{{index}}"
+    >
+      <view class="card-header">
+        <text class="card-content-preview">{{item.content.length > 60 ? item.content.slice(0, 60) + '...' : item.content}}</text>
+        <view class="status-badge status-{{item.status}}">
+          {{statusLabels[item.status]}}
+        </view>
+      </view>
+      <view class="card-meta">
+        <text>{{formatTime(item.createdAt)}}</text>
+        <text wx:if="{{item.contact}}">📞 {{item.contact}}</text>
+      </view>
+
+      <!-- 展开详情 -->
+      <view class="card-detail" wx:if="{{expandedId === item._id}}">
+        <view class="detail-divider"></view>
+        <view class="detail-content">{{item.content}}</view>
+        <view class="detail-actions">
+          <button
+            class="action-btn action-resolved"
+            wx:if="{{item.status !== 'resolved'}}"
+            bindtap="onUpdateStatus"
+            data-id="{{item._id}}"
+            data-status="resolved"
+            data-stop
+          >✅ 已处理</button>
+          <button
+            class="action-btn action-wontfix"
+            wx:if="{{item.status !== 'wontfix' && item.status !== 'resolved'}}"
+            bindtap="onUpdateStatus"
+            data-id="{{item._id}}"
+            data-status="wontfix"
+            data-stop
+          >⏸ 暂不处理</button>
+          <button
+            class="action-btn action-viewed"
+            wx:if="{{item.status === 'new'}}"
+            bindtap="onUpdateStatus"
+            data-id="{{item._id}}"
+            data-status="viewed"
+            data-stop
+          >👀 标记已阅</button>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+</view>
+</view>

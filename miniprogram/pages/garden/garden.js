@@ -65,6 +65,8 @@ Page({
     timelineTotal: 0,
     favoriteCount: 0,
     unlockedAchievements: 0,
+    isAdmin: false,
+    newFeedbackCount: 0,
   },
 
   onLoad() { this.loadAll() },
@@ -80,6 +82,9 @@ Page({
     this.setData({ isLoading: true })
 
     const openid = app.globalData.openid
+    // 管理员检查
+    this.setData({ isAdmin: this._checkAdmin() })
+    if (this.data.isAdmin) this._loadNewFeedbackCount()
     let userResult, coursesResult, historyResult, weekHistoryResult
 
     Promise.all([
@@ -276,5 +281,33 @@ Page({
 
   onFeedback() {
     wx.navigateTo({ url: '/pages/feedback/feedback' })
+  },
+
+  onFeedbackAdmin() {
+    wx.navigateTo({ url: '/pages/feedback-admin/feedback-admin' })
+  },
+
+  // 检查是否为管理员
+  _checkAdmin() {
+    const adminOpenId = 'oD7tH3Zy1HUIzU9bJXwmak_SjS-4'
+    const openid = app.globalData.openid || wx.getStorageSync('openid')
+    return openid === adminOpenId
+  },
+
+  // 查询新反馈数量（管理员用）
+  _loadNewFeedbackCount() {
+    if (!this._checkAdmin()) return
+    wx.cloud.callFunction({
+      name: 'getFeedbackList',
+      data: {
+        openid: app.globalData.openid || wx.getStorageSync('openid'),
+        status: 'new',
+      },
+      success: res => {
+        if (res.result?.success) {
+          this.setData({ newFeedbackCount: res.result.total || 0 })
+        }
+      },
+    })
   },
 })

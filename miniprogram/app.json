@@ -21,7 +21,8 @@
     "pages/profile/profile",
     "pages/history/history",
     "pages/achievements/achievements",
-    "pages/feedback/feedback"
+    "pages/feedback/feedback",
+    "pages/feedback-admin/feedback-admin"
   ],
   "window": {
     "navigationBarTitleText": "小知也",
