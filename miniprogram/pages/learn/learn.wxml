@@ -128,7 +128,6 @@
   <!-- 空状态 -->
   <view class="welcome" wx:if="{{!course && !isLoading}}">
     <view class="welcome-icon">📚</view>
-    <view class="welcome-title">千里学堂</view>
     <view class="welcome-desc">碎片时间，系统学习</view>
   </view>
 
