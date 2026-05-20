@@ -120,18 +120,18 @@ exports.main = async (event, context) => {
     const achievementsToAdd = []
 
     // 首次完成课时成就
-    if (user.completedLessons === 0 && !existingTypes.has('first_node')) {
-      achievementsToAdd.push({ openid, achievementId: 'first_node', unlockedAt: now })
+    if (user.completedLessons === 0 && !existingTypes.has('first_lesson')) {
+      achievementsToAdd.push({ openid, achievementId: 'first_lesson', unlockedAt: now })
     }
 
     // 完成 5 个课时
-    if ((user.completedLessons + 1) >= 5 && !existingTypes.has('node_5')) {
-      achievementsToAdd.push({ openid, achievementId: 'node_5', unlockedAt: now })
+    if ((user.completedLessons + 1) >= 5 && !existingTypes.has('five_lessons')) {
+      achievementsToAdd.push({ openid, achievementId: 'five_lessons', unlockedAt: now })
     }
 
     // 完成 10 个课时
-    if ((user.completedLessons + 1) >= 10 && !existingTypes.has('node_10')) {
-      achievementsToAdd.push({ openid, achievementId: 'node_10', unlockedAt: now })
+    if ((user.completedLessons + 1) >= 10 && !existingTypes.has('ten_lessons')) {
+      achievementsToAdd.push({ openid, achievementId: 'ten_lessons', unlockedAt: now })
     }
 
     // 连续学习 3 天
@@ -145,8 +145,8 @@ exports.main = async (event, context) => {
     }
 
     // 完成第一个课程
-    if (isCourseComplete && !existingTypes.has('first_theme')) {
-      achievementsToAdd.push({ openid, achievementId: 'first_theme', unlockedAt: now })
+    if (isCourseComplete && !existingTypes.has('first_course')) {
+      achievementsToAdd.push({ openid, achievementId: 'first_course', unlockedAt: now })
     }
 
     for (const ach of achievementsToAdd) {

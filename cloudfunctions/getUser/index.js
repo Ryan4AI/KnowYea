@@ -4,12 +4,12 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
 
 const ACH_META = {
-  first_node: { name: '初学乍道', description: '完成第一个课时', icon: '🌱' },
-  node_5: { name: '小有成就', description: '完成 5 个课时', icon: '🌿' },
-  node_10: { name: '十全十美', description: '完成 10 个课时', icon: '🏆' },
+  first_lesson: { name: '初学乍道', description: '完成第一个课时', icon: '🌱' },
+  five_lessons: { name: '三心二意', description: '完成 5 个课时', icon: '🎯' },
+  ten_lessons: { name: '十全十美', description: '完成 10 个课时', icon: '🏆' },
   streak_3: { name: '持之以恒', description: '连续学习 3 天', icon: '🔥' },
   streak_7: { name: '连胜达人', description: '连续学习 7 天', icon: '⚡' },
-  first_theme: { name: '有始有终', description: '完成第一个课程', icon: '🎓' },
+  first_course: { name: '有始有终', description: '完成第一个课程', icon: '🎓' },
 }
 
 exports.main = async (event, context) => {
