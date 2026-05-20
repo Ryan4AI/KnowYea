@@ -1,4 +1,4 @@
-<!-- pages/profile/profile.wxml — 个人中心 -->
+<!-- pages/profile/profile.wxml — 画像收集 / 编辑（纯表单） -->
 <wxs module="tools">
 var contains = function(arr, value) {
   if (!arr || !arr.length) return false;
@@ -12,128 +12,79 @@ module.exports = { contains: contains };
 <view class="page">
 <view class="page-container">
 
-  <!-- === 表单模式（画像收集/编辑） === -->
-  <block wx:if="{{showForm}}">
-    <view class="page-header">
-      <view class="page-icon">{{isEditing && userProfile ? '✏️' : '👤'}}</view>
-      <view class="page-title">{{isEditing && userProfile ? '信息更新' : '先了解一下你'}}</view>
-      <view class="page-desc">{{isEditing && userProfile ? '修改你的基本信息' : '让 AI 为你量身定制专属课程'}}</view>
+  <view class="page-header">
+    <view class="page-icon">👤</view>
+    <view class="page-title">{{_hasProfile ? '信息更新' : '先了解一下你'}}</view>
+    <view class="page-desc">{{_hasProfile ? '修改你的基本信息' : '让 AI 为你量身定制专属课程'}}</view>
+  </view>
+
+  <view class="white-card">
+    <!-- 年龄 -->
+    <view class="form-group">
+      <text class="form-label">年龄</text>
+      <picker mode="selector" range="{{ageOptions}}" bindchange="onAgeChange">
+        <view class="picker-field {{profileForm.ageIndex >= 0 ? 'active' : ''}}">
+          {{ageOptions[profileForm.ageIndex] || '请选择'}}
+        </view>
+      </picker>
     </view>
 
-    <view class="white-card">
-      <!-- 年龄 -->
-      <view class="form-group">
-        <text class="form-label">年龄</text>
-        <picker mode="selector" range="{{ageOptions}}" bindchange="onAgeChange">
-          <view class="picker-field {{profileForm.ageIndex >= 0 ? 'active' : ''}}">
-            {{ageOptions[profileForm.ageIndex] || '请选择'}}
-          </view>
-        </picker>
-      </view>
-
-      <!-- 职业 -->
-      <view class="form-group">
-        <text class="form-label">职业</text>
-        <picker mode="selector" range="{{occupationOptions}}" bindchange="onOccupationChange">
-          <view class="picker-field {{profileForm.occupationIndex >= 0 ? 'active' : ''}}">
-            {{occupationOptions[profileForm.occupationIndex] || '请选择'}}
-          </view>
-        </picker>
-      </view>
-
-      <!-- 兴趣标签 -->
-      <view class="form-group" wx:if="{{showTags}}">
-        <text class="form-label">兴趣方向 <text class="form-hint">（点击 ✕ 取消不感兴趣的）</text></text>
-        <view class="tag-list">
-          <view
-            wx:for="{{profileForm.interestIndexes}}" wx:key="*this"
-            class="rec-tag"
-            data-index="{{item}}"
-            bindtap="onRemoveTag"
-          >
-            {{interestOptions[item]}}<text class="rec-tag-close"> ✕</text>
-          </view>
+    <!-- 职业 -->
+    <view class="form-group">
+      <text class="form-label">职业</text>
+      <picker mode="selector" range="{{occupationOptions}}" bindchange="onOccupationChange">
+        <view class="picker-field {{profileForm.occupationIndex >= 0 ? 'active' : ''}}">
+          {{occupationOptions[profileForm.occupationIndex] || '请选择'}}
         </view>
-        <view wx:if="{{profileForm.interestIndexes.length === 0}}" style="color:#999;font-size:13px;padding:4px 0;">
-          已取消所有推荐，保存后将使用默认方向
+      </picker>
+    </view>
+
+    <!-- 兴趣标签 -->
+    <view class="form-group" wx:if="{{showTags}}">
+      <text class="form-label">兴趣方向 <text class="form-hint">（点击 ✕ 取消不感兴趣的）</text></text>
+      <view class="tag-list">
+        <view
+          wx:for="{{profileForm.interestIndexes}}" wx:key="*this"
+          class="rec-tag"
+          data-index="{{item}}"
+          bindtap="onRemoveTag"
+        >
+          {{interestOptions[item]}}<text class="rec-tag-close"> ✕</text>
         </view>
       </view>
-      <view class="form-group" wx:else>
-        <text class="form-label">兴趣方向</text>
-        <text class="form-hint" style="display:block;margin-top:8px;color:#999;font-size:13px;">
-          请先选择年龄和职业，AI 将自动为你推荐兴趣方向
-        </text>
+      <view wx:if="{{profileForm.interestIndexes.length === 0}}" style="color:#999;font-size:13px;padding:4px 0;">
+        已取消所有推荐，保存后将使用默认方向
       </view>
+    </view>
+    <view class="form-group" wx:else>
+      <text class="form-label">兴趣方向</text>
+      <text class="form-hint" style="display:block;margin-top:8px;color:#999;font-size:13px;">
+        请先选择年龄和职业，AI 将自动为你推荐兴趣方向
+      </text>
+    </view>
 
-      <!-- 自定义标签列表 -->
-      <view class="form-group" wx:if="{{customInterests.length > 0}}">
-        <text class="form-label">自定义</text>
-        <view class="tag-list">
-          <view wx:for="{{customInterests}}" wx:key="index" class="custom-tag" data-index="{{index}}" bindtap="onRemoveCustom">
-            {{item}} ✕
-          </view>
+    <!-- 自定义标签列表 -->
+    <view class="form-group" wx:if="{{customInterests.length > 0}}">
+      <text class="form-label">自定义</text>
+      <view class="tag-list">
+        <view wx:for="{{customInterests}}" wx:key="index" class="custom-tag" data-index="{{index}}" bindtap="onRemoveCustom">
+          {{item}} ✕
         </view>
       </view>
-
-      <!-- 添加自定义兴趣 -->
-      <view class="form-group">
-        <view class="custom-interest-row">
-          <input class="custom-interest-input" model:value="{{_customInputValue}}" placeholder="添加自定义兴趣（最多8字）" bindinput="onCustomInterestInput" bindconfirm="onCustomInterestConfirm" />
-          <button class="custom-add-btn" bindtap="onCustomInterestAdd">添加</button>
-        </view>
-      </view>
-
-      <button class="btn-primary" disabled="{{isSaving}}" bindtap="onSaveProfile">
-        {{isSaving ? '保存中...' : isEditing && userProfile ? '✅ 保存修改' : '✅ 开始学习'}}
-      </button>
-    </view>
-  </block>
-
-  <!-- === 展示模式（已有画像） === -->
-  <block wx:else>
-    <view class="profile-header">
-      <view class="avatar"><text class="avatar-text">🧑‍🎓</text></view>
-      <view class="user-info">
-        <view class="user-name">{{userProfile.ageRange || '学习者'}}</view>
-        <view class="user-slogan">{{profileSlogan}}</view>
-      </view>
-      <view class="header-edit" bindtap="onGoEditProfile"><text>✏️</text></view>
     </view>
 
-    <view class="stats-grid">
-      <view class="stat-card"><view class="stat-card-inner">
-        <view class="stat-value">{{stats.completedNodes}}</view>
-        <view class="stat-label">已完成章节</view>
-      </view></view>
-      <view class="stat-card"><view class="stat-card-inner">
-        <view class="stat-value">{{stats.completedThemes}}</view>
-        <view class="stat-label">已完成课程</view>
-      </view></view>
-      <view class="stat-card"><view class="stat-card-inner">
-        <view class="stat-value">{{stats.totalPoints}}</view>
-        <view class="stat-label">总积分</view>
-      </view></view>
-      <view class="stat-card"><view class="stat-card-inner">
-        <view class="stat-value">{{stats.streak}}</view>
-        <view class="stat-label">连续学习</view>
-      </view></view>
-    </view>
-
-    <view class="menu-list">
-      <view class="menu-item" bindtap="onNavigateTo" data-page="history">
-        <text class="menu-icon">📜</text><text class="menu-text">历史记录</text><text class="menu-arrow">›</text>
-      </view>
-      <view class="menu-item" bindtap="onNavigateTo" data-page="achievements">
-        <text class="menu-icon">🏆</text><text class="menu-text">成就展示</text><text class="menu-arrow">›</text>
-      </view>
-      <view class="menu-item" bindtap="onNavigateTo" data-page="garden">
-        <text class="menu-icon">🌱</text><text class="menu-text">知识花园</text><text class="menu-arrow">›</text>
+    <!-- 添加自定义兴趣 -->
+    <view class="form-group">
+      <view class="custom-interest-row">
+        <input class="custom-interest-input" model:value="{{_customInputValue}}" placeholder="添加自定义兴趣（最多8字）" bindinput="onCustomInterestInput" bindconfirm="onCustomInterestConfirm" />
+        <button class="custom-add-btn" bindtap="onCustomInterestAdd">添加</button>
       </view>
     </view>
 
-
-    <view class="slogan"><text>每天几分钟，慢慢变强</text></view>
-  </block>
+    <button class="btn-primary" disabled="{{isSaving}}" bindtap="onSaveProfile">
+      {{isSaving ? '保存中...' : _hasProfile ? '✅ 保存修改' : '✅ 开始学习'}}
+    </button>
+  </view>
 
   <!-- 课程生成进度 -->
   <view class="gen-overlay" wx:if="{{genOverlay}}">
