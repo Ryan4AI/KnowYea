@@ -489,13 +489,6 @@ Page({
     this.setData({ inputValue: value, canSend: true })
     this.doSend()
   },
-  onOpenSubmit(e) {
-    const value = e.detail.value
-    if (!value || !value.trim()) return
-    this.setData({ inputValue: value, canSend: true })
-    this.doSend()
-  },
-
   onFinishCourse() {
     this.setData({ isCompleted: false })
     wx.showModal({
