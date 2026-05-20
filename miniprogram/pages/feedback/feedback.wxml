@@ -1,0 +1,38 @@
+<!-- pages/feedback/feedback.wxml — 意见反馈 -->
+<view class="page">
+<view class="page-container">
+  <view class="page-header">
+    <view class="page-icon">💬</view>
+    <view class="page-title">意见反馈</view>
+    <view class="page-desc">你的每一条反馈，都在让产品变得更好</view>
+  </view>
+
+  <view class="white-card">
+    <view class="form-group">
+      <text class="form-label">反馈内容</text>
+      <textarea
+        class="feedback-textarea"
+        placeholder="遇到什么问题？有什么建议？告诉我们吧..."
+        maxlength="500"
+        model:value="{{content}}"
+        auto-focus
+      />
+      <text class="word-count">{{content.length}}/500</text>
+    </view>
+
+    <view class="form-group">
+      <text class="form-label">联系方式 <text class="form-hint">（选填）</text></text>
+      <input
+        class="feedback-input"
+        placeholder="微信号/手机号/邮箱，方便我们联系你"
+        model:value="{{contact}}"
+      />
+    </view>
+
+    <button class="btn-primary" disabled="{{submitting || content.length < 2}}" bindtap="onSubmit">
+      {{submitting ? '提交中...' : '📨 提交反馈'}}
+    </button>
+    <view class="btn-secondary" bindtap="onBack">返回</view>
+  </view>
+</view>
+</view>

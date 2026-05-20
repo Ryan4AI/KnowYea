@@ -20,7 +20,8 @@
     "pages/theme-store/theme-store",
     "pages/profile/profile",
     "pages/history/history",
-    "pages/achievements/achievements"
+    "pages/achievements/achievements",
+    "pages/feedback/feedback"
   ],
   "window": {
     "navigationBarTitleText": "小知也",

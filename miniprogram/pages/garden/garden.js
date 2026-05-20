@@ -273,4 +273,8 @@ Page({
   onEditProfile() {
     wx.navigateTo({ url: '/pages/profile/profile?edit=1' })
   },
+
+  onFeedback() {
+    wx.navigateTo({ url: '/pages/feedback/feedback' })
+  },
 })
