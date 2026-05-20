@@ -1,23 +1,31 @@
 /* pages/feedback/feedback.wxss */
 @import "../../styles/pages.wxss";
 
+/* 反馈内容区 — 卡片内部的间距 */
+.white-card .form-group:last-of-type {
+  margin-bottom: 32rpx;
+}
+
 .feedback-textarea {
   width: 100%;
-  height: 240rpx;
+  height: 280rpx;
   background: var(--capsule-bg);
-  border-radius: 12rpx;
+  border: 2rpx solid var(--capsule-border);
+  border-radius: 16rpx;
   padding: 24rpx;
   font-size: 28rpx;
   color: var(--capsule-ink);
+  line-height: 1.7;
   box-sizing: border-box;
-  line-height: 1.6;
 }
 
 .feedback-input {
   width: 100%;
+  height: 80rpx;
   background: var(--capsule-bg);
-  border-radius: 12rpx;
-  padding: 20rpx 24rpx;
+  border: 2rpx solid var(--capsule-border);
+  border-radius: 16rpx;
+  padding: 0 24rpx;
   font-size: 28rpx;
   color: var(--capsule-ink);
   box-sizing: border-box;
@@ -29,4 +37,19 @@
   font-size: 22rpx;
   color: var(--capsule-muted);
   margin-top: 8rpx;
+  padding-right: 8rpx;
+}
+
+/* 返回按钮 */
+.btn-back {
+  width: 100%;
+  height: 80rpx;
+  line-height: 80rpx;
+  text-align: center;
+  font-size: 28rpx;
+  color: var(--capsule-ink-secondary);
+  background: transparent;
+  border: none;
+  margin-top: 24rpx;
+  border-radius: 16rpx;
 }

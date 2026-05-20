@@ -15,7 +15,6 @@
         placeholder="遇到什么问题？有什么建议？告诉我们吧..."
         maxlength="500"
         model:value="{{content}}"
-        auto-focus
       />
       <text class="word-count">{{content.length}}/500</text>
     </view>
@@ -32,7 +31,7 @@
     <button class="btn-primary" disabled="{{submitting || content.length < 2}}" bindtap="onSubmit">
       {{submitting ? '提交中...' : '📨 提交反馈'}}
     </button>
-    <view class="btn-secondary" bindtap="onBack">返回</view>
+    <button class="btn-back" bindtap="onBack">返回</button>
   </view>
 </view>
 </view>
