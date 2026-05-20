@@ -161,6 +161,6 @@
     </view>
 
     <!-- 底部留白 -->
-    <view class="footer">每天几分钟，慢慢变强</view>
+    <view class="footer">碎片时间，系统学习</view>
   </scroll-view>
 </view>

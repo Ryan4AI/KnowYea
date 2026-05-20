@@ -1,7 +1,7 @@
 <view class="splash-container">
   <view class="splash-icon">📖</view>
   <view class="splash-title">千里学堂</view>
-  <view class="splash-subtitle">碎片时间，系统学习</view>
+  <view class="splash-subtitle">不积跬步，无以至千里</view>
   <view class="loading-row">
     <view class="loading-spinner"></view>
     <text class="loading-text">加载中...</text>
