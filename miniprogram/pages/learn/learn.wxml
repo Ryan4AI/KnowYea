@@ -27,14 +27,13 @@ module.exports = { contains: contains };
   </view>
 
   <!-- 学习区域 -->
-  <scroll-view class="messages-container" scroll-y="{{true}}" scroll-with-animation="{{true}}" upper-threshold="50" scroll-into-view="msg-bottom" wx:if="{{course}}">
+  <scroll-view class="messages-container" scroll-y="{{true}}" scroll-with-animation="{{true}}" upper-threshold="50" scroll-into-view="{{scrollIntoView}}" wx:if="{{course}}">
     <view class="messages-list" id="msg-list">
       <block wx:for="{{messages}}" wx:key="id">
         <view class="message-item {{item.role}}" id="msg-{{index}}">
-          <view class="message-main">
-            <view class="message-content {{item.role}}">
-              <!-- 消息时间 -->
-              <view class="msg-time">{{item.timeStr}}</view>
+            <view class="message-main">
+              <view class="msg-time {{item.role}}">{{item.timeStr}}</view>
+              <view class="message-content {{item.role}}">
 
               <!-- 消息块 -->
               <block wx:for="{{item.blocks}}" wx:for-item="block" wx:key="type">
@@ -55,13 +54,10 @@ module.exports = { contains: contains };
                   </view>
                 </view>
 
-                <!-- 问答题 -->
+                <!-- 问答题（用聊天框输入，不需要独立输入框） -->
                 <view wx:elif="{{block.type === 'open'}}" class="question-block">
                   <view class="question-label">✏️ 问答题</view>
                   <rich-text nodes="{{block.html}}" class="question-text"></rich-text>
-                  <view class="open-input-wrap">
-                    <input class="open-input" placeholder="输入你的回答..." data-msgid="{{block._msgId}}" bindconfirm="onOpenSubmit" />
-                  </view>
                 </view>
 
                 <!-- 评分 -->
@@ -71,7 +67,15 @@ module.exports = { contains: contains };
 
                 <!-- 表格 -->
                 <view wx:elif="{{block.type === 'table'}}" class="msg-table-wrap">
-                  <rich-text nodes="{{block.html}}" class="msg-table"></rich-text>
+                  <view class="table-caption">📊 表格</view>
+                  <view class="table-grid">
+                    <view class="table-row table-header">
+                      <view class="table-cell" wx:for="{{block.headers}}" wx:key="index">{{item}}</view>
+                    </view>
+                    <view class="table-row" wx:for="{{block.rows}}" wx:for-item="row" wx:key="index">
+                      <view class="table-cell" wx:for="{{row}}" wx:for-index="ci" wx:key="ci">{{item}}</view>
+                    </view>
+                  </view>
                 </view>
               </block>
 
@@ -88,7 +92,6 @@ module.exports = { contains: contains };
       <view class="message-item ai" wx:if="{{isLoading}}">
         <view class="message-main">
           <view class="message-content ai typing-bubble">
-            <view class="msg-time">正在思考...</view>
             <view class="typing-indicator">
               <view class="typing-dot"></view>
               <view class="typing-dot"></view>
@@ -127,7 +130,7 @@ module.exports = { contains: contains };
         auto-height="{{true}}"
         maxlength="-1"
       ></textarea>
-      <button class="send-btn tap-scale" hover-class="tap-scale-hover" bindtap="doSend" disabled="{{!canSend}}">
+      <button class="send-btn tap-scale" hover-class="tap-scale-hover" bindtap="doSend">
         <text>发送</text>
       </button>
     </view>

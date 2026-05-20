@@ -177,7 +177,6 @@ Page({
     const routes = {
       history: '/pages/history/history',
       achievements: '/pages/achievements/achievements',
-      settings: '/pages/settings/settings',
     }
     if (routes[page]) {
       wx.navigateTo({ url: routes[page] })

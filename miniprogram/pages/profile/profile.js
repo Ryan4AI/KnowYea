@@ -417,7 +417,6 @@ Page({
       history: '/pages/history/history',
       achievements: '/pages/achievements/achievements',
       garden: '/pages/garden/garden',
-      settings: '/pages/settings/settings',
     }
     const page = e.currentTarget.dataset.page
     if (routes[page]) wx.navigateTo({ url: routes[page] })

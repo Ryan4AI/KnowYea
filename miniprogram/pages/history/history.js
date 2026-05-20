@@ -81,9 +81,10 @@ Page({
     let currentItems = []
 
     for (const item of list) {
-      const label = dateLabel(item.completedAt)
-      const timeStr = relativeTime(item.completedAt)
-      const enriched = { ...item, timeStr }
+      const ts = item.completedAt || item.createdAt
+      const label = dateLabel(ts)
+      const timeStr = relativeTime(ts)
+      const enriched = { ...item, completedAt: ts, timeStr }
 
       if (label !== currentLabel) {
         if (currentItems.length > 0) {

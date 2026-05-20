@@ -16,33 +16,26 @@ function mdToHtml(text) {
   html = html.replace(/`([^`]+)`/g, '<code style="background:#f0f0f2;padding:2px 6px;border-radius:4px;font-size:13px;color:#e74c3c;">$1</code>')
   // 粗体
   html = html.replace(/\*\*([^*]+)\*\*/g, '<b style="font-weight:600;">$1</b>')
-  // 表格（| A | B | 格式）
-  html = html.replace(/^\|(.+)\|$/gm, (line) => {
-    const cells = line.slice(1, -1).split('|').map(c => c.trim())
-    return cells.join('|')
-  })
-  // 表格头（第二行 --- 分隔线）
-  html = html.replace(/^[-| :]+$/gm, '').replace(/(?:([^|\n]+)\|([^|\n]+))(?:\n([^|\n]+)\|([^|\n]+))?/g, (m) => {
-    return m
-  })
-  // 更健壮的表格处理：前后补换行防止边界问题
+  // 表格 — 先做 HTML 转换（保留原始 | 格式），再清理残留管道
   html = html.replace(/((?:\|[^\n]+\|\n?)+)/g, (tableBlock) => {
     const rows = tableBlock.trim().split('\n').filter(r => r.trim())
     if (rows.length < 2) return tableBlock
-    // 第2行（分隔线）只含 | 和 -，跳过
     const dataRows = rows.filter((r, i) => i !== 1 || !/^[\s|:-]+$/.test(r))
     const headerRow = dataRows[0]
     const headers = headerRow.slice(1, -1).split('|').map(h => h.trim()).filter(h => h)
-    let htmlTable = '<table style="width:100%;border-collapse:collapse;margin:8px 0;font-size:14px;background:#fff;border-radius:6px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08);">'
-    htmlTable += '<thead><tr>' + headers.map(h => `<th style="background:#f0f2f5;padding:8px 12px;text-align:left;font-weight:500;border-bottom:2px solid #e8e8e8;">${h}</th>`).join('') + '</tr></thead>'
+    let htmlTable = '<table style="width:100%;border-collapse:collapse;font-size:26rpx;margin:8px 0;">'
+    htmlTable += '<thead><tr>' + headers.map(h => `<th style="background:#f0f2f5;padding:8px 12px;text-align:left;font-weight:500;border-bottom:2rpx solid #e8e8e8;">${h}</th>`).join('') + '</tr></thead>'
     htmlTable += '<tbody>'
     for (let i = 1; i < dataRows.length; i++) {
       const rowData = dataRows[i].slice(1, -1).split('|').map(c => c.trim())
-      htmlTable += '<tr>' + rowData.map((c, ci) => `<td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;${ci === 0 ? 'font-weight:500;' : ''}">${c}</td>`).join('') + '</tr>'
+      htmlTable += '<tr>' + rowData.map((c, ci) => `<td style="padding:8px 12px;border-bottom:1rpx solid #e0e0e0;${ci === 0 ? 'font-weight:500;' : ''}">${c}</td>`).join('') + '</tr>'
     }
     htmlTable += '</tbody></table>'
     return htmlTable
   })
+  // 清理残留的管道线（非表格的行内 | 标记）
+  html = html.replace(/^\|(.+)\|$/gm, (m, inner) => inner.trim())
+  html = html.replace(/^[-| :]+$/gm, '')
   // 无序列表 - 先标记
   html = html.split('\n').map(line => {
     if (/^- /.test(line)) return '__LI__' + line.slice(2)
@@ -92,23 +85,33 @@ function parseMessageBlocks(content) {
   while ((match = pattern.exec(content)) !== null) {
     if (match.index > lastIndex) {
       const plain = content.slice(lastIndex, match.index).replace(/\[完成\]/g, '').replace(/\[\/(概念|例子|总结|评价)\]/g, '').trim()
-      if (plain) blocks.push({ type: 'text', text: plain, html: mdToHtml(plain) })
+      if (plain) splitTextWithTables(blocks, plain)
     }
     if (match[1]) {
       blocks.push({ type: match[1], text: match[2].trim(), html: mdToHtml(match[2].trim()) })
     } else if (match[3]) {
       const qContent = match[4].trim()
       if (match[3] === 'choice') {
-        // 解析选择题选项：每行以 A/B/C/D 开头或 - 开头
+        // 解析选择题选项：支持 A. A) A、A A- 及数字 1. 1)
         const lines = qContent.split('\n')
-        const questionText = lines.filter(l => !/^[A-Z][\.\)]?\s/m.test(l) && !/^-\s/m.test(l)).join('\n').trim()
-        const options = lines.filter(l => /^[A-Z][\.\)]?\s/m.test(l) || /^-\s/m.test(l)).map(l => l.replace(/^[A-Z][\.\)]?\s*/, '').replace(/^-\s*/, '').trim())
-        blocks.push({
-          type: 'choice',
-          content: questionText,
-          html: mdToHtml(questionText),
-          options: options.filter(o => o),
-        })
+        const optionRe = /^[A-Za-z1-4][.、\)\-\s]\s*/m
+        const questionText = lines.filter(l => !optionRe.test(l) && !/^-\s/m.test(l)).join('\n').trim()
+        const options = lines.filter(l => optionRe.test(l) || /^-\s/m.test(l)).map(l => l.replace(optionRe, '').replace(/^-\s*/, '').trim()).filter(o => o.length > 1)
+        if (options.length > 0) {
+          blocks.push({
+            type: 'choice',
+            content: questionText,
+            html: mdToHtml(questionText),
+            options: options.filter(o => o),
+          })
+        } else {
+          // 声明了 choice 但无有效选项 → 按问答题处理
+          blocks.push({
+            type: 'open',
+            content: qContent,
+            html: mdToHtml(qContent),
+          })
+        }
       } else {
         blocks.push({
           type: 'open',
@@ -123,11 +126,55 @@ function parseMessageBlocks(content) {
   }
 
   const rest = content.slice(lastIndex).replace(/\[完成\]/g, '').replace(/\[\/(概念|例子|总结|评价)\]/g, '').trim()
-  if (rest) blocks.push({ type: 'text', text: rest, html: mdToHtml(rest) })
+  if (rest) splitTextWithTables(blocks, rest)
   if (blocks.length === 0) {
-    blocks.push({ type: 'text', text: content.replace(/\[完成\]/g, '').trim(), html: mdToHtml(content.replace(/\[完成\]/g, '').trim()) })
+    splitTextWithTables(blocks, content.replace(/\[完成\]/g, '').trim())
   }
   return blocks
+}
+
+/**
+ * 将文本按 markdown 表格拆分成 text + table 交替块
+ */
+function splitTextWithTables(blocks, text) {
+  // 匹配连续表格行（至少2行，以 | 开头）
+  const tableRegex = /((?:\|[^\n]+\|\n?)+)/g
+  let lastIdx = 0, m
+  while ((m = tableRegex.exec(text)) !== null) {
+    const rows = m[1].trim().split('\n').filter(r => r.trim().startsWith('|') && r.trim().endsWith('|'))
+    if (rows.length >= 2) {
+      // 前面的纯文本
+      if (m.index > lastIdx) {
+        const txt = text.slice(lastIdx, m.index).trim()
+        if (txt) blocks.push({ type: 'text', text: txt, html: mdToHtml(txt) })
+      }
+      // 解析表格数据
+      const tableData = parseMarkdownTable(rows)
+      blocks.push({ type: 'table', text: m[1].trim(), html: mdToHtml(m[1].trim()), headers: tableData.headers, rows: tableData.rows })
+      lastIdx = m.index + m[0].length
+    }
+  }
+  // 剩余文本
+  if (lastIdx < text.length) {
+    const txt = text.slice(lastIdx).trim()
+    if (txt) blocks.push({ type: 'text', text: txt, html: mdToHtml(txt) })
+  }
+}
+
+/**
+ * 解析 markdown 表格行数组为 headers + rows
+ */
+function parseMarkdownTable(rows) {
+  // 跳过分隔行（只含 | 和 -）
+  const dataRows = rows.filter((r, i) => i !== 1 || !/^[\s|:-]+$/.test(r.trim()))
+  if (dataRows.length < 1) return { headers: [], rows: [] }
+  const headers = dataRows[0].slice(1, -1).split('|').map(h => h.trim())
+  const rowsData = []
+  for (let i = 1; i < dataRows.length; i++) {
+    const cells = dataRows[i].slice(1, -1).split('|').map(c => c.trim())
+    rowsData.push(cells)
+  }
+  return { headers, rows: rowsData }
 }
 
 module.exports = { formatTime, parseMessageBlocks }

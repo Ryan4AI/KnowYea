@@ -70,10 +70,11 @@ exports.main = async (event, context) => {
       const { isCompleted, score } = parseCompletion(aiReply)
       const result = { success: true, aiReply, isCompleted, score }
 
-      // 保存消息到数据库（跳过 auto-message，只有用户真实交互才保存）
-      if (!event.isAutoMessage && event.openid && event.courseId && event.lessonId) {
+      // 保存消息到数据库（auto-message 只存 AI 回复，不存系统生成的用户消息）
+      if (event.openid && event.courseId && event.lessonId) {
         const now = Date.now()
-        if (event.userText) {
+        // 用户真实发送的消息才保存
+        if (!event.isAutoMessage && event.userText) {
           await db.collection('messages').add({
             data: {
               openid: event.openid,
@@ -87,6 +88,7 @@ exports.main = async (event, context) => {
             }
           })
         }
+        // AI 回复统一保存（含 auto-message 的开场白）
         await db.collection('messages').add({
           data: {
             openid: event.openid,

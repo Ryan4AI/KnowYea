@@ -12,7 +12,8 @@ function mdToHtml(text) {
 
 function processMessages(messages) {
   return (messages || []).map(msg => {
-    const blocks = parseMessageBlocks(msg.content)
+    const content = (msg.content || '').replace(/<think>[\s\S]*?<\/think>/g, '').trim()
+    const blocks = parseMessageBlocks(content)
     blocks.forEach(b => {
       b._msgId = msg._id || msg.id
       if (b.type === 'choice' && b.content) {
@@ -183,8 +184,13 @@ Page({
         if (append) {
           this.setData({ messages: [...msgs, ...this.data.messages], hasMoreMessages: res.result.hasMore, messageOffset: offset })
         } else {
-          this.setData({ messages: msgs, hasMoreMessages: res.result.hasMore, messageOffset: 0 })
-          this.scrollToBottom()
+          // 有历史消息 → 清除 loading，直接展示
+          if (msgs.length > 0) {
+            this.setData({ messages: msgs, hasMoreMessages: res.result.hasMore, messageOffset: 0, isLoading: false })
+            this.scrollToBottom()
+          } else {
+            this.setData({ messages: msgs, hasMoreMessages: res.result.hasMore, messageOffset: 0 })
+          }
           // 新课时无消息 → 自动发送 AI 开场白（只在首次加载时）
           if (msgs.length === 0 && this.data.lesson) {
             const lesson = this.data.lesson
@@ -192,7 +198,7 @@ Page({
           }
         }
       },
-      fail: () => this.setData({ loadingMore: false }),
+      fail: () => this.setData({ loadingMore: false, isLoading: false }),
     })
   },
 
@@ -307,7 +313,7 @@ Page({
   },
 
   onInputChange(e) {
-    this.setData({ inputValue: e.detail.value, canSend: e.detail.value.trim().length > 0 && !this.data.isLoading })
+    this.setData({ inputValue: e.detail.value })
   },
   onInputBlur(e) { this.setData({ inputValue: e.detail.value }) },
 
@@ -346,17 +352,13 @@ Page({
       name: 'completeLesson',
       data: { openid: app.globalData.openid, courseId: course._id, lessonId: lesson._id },
       success: () => {
-        this.switchToLesson(nextLesson._id, () => {
-          wx.hideLoading()
-          this.sendMessage(`请开始介绍"${nextLesson.title}"这个课时要学习的内容，用通俗易懂的语言`, true)
-        })
+        this.switchToLesson(nextLesson._id)
+        wx.hideLoading()
       },
       fail: () => {
         wx.hideLoading()
         wx.showToast({ title: '进度同步失败，可继续学习', icon: 'none' })
-        this.switchToLesson(nextLesson._id, () => {
-          this.sendMessage(`请开始介绍"${nextLesson.title}"这个课时要学习的内容，用通俗易懂的语言`, true)
-        })
+        this.switchToLesson(nextLesson._id)
       },
     })
   },

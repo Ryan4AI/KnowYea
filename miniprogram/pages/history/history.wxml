@@ -14,7 +14,7 @@
     <view class="date-group" wx:for="{{groupedHistory}}" wx:key="dateLabel">
       <view class="date-label">{{item.dateLabel}}</view>
       <view class="date-items">
-        <view class="history-item" wx:for="{{item.items}}" wx:key="_id" wx:for-item="record" bindtap="onItemTap" data-theme-id="{{record.themeId}}" data-node-id="{{record.nodeId}}">
+        <view class="history-item" wx:for="{{item.items}}" wx:key="_id" wx:for-item="record" bindtap="onItemTap" data-course-id="{{record.courseId}}" data-lesson-id="{{record.lessonId}}">
           <view class="item-dot"></view>
           <view class="item-content">
             <view class="item-title">{{record.nodeTitle}}</view>
