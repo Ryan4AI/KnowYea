@@ -109,7 +109,7 @@
   </scroll-view>
 
   <!-- 输入栏 -->
-  <view class="input-bar" wx:if="{{course}}">
+  <view class="input-bar" wx:if="{{course && !isCompleted}}">
     <view class="input-wrapper">
       <textarea
         class="text-input"
