@@ -168,7 +168,7 @@ npm install
 
 ### 步骤3：微信开发者工具导入
 1. 打开微信开发者工具
-2. 导入项目：`/home/admin/workspace/knowyea/miniprogram`
+2. 导入项目：`/home/admin/workspace/OneStep/miniprogram`
 3. 填写 AppID：`wx7298f8ed5dedc8d8`
 4. 确认云开发环境：`cloudbase-d7gxwljzddd575d93`
 
@@ -226,4 +226,4 @@ npm install
 - AppID: wx7298f8ed5dedc8d8
 - 小程序名称: 千里学堂 / KnowYea
 - GitHub: https://github.com/Ryan4AI/KnowYea
-- 项目目录: /home/admin/workspace/knowyea/
+- 项目目录: /home/admin/workspace/OneStep/

@@ -4,7 +4,7 @@
     "jest": "^30.4.2",
     "miniprogram-ci": "^2.1.31"
   },
-  "name": "knowyea",
+  "name": "onestep",
   "version": "1.0.0",
   "description": "> 每天几分钟，慢慢变强",
   "main": "index.js",
