@@ -393,6 +393,14 @@ Page({
           const data = result.data || {}
           const { pointsEarned = 10, isCourseComplete } = data
           const achievements = data.achievements || []
+          const ACH_NAMES = {
+            first_lesson: { name: '初学乍道', desc: '完成第一个课时', icon: '🌱' },
+            five_lessons: { name: '三心二意', desc: '完成 5 个课时', icon: '🎯' },
+            ten_lessons: { name: '十全十美', desc: '完成 10 个课时', icon: '🏆' },
+            streak_3: { name: '持之以恒', desc: '连续学习 3 天', icon: '🔥' },
+            streak_7: { name: '连胜达人', desc: '连续学习 7 天', icon: '⚡' },
+            first_course: { name: '有始有终', desc: '完成第一个课程', icon: '🎓' },
+          }
           lightVibrate()
           wx.showModal({
             title: '🎉 课时完成！',
@@ -401,9 +409,10 @@ Page({
             success: () => {
               if (achievements.length > 0) {
                 const ach = achievements[0]
+                const meta = ACH_NAMES[ach.type] || { name: ach.type, desc: '', icon: '🏅' }
                 this.setData({
                   showAchievementPopup: true,
-                  currentAchievement: { id: ach.type, name: ach.title || '初学乍道', description: '完成第一个课时', icon: '🌱' },
+                  currentAchievement: { id: ach.type, name: meta.name, description: meta.desc, icon: meta.icon },
                 })
               }
               if (isCourseComplete) wx.showToast({ title: '🎊 课程完成！', icon: 'none' })
