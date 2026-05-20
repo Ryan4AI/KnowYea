@@ -52,26 +52,26 @@
           <button
             class="action-btn action-resolved"
             wx:if="{{item.status !== 'resolved'}}"
-            bindtap="onUpdateStatus"
+            catchtap="onUpdateStatus"
             data-id="{{item._id}}"
             data-status="resolved"
-            data-stop
+           
           >✅ 已处理</button>
           <button
             class="action-btn action-wontfix"
             wx:if="{{item.status !== 'wontfix' && item.status !== 'resolved'}}"
-            bindtap="onUpdateStatus"
+            catchtap="onUpdateStatus"
             data-id="{{item._id}}"
             data-status="wontfix"
-            data-stop
+           
           >⏸ 暂不处理</button>
           <button
             class="action-btn action-viewed"
             wx:if="{{item.status === 'new'}}"
-            bindtap="onUpdateStatus"
+            catchtap="onUpdateStatus"
             data-id="{{item._id}}"
             data-status="viewed"
-            data-stop
+           
           >👀 标记已阅</button>
         </view>
       </view>

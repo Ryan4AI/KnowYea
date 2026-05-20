@@ -62,7 +62,6 @@ Page({
 
   onUpdateStatus(e) {
     const { id, status } = e.currentTarget.dataset
-    e.stopPropagation()
 
     wx.showLoading({ title: '更新中...' })
     wx.cloud.callFunction({
