@@ -10,15 +10,10 @@
   font-size: 88rpx;
   margin-bottom: 30rpx;
 }
-.splash-title {
-  font-size: 48rpx;
-  font-weight: 600;
-  color: var(--capsule-ink);
-  margin-bottom: 16rpx;
-}
 .splash-subtitle {
   font-size: 28rpx;
   color: var(--capsule-muted);
+  margin-top: 8rpx;
 }
 .loading-row {
   display: flex;
