@@ -70,7 +70,7 @@
 .cell-bar.level-2 { height: 36rpx; background: #a5b4fc; }
 .cell-bar.level-3 { height: 48rpx; background: #818cf8; }
 .cell-bar.level-4 { height: 60rpx; background: var(--capsule-accent); }
-.cell-bar.level-5 { height: 60rpx; background: #4f46e5; }
+.cell-bar.level-5 { height: 60rpx; background: var(--capsule-accent); }
 .cell-count { font-size: 20rpx; color: var(--capsule-muted); }
 
 /* 统计卡片 */

@@ -1,5 +1,9 @@
 <view class="page-container">
-  <view class="achievement-list">
+  <view class="loading" wx:if="{{achievements.length === 0}}">
+    <text class="loading-icon">🏆</text>
+    <text class="loading-text">加载中...</text>
+  </view>
+  <view class="achievement-list" wx:else>
     <view class="achievement-item {{item.unlocked ? 'unlocked' : 'locked'}}" wx:for="{{achievements}}" wx:key="id">
       <view class="achievement-icon">{{item.icon}}</view>
       <view class="achievement-info">

@@ -183,10 +183,6 @@ Page({
     }
   },
 
-  onAddTheme() {
-    wx.navigateTo({ url: '/pages/theme-store/theme-store' })
-  },
-
   confirmDeleteTheme(e) {
     const courseId = e.currentTarget.dataset.themeId
     const courseName = e.currentTarget.dataset.themeName || '该课程'

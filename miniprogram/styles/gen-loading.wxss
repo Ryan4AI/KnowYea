@@ -35,7 +35,7 @@
 
 .gen-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--capsule-accent), #8b5cf6);
+  background: linear-gradient(90deg, var(--capsule-accent), var(--capsule-accent-2));
   border-radius: 4rpx;
   transition: width 0.5s ease;
 }
