@@ -90,7 +90,7 @@ Page({
 
   onLoad(opts) {
     if (opts && opts.edit === '1') {
-      this.setData({ isEditing: true })
+      this.setData({ isEditing: true, showForm: true })
     }
     if (opts && opts.forceForm === '1') {
       this.setData({ showForm: true })
