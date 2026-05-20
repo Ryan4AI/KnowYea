@@ -12,7 +12,9 @@ function mdToHtml(text) {
 
 function processMessages(messages) {
   return (messages || []).map(msg => {
-    const content = (msg.content || '').replace(/<think>[\s\S]*?<\/think>/g, '').trim()
+    let content = (msg.content || '').replace(/<think>[\s\S]*?<\/think>/g, '').trim()
+    // 兜底清理：去掉 AI 回复末尾的 {"action":"complete",...} 元数据
+    content = content.replace(/\s*\{[\s\S]*?"action"[\s\S]*?\}\s*/g, '').trim()
     const blocks = parseMessageBlocks(content)
     blocks.forEach(b => {
       b._msgId = msg._id || msg.id

@@ -45,7 +45,7 @@ function callMiniMax(messages) {
 }
 
 function parseCompletion(aiReply) {
-  const result = { isCompleted: false, score: null }
+  const result = { isCompleted: false, score: null, cleanReply: aiReply }
   if (!aiReply) return result
   try {
     // 先剥离 <think> 标签，避免推理段里的花括号干扰匹配
@@ -55,6 +55,8 @@ function parseCompletion(aiReply) {
       const parsed = JSON.parse(match[0])
       if (parsed.action === 'complete') result.isCompleted = true
       if (typeof parsed.score === 'number') result.score = parsed.score
+      // 从回复中剥离 JSON 元数据，用户看不到 raw JSON
+      result.cleanReply = clean.replace(match[0], '').trim()
     }
   } catch (e) { /* ignore parse errors */ }
   return result
@@ -67,42 +69,30 @@ exports.main = async (event, context) => {
       const aiRes = await callMiniMax(event.miniMaxMessages)
       const aiReply = aiRes.choices?.[0]?.message?.content || ''
       if (!aiReply) return { success: false, error: 'AI 返回为空' }
-      const { isCompleted, score } = parseCompletion(aiReply)
-      const result = { success: true, aiReply, isCompleted, score }
+      const { isCompleted, score, cleanReply } = parseCompletion(aiReply)
 
-      // 保存消息到数据库（auto-message 只存 AI 回复，不存系统生成的用户消息）
+      // 保存消息到数据库（存纯净版，不含 action/score 元数据）
       if (event.openid && event.courseId && event.lessonId) {
         const now = Date.now()
-        // 用户真实发送的消息才保存
         if (!event.isAutoMessage && event.userText) {
           await db.collection('messages').add({
             data: {
-              openid: event.openid,
-              courseId: event.courseId,
-              lessonId: event.lessonId,
-              role: 'user',
-              content: event.userText,
-              sentAt: now,
-              createdAt: now,
-              updatedAt: now,
+              openid: event.openid, courseId: event.courseId, lessonId: event.lessonId,
+              role: 'user', content: event.userText,
+              sentAt: now, createdAt: now, updatedAt: now,
             }
           })
         }
-        // AI 回复统一保存（含 auto-message 的开场白）
         await db.collection('messages').add({
           data: {
-            openid: event.openid,
-            courseId: event.courseId,
-            lessonId: event.lessonId,
-            role: 'ai',
-            content: aiReply,
-            sentAt: now + 1,
-            createdAt: now + 1,
-            updatedAt: now + 1,
+            openid: event.openid, courseId: event.courseId, lessonId: event.lessonId,
+            role: 'ai', content: cleanReply,
+            sentAt: now + 1, createdAt: now + 1, updatedAt: now + 1,
           }
         })
       }
 
+      const result = { success: true, aiReply: cleanReply, isCompleted, score }
       return result
     } catch (e) {
       return { success: false, error: e.message }
@@ -174,40 +164,30 @@ ${lessonSummary}
     const aiReply = aiRes.choices?.[0]?.message?.content || ''
     if (!aiReply) return { success: false, error: 'AI 返回为空' }
 
+    // 解析完成标记（先解析再存库，保证 DB 里是纯净版）
+    const { isCompleted, score, cleanReply } = parseCompletion(aiReply)
+
     // 6. 写入消息
     const userMsgId = 'msg_user_' + now
     await db.collection('messages').add({
       data: {
-        _id: userMsgId,
-        openid,
-        courseId,
-        lessonId,
-        role: 'user',
-        content,
-        sentAt: now,
-        createdAt: now,
-        updatedAt: now,
+        _id: userMsgId, openid, courseId, lessonId,
+        role: 'user', content,
+        sentAt: now, createdAt: now, updatedAt: now,
       }
     })
 
     const aiMsgId = 'msg_ai_' + (now + 1)
     await db.collection('messages').add({
       data: {
-        _id: aiMsgId,
-        openid,
-        courseId,
-        lessonId,
-        role: 'ai',
-        content: aiReply,
-        sentAt: now + 1,
-        createdAt: now + 1,
-        updatedAt: now + 1,
+        _id: aiMsgId, openid, courseId, lessonId,
+        role: 'ai', content: cleanReply,
+        sentAt: now + 1, createdAt: now + 1, updatedAt: now + 1,
       }
     })
 
-    // 7. 返回 AI 回复（含完成标记和分数）
-    const { isCompleted, score } = parseCompletion(aiReply)
-    const result = { success: true, aiReply, isCompleted, score }
+    // 7. 返回 AI 回复
+    const result = { success: true, aiReply: cleanReply, isCompleted, score }
     return result
   } catch (e) {
     return { success: false, error: e.message }
