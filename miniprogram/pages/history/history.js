@@ -105,11 +105,9 @@ Page({
   },
 
   onItemTap(e) {
-    const { themeId, nodeId, courseId, lessonId } = e.currentTarget.dataset
-    const targetThemeId = courseId || themeId
-    const targetNodeId = lessonId || nodeId
-    if (!targetThemeId || !targetNodeId) return
-    app.setLearnContext({ themeId: targetThemeId, nodeId: targetNodeId, mode: 'review' })
+    const { courseId, lessonId } = e.currentTarget.dataset
+    if (!courseId || !lessonId) return
+    app.setLearnContext({ courseId, lessonId, mode: 'review' })
     wx.reLaunch({ url: '/pages/learn/learn' })
   },
 })

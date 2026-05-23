@@ -53,15 +53,28 @@
     </view>
   </view>
 
-  <!-- 生成完成弹窗 -->
+  <!-- 生成完成弹窗 — 大纲预览 -->
   <view class="gen-mask" wx:if="{{newTheme && !isGenerating}}">
-    <view class="gen-card">
-      <view style="font-size: 72rpx; margin-bottom: 16rpx;">✅</view>
-      <view class="gen-title">{{newTheme.name}}</view>
-      <view class="theme-desc-text">{{newTheme.desc}}</view>
-      <view class="theme-meta" wx:if="{{newTheme.nodesCount}}">共 {{newTheme.nodesCount}} 节课 · 每节 3-5 分钟</view>
-      <button class="gen-learn-btn" bindtap="onGoLearn">开始学习 →</button>
-      <button class="gen-again-btn" bindtap="onReset">再生成一个</button>
+    <view class="gen-card gen-card-outline">
+      <scroll-view scroll-y class="gen-outline-scroll">
+        <view style="font-size: 64rpx; margin-bottom: 12rpx; text-align: center;">✅</view>
+        <view class="gen-title" style="text-align: center;">{{newTheme.name}}</view>
+        <view class="theme-desc-text" style="text-align: center;">{{newTheme.desc}}</view>
+        <view class="theme-meta" style="text-align: center;" wx:if="{{newTheme.nodesCount}}">共 {{newTheme.nodesCount}} 节课</view>
+
+        <view class="outline-section">
+          <view class="outline-section-title">📋 课程大纲</view>
+          <view class="outline-lesson" wx:for="{{newTheme.lessons}}" wx:key="order" wx:for-item="lesson">
+            <view class="outline-lesson-num">第 {{lesson.order}} 课</view>
+            <view class="outline-lesson-title">{{lesson.title}}</view>
+            <view class="outline-lesson-desc">{{lesson.objective}}</view>
+          </view>
+        </view>
+      </scroll-view>
+      <view class="gen-outline-actions">
+        <button class="gen-learn-btn" bindtap="onGoLearn">开始学习 →</button>
+        <button class="gen-again-btn" bindtap="onReset">重新生成</button>
+      </view>
     </view>
   </view>
 </view>

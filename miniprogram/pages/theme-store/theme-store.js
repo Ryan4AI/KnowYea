@@ -93,10 +93,6 @@ Page({
           newTheme: result.theme,
         })
         wx.showToast({ title: '✅ 课程生成成功', icon: 'success' })
-        // 自动生成 → 去学习
-        if (this._autoGenerate) {
-          setTimeout(() => wx.redirectTo({ url: '/pages/learn/learn' }), 800)
-        }
       } else {
         this.setData({ isGenerating: false })
         wx.showToast({ title: result.error, icon: 'none' })
@@ -117,7 +113,7 @@ Page({
   onGoLearn() {
     const { newTheme } = this.data
     if (!newTheme) return
-    app.setLearnContext({ themeId: newTheme.id, mode: 'new' })
+    app.setLearnContext({ courseId: newTheme.id, mode: 'new' })
     wx.reLaunch({ url: '/pages/learn/learn' })
   },
 

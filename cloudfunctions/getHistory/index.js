@@ -14,43 +14,41 @@ exports.main = async (event, context) => {
       .limit(50)
       .get()
 
-    // 为每条记录补充课程名 + 课时名 + 课时序号
-    const enriched = []
-    for (const rec of histRes.data) {
-      let themeName = ''
-      let nodeTitle = ''
-      let nodeOrder = 0
-      let createdAt = rec.createdAt
-
-      // 查课程名
-      if (rec.courseId) {
-        try {
-          const courseRes = await db.collection('courses').doc(rec.courseId).get()
-          if (courseRes.data) {
-            themeName = courseRes.data.name || ''
-          }
-        } catch (_) {}
-      }
-
-      // 查课时名 + 序号
-      if (rec.lessonId) {
-        try {
-          const lessonRes = await db.collection('lessons').doc(rec.lessonId).get()
-          if (lessonRes.data) {
-            nodeTitle = lessonRes.data.title || ''
-            nodeOrder = lessonRes.data.order || 0
-          }
-        } catch (_) {}
-      }
-
-      enriched.push({
-        ...rec,
-        themeName,
-        nodeTitle,
-        nodeOrder: Number(nodeOrder),
-        completedAt: createdAt,
-      })
+    const records = histRes.data
+    if (records.length === 0) {
+      return { success: true, data: [] }
     }
+
+    // 收集所有需要查询的 courseId / lessonId
+    const courseIds = [...new Set(records.filter(r => r.courseId).map(r => r.courseId))]
+    const lessonIds = [...new Set(records.filter(r => r.lessonId).map(r => r.lessonId))]
+
+    // 并行批量查询
+    const [coursesRes, lessonsRes] = await Promise.all([
+      courseIds.length > 0
+        ? db.collection('courses').where({ _id: db.command.in(courseIds) }).get()
+        : Promise.resolve({ data: [] }),
+      lessonIds.length > 0
+        ? db.collection('lessons').where({ _id: db.command.in(lessonIds) }).get()
+        : Promise.resolve({ data: [] }),
+    ])
+
+    // 转成 Map 方便查找
+    const courseMap = new Map(coursesRes.data.map(c => [c._id, c]))
+    const lessonMap = new Map(lessonsRes.data.map(l => [l._id, l]))
+
+    // 组装
+    const enriched = records.map(rec => {
+      const course = rec.courseId ? courseMap.get(rec.courseId) : null
+      const lesson = rec.lessonId ? lessonMap.get(rec.lessonId) : null
+      return {
+        ...rec,
+        themeName: course?.name || '',
+        nodeTitle: lesson?.title || '',
+        nodeOrder: Number(lesson?.order || 0),
+        completedAt: rec.createdAt,
+      }
+    })
 
     return { success: true, data: enriched }
   } catch (e) {

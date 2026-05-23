@@ -61,7 +61,7 @@
 }
 
 .history-item:active {
-  background: #f8f8fa;
+  background: var(--capsule-bg);
 }
 
 /* 时间线圆点 */

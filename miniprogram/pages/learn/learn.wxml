@@ -15,6 +15,15 @@
     </view>
   </view>
 
+  <!-- 复习模式提示条（固定在导航栏下方，不会被滚动影响） -->
+  <view class="review-banner" wx:if="{{course && reviewMode}}">
+    <text class="review-icon">📖</text>
+    <view class="review-text">
+      <text class="review-title">复习模式</text>
+      <text class="review-desc">该课时已完成 · 发送消息可继续学习</text>
+    </view>
+  </view>
+
   <!-- 学习区域 -->
   <scroll-view class="messages-container" scroll-y="{{true}}" scroll-with-animation="{{true}}" upper-threshold="50" scroll-into-view="{{scrollIntoView}}" wx:if="{{course}}">
     <view class="messages-list" id="msg-list">

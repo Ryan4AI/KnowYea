@@ -89,3 +89,55 @@
 .section-desc { font-size: 26rpx; color: var(--capsule-muted); margin-bottom: 40rpx; line-height: 1.6; }
 .theme-desc-text { font-size: 26rpx; color: var(--capsule-ink-secondary); margin-bottom: 12rpx; padding: 0 20rpx; line-height: 1.5; }
 .theme-meta { font-size: 24rpx; color: var(--capsule-muted); margin-bottom: 32rpx; }
+
+/* 大纲预览弹窗 */
+.gen-card-outline {
+  width: 640rpx;
+  max-height: 80vh;
+  padding: 32rpx 24rpx 0;
+  overflow: hidden;
+}
+.gen-outline-scroll {
+  max-height: calc(80vh - 200rpx);
+  padding: 0 8rpx;
+}
+.outline-section {
+  margin-top: 24rpx;
+  border-top: 1px solid var(--capsule-border);
+  padding-top: 20rpx;
+}
+.outline-section-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--capsule-ink);
+  margin-bottom: 20rpx;
+}
+.outline-lesson {
+  background: var(--capsule-bg);
+  border-radius: 12rpx;
+  padding: 20rpx;
+  margin-bottom: 12rpx;
+}
+.outline-lesson-num {
+  font-size: 22rpx;
+  color: var(--capsule-accent);
+  font-weight: 500;
+  margin-bottom: 4rpx;
+}
+.outline-lesson-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--capsule-ink);
+  margin-bottom: 8rpx;
+}
+.outline-lesson-desc {
+  font-size: 24rpx;
+  color: var(--capsule-muted);
+  line-height: 1.5;
+}
+.gen-outline-actions {
+  width: 100%;
+  padding: 20rpx 0 24rpx;
+  border-top: 1px solid var(--capsule-border);
+  margin-top: 4rpx;
+}

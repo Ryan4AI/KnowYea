@@ -65,13 +65,24 @@ Page({
   },
 
   onShow() {
+    // 在 openid 延迟检查前先存好 learnContext（避免递归消费丢失）
+    const savedLearnCtx = app.consumeLearnContext()
+    this._savedCourseId = savedLearnCtx?.courseId || ''
+    this._savedLessonId = savedLearnCtx?.lessonId || ''
+
     if (!app.globalData.openid) {
       setTimeout(() => this.onShow(), 500)
       return
     }
     this.setData({ openid: app.globalData.openid, showSplash: false })
-    this.loadPageData({ courseId: this._courseIdFromUrl || '' })
+    this.loadPageData({
+      courseId: this._courseIdFromUrl || this._savedCourseId,
+      lessonId: this._savedLessonId,
+      mode: this._savedLessonId ? 'review' : '',
+    })
     delete this._courseIdFromUrl
+    delete this._savedCourseId
+    delete this._savedLessonId
   },
 
   loadPageData(context = {}) {
@@ -162,6 +173,7 @@ Page({
       plantPoints: user?.points || 0,
       isLearning: !!currentLesson,
       isLoading: !!currentLesson,
+      reviewMode: context.mode === 'review',
     })
 
     if (currentLesson) {
