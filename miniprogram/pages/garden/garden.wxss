@@ -107,7 +107,7 @@
   text-align: center; box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04);
 }
 .empty-text { font-size: 26rpx; color: var(--capsule-muted); display: block; margin-bottom: 20rpx; }
-.empty-intro { font-size: 28rpx; color: #444; font-weight: 600; display: block; margin-bottom: 6rpx; }
+.empty-intro { font-size: 28rpx; color: var(--capsule-ink-secondary); font-weight: 600; display: block; margin-bottom: 6rpx; }
 .empty-sub { font-size: 24rpx; color: var(--capsule-muted); display: block; margin-bottom: 16rpx; }
 
 /* 添加课程按钮 */
