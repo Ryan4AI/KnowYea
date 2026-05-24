@@ -53,9 +53,8 @@ describe('parseMessageBlocks', () => {
     const blocks = parseMessageBlocks(input)
     expect(blocks).toHaveLength(1)
     expect(blocks[0].type).toBe('choice')
-    expect(blocks[0].content).toContain('以下哪个是苹果？')
-    expect(blocks[0].content).toContain('A. 香蕉')
-    expect(blocks[0].content).toContain('B. 苹果')
+    expect(blocks[0].content).toBe('以下哪个是苹果？')
+    expect(blocks[0].options).toEqual(['香蕉', '苹果', '橙子'])
   })
 
   test('应该解析问答题', () => {
@@ -74,19 +73,21 @@ describe('parseMessageBlocks', () => {
   })
 
   test('应该解析不带引号的选择题', () => {
-    const input = '[题目 type=choice]\n1+1等于几？|2|3|4|1\n[/题目]'
+    const input = '[题目 type=choice]\n以下哪个选项正确反映了光的传播方式？\nA. 直线传播\nB. 曲线传播\nC. 螺旋传播\nD. 随机传播\n[/题目]'
     const blocks = parseMessageBlocks(input)
     expect(blocks).toHaveLength(1)
     expect(blocks[0].type).toBe('choice')
-    expect(blocks[0].content).toContain('1+1等于几？')
+    expect(blocks[0].content).toBe('以下哪个选项正确反映了光的传播方式？')
+    expect(blocks[0].options).toContain('直线传播')
   })
 
   test('应该解析带单引号的选择题', () => {
-    const input = "[题目 type='choice']\n以下哪个是水果？|苹果|桌子|石头|水\n[/题目]"
+    const input = "[题目 type='choice']\n以下哪个是水果？\nA. 苹果\nB. 桌子\nC. 石头\nD. 水\n[/题目]"
     const blocks = parseMessageBlocks(input)
     expect(blocks).toHaveLength(1)
     expect(blocks[0].type).toBe('choice')
-    expect(blocks[0].content).toContain('以下哪个是水果？')
+    expect(blocks[0].content).toBe('以下哪个是水果？')
+    expect(blocks[0].options).toContain('苹果')
   })
 
   test('应该混合解析多种标签', () => {
