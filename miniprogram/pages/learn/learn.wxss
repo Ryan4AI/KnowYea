@@ -188,7 +188,7 @@
   border-radius: 10rpx;
   overflow: hidden;
   font-size: 24rpx;
-  background: #fff;
+  background: var(--capsule-surface);
 }
 .table-header {
   background: var(--capsule-bg);
@@ -308,7 +308,7 @@
 .welcome-desc { font-size: 28rpx; color: var(--capsule-muted); margin-top: 8rpx; }
 
 /* ===== 通用 ===== */
-.tap-scale-hover { opacity: 0.7; }
+.tap-scale-hover { transform: scale(0.97); opacity: 0.92; }
 
 /* 复习模式提示条 */
 .review-banner {

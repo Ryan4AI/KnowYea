@@ -51,7 +51,7 @@
   box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04);
 }
 .streak-icon { font-size: 32rpx; margin-right: 10rpx; }
-.streak-text { font-size: 24rpx; color: #c2410c; }
+.streak-text { font-size: 24rpx; color: var(--capsule-warm); }
 
 /* 本周学习日历 */
 .timeline-section { margin: 20rpx 24rpx; background: var(--capsule-surface); border-radius: 16rpx; padding: 24rpx; box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04); }
