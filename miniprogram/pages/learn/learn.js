@@ -355,7 +355,7 @@ Page({
   },
 
   manualAdvance() {
-    const { course, lesson } = this.data
+    const { course, lesson, messages } = this.data
     if (!course || !lesson) return
     const lessons = course.lessons || []
     const currentIdx = lessons.findIndex(l => l._id === lesson._id)
@@ -368,7 +368,7 @@ Page({
     wx.showLoading({ title: '进入下一节' })
     wx.cloud.callFunction({
       name: 'completeLesson',
-      data: { openid: app.globalData.openid, courseId: course._id, lessonId: lesson._id },
+      data: { openid: app.globalData.openid, courseId: course._id, lessonId: lesson._id, messages },
       success: () => {
         this.switchToLesson(nextLesson._id)
         wx.hideLoading()
@@ -396,14 +396,14 @@ Page({
   },
 
   completeLesson() {
-    const { course, lesson, reviewMode } = this.data
+    const { course, lesson, messages, reviewMode } = this.data
     if (!course || !lesson) return
     if (reviewMode) { wx.showToast({ title: '复习模式不更新进度', icon: 'none' }); return }
 
     wx.showLoading({ title: '处理中...' })
     wx.cloud.callFunction({
       name: 'completeLesson',
-      data: { openid: app.globalData.openid, courseId: course._id, lessonId: lesson._id },
+      data: { openid: app.globalData.openid, courseId: course._id, lessonId: lesson._id, messages },
       success: res => {
         wx.hideLoading()
         const result = res.result
